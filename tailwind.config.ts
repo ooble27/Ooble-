@@ -48,10 +48,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "accent-soft": "hsl(var(--accent-soft))",
+        "accent-ink": "hsl(var(--accent-ink))",
+        butter: "hsl(var(--butter))",
+        "butter-ink": "hsl(var(--butter-ink))",
+        lilac: "hsl(var(--lilac))",
+        "lilac-ink": "hsl(var(--lilac-ink))",
       },
       fontFamily: {
-        display: ["Inter", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ['"Fraunces"', "Georgia", "serif"],
+        body: ['"Inter"', "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

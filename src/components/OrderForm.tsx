@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Info, Lock } from "lucide-react";
+import { ArrowRight, Info, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DEMO_RATES, RATE_LOCK_MINUTES, formatCad, formatUsdt } from "@/lib/rates";
 import type { OrderSide, UsdtNetwork } from "@/lib/types";
 
 const networks: { id: UsdtNetwork; label: string; hint: string }[] = [
-  { id: "trc20", label: "TRC20", hint: "Réseau Tron — frais très bas, rapide" },
-  { id: "erc20", label: "ERC20", hint: "Réseau Ethereum — compatible partout" },
+  { id: "trc20", label: "TRC20", hint: "Tron — frais très bas" },
+  { id: "erc20", label: "ERC20", hint: "Ethereum — compatible partout" },
 ];
 
 interface OrderFormProps {
@@ -27,26 +27,38 @@ const OrderForm = ({ side }: OrderFormProps) => {
   const usdtAmount = isBuy ? value / rate : value;
 
   return (
-    <div className="rounded-3xl border bg-card p-6 shadow-panel sm:p-8">
+    <div className="rounded-[2rem] border bg-card p-6 shadow-lift sm:p-7">
+      <div className="flex items-center justify-between">
+        <span className="font-display text-lg font-semibold tracking-tight">
+          {isBuy ? "Ordre d'achat" : "Ordre de vente"}
+        </span>
+        <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-ink">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          Taux en direct
+        </span>
+      </div>
+
       {/* Montant */}
-      <label className="text-sm font-medium">
-        {isBuy ? "Montant à payer (CAD)" : "Montant à vendre (USDT)"}
+      <label className="mt-5 block text-sm font-medium text-muted-foreground">
+        {isBuy ? "Montant à payer" : "Montant à vendre"}
       </label>
-      <div className="mt-2 flex items-baseline gap-2 rounded-2xl border bg-background p-4 transition-colors focus-within:border-foreground">
+      <div className="mt-2 flex items-center gap-2 rounded-2xl border bg-background/60 p-4 transition-colors focus-within:border-foreground">
         <input
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
           inputMode="decimal"
-          className="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none"
+          className="w-full bg-transparent font-display text-3xl font-semibold tracking-tight outline-none"
           placeholder="0"
         />
-        <span className="font-semibold text-muted-foreground">
+        <span className="shrink-0 rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold">
           {isBuy ? "CAD" : "USDT"}
         </span>
       </div>
 
       {/* Réseau */}
-      <label className="mt-6 block text-sm font-medium">Réseau USDT</label>
+      <label className="mt-6 block text-sm font-medium text-muted-foreground">
+        Réseau USDT
+      </label>
       <div className="mt-2 grid grid-cols-2 gap-3">
         {networks.map((n) => (
           <button
@@ -57,11 +69,11 @@ const OrderForm = ({ side }: OrderFormProps) => {
               "rounded-2xl border p-4 text-left transition-all",
               network === n.id
                 ? "border-foreground bg-secondary/70 shadow-soft"
-                : "bg-background hover:border-muted-foreground/40",
+                : "bg-background/60 hover:border-muted-foreground/40",
             )}
           >
             <span className="font-semibold">{n.label}</span>
-            <p className="mt-1 text-xs text-muted-foreground">{n.hint}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{n.hint}</p>
           </button>
         ))}
       </div>
@@ -69,75 +81,73 @@ const OrderForm = ({ side }: OrderFormProps) => {
       {/* Destination */}
       {isBuy ? (
         <>
-          <label className="mt-6 block text-sm font-medium">
+          <label className="mt-6 block text-sm font-medium text-muted-foreground">
             Votre adresse wallet ({network.toUpperCase()})
           </label>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value.trim())}
             placeholder={network === "trc20" ? "T..." : "0x..."}
-            className="mt-2 w-full rounded-2xl border bg-background p-4 font-mono text-sm outline-none transition-colors focus:border-foreground"
+            className="mt-2 w-full rounded-2xl border bg-background/60 p-4 font-mono text-sm outline-none transition-colors focus:border-foreground"
           />
           <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Les USDT seront envoyés directement à cette adresse. Vérifiez-la
-            attentivement : une transaction blockchain est irréversible.
+            Les USDT seront envoyés directement à cette adresse. Une
+            transaction blockchain est irréversible.
           </p>
         </>
       ) : (
         <>
-          <label className="mt-6 block text-sm font-medium">
-            Votre courriel Interac (pour recevoir le paiement CAD)
+          <label className="mt-6 block text-sm font-medium text-muted-foreground">
+            Votre courriel Interac
           </label>
           <input
             value={interacEmail}
             onChange={(e) => setInteracEmail(e.target.value.trim())}
             type="email"
             placeholder="vous@exemple.ca"
-            className="mt-2 w-full rounded-2xl border bg-background p-4 text-sm outline-none transition-colors focus:border-foreground"
+            className="mt-2 w-full rounded-2xl border bg-background/60 p-4 text-sm outline-none transition-colors focus:border-foreground"
           />
           <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            L'adresse de dépôt USDT vous sera fournie à la création de
-            l'ordre. Le e-Transfer part dès la confirmation on-chain.
+            L'adresse de dépôt USDT vous sera fournie à la création de l'ordre.
           </p>
         </>
       )}
 
       {/* Résumé */}
-      <div className="mt-6 space-y-2.5 rounded-2xl bg-secondary/70 p-4 text-sm">
+      <div className="mt-6 space-y-3 rounded-2xl bg-secondary/70 p-4 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Taux verrouillé</span>
           <span className="font-medium">1 USDT = {formatCad(rate)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Vous recevez</span>
-          <span className="font-semibold text-emerald-600">
+          <span className="font-display text-lg font-semibold tracking-tight text-accent-ink">
             {isBuy ? formatUsdt(usdtAmount) : formatCad(cadAmount)}
           </span>
         </div>
-        <div className="flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between border-t border-dashed pt-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <Lock className="h-3.5 w-3.5" /> Taux garanti {RATE_LOCK_MINUTES} minutes
+            <Lock className="h-3.5 w-3.5" /> Garanti {RATE_LOCK_MINUTES} min
           </span>
           <span>Frais inclus dans le taux</span>
         </div>
       </div>
 
-      {/* CTA */}
       <button
         type="button"
         onClick={() => setSubmitted(true)}
-        className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-85"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
       >
         {isBuy ? "Créer l'ordre d'achat" : "Créer l'ordre de vente"}
+        <ArrowRight className="h-4 w-4" />
       </button>
 
       {submitted && (
-        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-800">
+        <div className="mt-4 rounded-2xl border border-accent/30 bg-accent-soft p-4 text-sm leading-relaxed text-accent-ink">
           🚧 La création d'ordres ouvrira très bientôt. Il faudra un compte
-          vérifié (KYC) — l'authentification est la prochaine étape de la
-          plateforme.
+          vérifié (KYC) — l'authentification est la prochaine étape.
         </div>
       )}
     </div>

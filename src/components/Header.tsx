@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "./Logo";
 
@@ -13,21 +13,36 @@ const links = [
 
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 py-3">
-      <div className="container">
-        <div className="flex h-14 items-center justify-between rounded-full border bg-card/90 px-5 shadow-soft backdrop-blur-xl">
+    <header className="sticky top-0 z-50 px-4 pt-4">
+      <div className="container px-0">
+        <div
+          className={cn(
+            "flex h-14 items-center justify-between rounded-full border pl-5 pr-2 transition-all duration-300",
+            scrolled
+              ? "border-border bg-card/85 shadow-soft backdrop-blur-xl"
+              : "border-transparent bg-transparent",
+          )}
+        >
           <Logo />
 
-          <nav className="hidden items-center gap-7 md:flex">
+          <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
             {links.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                  "rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground",
                   pathname === link.to && "text-foreground",
                 )}
               >
@@ -39,14 +54,15 @@ const Header = () => {
           <div className="hidden md:block">
             <Link
               to="/acheter"
-              className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-85"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-primary py-2.5 pl-5 pr-4 text-sm font-semibold text-primary-foreground transition-all hover:gap-2.5"
             >
               Commencer
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <button
-            className="text-muted-foreground md:hidden"
+            className="p-2 text-foreground md:hidden"
             onClick={() => setOpen(!open)}
             aria-label="Menu"
           >
@@ -55,13 +71,13 @@ const Header = () => {
         </div>
 
         {open && (
-          <nav className="mt-2 rounded-2xl border bg-card p-3 shadow-soft md:hidden">
+          <nav className="mt-2 rounded-3xl border bg-card p-3 shadow-lift md:hidden">
             {links.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setOpen(false)}
-                className="block rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="block rounded-2xl px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
               >
                 {link.label}
               </Link>
@@ -69,7 +85,7 @@ const Header = () => {
             <Link
               to="/acheter"
               onClick={() => setOpen(false)}
-              className="mt-2 block rounded-full bg-primary px-5 py-2.5 text-center text-sm font-semibold text-primary-foreground"
+              className="mt-2 block rounded-full bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
             >
               Commencer
             </Link>
