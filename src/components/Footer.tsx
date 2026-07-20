@@ -23,7 +23,7 @@ const columns = [
 ];
 
 const Footer = () => (
-  <footer className="relative z-[1] border-t border-hair">
+  <footer className="border-t bg-secondary/40">
     <div className="mx-auto max-w-[1120px] px-6 py-16 sm:px-8">
       <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
@@ -35,7 +35,7 @@ const Footer = () => (
           </p>
           <Link
             to="/acheter"
-            className="mt-6 inline-flex items-center gap-1.5 rounded-[11px] bg-white px-5 py-2.5 text-sm font-bold text-[#141414] transition-transform hover:-translate-y-0.5"
+            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-green transition-transform hover:-translate-y-0.5"
           >
             Commencer <ArrowRight className="h-4 w-4" />
           </Link>
@@ -43,11 +43,11 @@ const Footer = () => (
 
         {columns.map((col) => (
           <div key={col.title}>
-            <h4 className="text-sm font-semibold text-white">{col.title}</h4>
+            <h4 className="font-display text-sm font-bold">{col.title}</h4>
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
               {col.links.map((link) => (
                 <li key={link.label}>
-                  <Link to={link.to} className="transition-colors hover:text-white">
+                  <Link to={link.to} className="transition-colors hover:text-foreground">
                     {link.label}
                   </Link>
                 </li>
@@ -57,7 +57,7 @@ const Footer = () => (
         ))}
       </div>
 
-      <div className="mt-14 flex flex-col gap-3 border-t border-hair pt-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-14 flex flex-col gap-3 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
           © {new Date().getFullYear()} Ooble. Tous droits réservés.
         </p>

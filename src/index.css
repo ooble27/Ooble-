@@ -4,34 +4,34 @@
 
 @layer base {
   :root {
-    /* Charbon Ooble (repris de l'ADN Terex) */
-    --background: 0 0% 10.2%;      /* #1a1a1a */
-    --foreground: 0 0% 100%;
-    --card: 0 0% 11.8%;            /* #1e1e1e */
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 11.8%;
-    --popover-foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 156 24% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 156 24% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 156 24% 8%;
 
-    /* Boutons blancs (texte sombre) */
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 8%;
+    /* Vert émeraude Ooble */
+    --primary: 152 76% 39%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 17.6%;       /* #2d2d2d */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 14.1%;           /* #242424 */
-    --muted-foreground: 0 0% 55%;
+    --secondary: 150 24% 96%;
+    --secondary-foreground: 156 24% 8%;
+    --muted: 150 20% 96%;
+    --muted-foreground: 155 8% 42%;
 
-    /* Accent turquoise Ooble (proche de la marque Terex #3B968F) */
-    --accent: 172 44% 41%;
+    --accent: 152 76% 39%;
     --accent-foreground: 0 0% 100%;
+    --accent-ink: 156 60% 24%;
+    --accent-tint: 150 60% 95%;
 
-    --destructive: 0 62% 45%;
+    --destructive: 6 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 17%;            /* hairline ≈ rgba(255,255,255,0.07) sur #1a1a1a */
-    --input: 0 0% 20%;
-    --ring: 172 44% 41%;
-    --radius: 0.85rem;
+    --border: 150 14% 91%;
+    --input: 150 14% 88%;
+    --ring: 152 76% 39%;
+    --radius: 1.25rem;
   }
 
   * {
@@ -40,85 +40,75 @@
 
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
   }
 
   body {
     @apply bg-background font-body text-foreground antialiased;
-    letter-spacing: -0.01em;
+  }
+
+  .font-display {
+    letter-spacing: -0.02em;
   }
 
   ::selection {
-    background: hsl(var(--accent) / 0.3);
+    background: hsl(var(--primary) / 0.2);
   }
 }
 
 @layer utilities {
-  /* Bordure hairline exacte (blanc translucide) */
-  .border-hair {
-    border-color: rgba(255, 255, 255, 0.08);
+  .text-accent-ink {
+    color: hsl(var(--accent-ink));
   }
-  .bg-icon {
-    background: rgba(255, 255, 255, 0.06);
-  }
-  .bg-elevated {
-    background: rgba(255, 255, 255, 0.02);
+  .bg-accent-tint {
+    background: hsl(var(--accent-tint));
   }
 
-  .text-accent-bright {
-    color: hsl(172 52% 55%);
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px rgb(16 40 28 / 0.04),
+      0 12px 28px -10px rgb(16 40 28 / 0.1);
+  }
+  .shadow-lift {
+    box-shadow:
+      0 2px 4px rgb(16 40 28 / 0.04),
+      0 32px 64px -20px rgb(16 40 28 / 0.2);
+  }
+  .shadow-green {
+    box-shadow: 0 12px 32px -8px hsl(152 76% 39% / 0.4);
   }
 
-  /* Lignes-guides verticales du conteneur */
-  .guide-lines::before,
-  .guide-lines::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: rgba(255, 255, 255, 0.05);
-    pointer-events: none;
-    z-index: 0;
+  .bg-mesh {
+    background:
+      radial-gradient(50% 45% at 82% 8%, hsl(152 76% 39% / 0.1), transparent 70%),
+      radial-gradient(45% 40% at 6% 20%, hsl(150 70% 60% / 0.1), transparent 70%);
   }
-  .guide-lines::before {
-    left: max(1rem, calc(50% - 560px));
-  }
-  .guide-lines::after {
-    right: max(1rem, calc(50% - 560px));
-  }
-  @media (max-width: 1180px) {
-    .guide-lines::before,
-    .guide-lines::after {
-      display: none;
-    }
+
+  .bg-grid-soft {
+    background-image:
+      linear-gradient(hsl(150 14% 91% / 0.7) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(150 14% 91% / 0.7) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, black 20%, transparent 100%);
   }
 
   @keyframes ooble-up {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(18px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .animate-up {
-    animation: ooble-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
+  .animate-up { animation: ooble-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
   @keyframes ooble-marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
   }
-  .animate-marquee {
-    animation: ooble-marquee 28s linear infinite;
-  }
+  .animate-marquee { animation: ooble-marquee 30s linear infinite; }
 
   .mask-fade-x {
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .animate-up,
-    .animate-marquee {
-      animation: none;
-    }
+    .animate-up, .animate-marquee { animation: none; }
   }
 }

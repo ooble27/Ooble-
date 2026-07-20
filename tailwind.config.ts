@@ -50,8 +50,8 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Poppins"', "system-ui", "sans-serif"],
-        body: ['"Poppins"', "system-ui", "sans-serif"],
+        display: ['"Bricolage Grotesque"', "system-ui", "sans-serif"],
+        body: ['"Inter"', "system-ui", "sans-serif"],
       },
       maxWidth: {
         container: "1120px",
