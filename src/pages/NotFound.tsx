@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 
 const NotFound = () => (
-  <div className="grain min-h-screen bg-background">
+  <div className="min-h-screen bg-background">
     <Header />
-    <div className="container flex flex-col items-center justify-center gap-4 py-40 text-center">
-      <p className="font-display text-7xl font-semibold tracking-tight">404</p>
+    <div className="mx-auto flex max-w-[1120px] flex-col items-center justify-center gap-4 px-6 py-48 text-center">
+      <p className="text-7xl font-extrabold tracking-tight">404</p>
       <p className="text-lg text-muted-foreground">Cette page n'existe pas.</p>
       <Link
         to="/"
-        className="mt-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        className="mt-2 inline-flex h-12 items-center rounded-xl bg-white px-6 text-sm font-bold text-[#141414] transition-transform hover:-translate-y-0.5"
       >
         Retour à l'accueil
       </Link>

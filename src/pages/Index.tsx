@@ -1,19 +1,28 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUpRight,
-  Banknote,
-  Check,
-  Fingerprint,
-  Lock,
-  Plus,
+  ChevronDown,
+  Clock,
+  Coins,
+  HandCoins,
+  KeyRound,
+  Repeat,
+  Shield,
   Wallet,
   Zap,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ExchangeWidget from "@/components/ExchangeWidget";
-import { formatCad } from "@/lib/rates";
+import TetherMark from "@/components/TetherMark";
+import { DEMO_RATES, formatCad } from "@/lib/rates";
+
+const actions = [
+  { icon: Coins, label: "Acheter", sub: "Achat rapide", to: "/acheter", full: false },
+  { icon: HandCoins, label: "Vendre", sub: "Vente rapide", to: "/vendre", full: false },
+  { icon: KeyRound, label: "Non-custodial", sub: "Vos clés, vos fonds", to: "/#comment", full: true },
+];
 
 const marquee = [
   "Interac e-Transfer",
@@ -26,540 +35,372 @@ const marquee = [
   "Dollar canadien",
 ];
 
-const pillars = [
-  {
-    icon: Wallet,
-    tint: "bg-accent-soft text-accent-ink",
-    title: "Non-custodial, vraiment",
-    description:
-      "Aucun solde ne dort chez Ooble. Chaque ordre est réglé directement vers votre wallet ou votre compte bancaire.",
-  },
-  {
-    icon: Banknote,
-    tint: "bg-butter text-butter-ink",
-    title: "Payé comme au Canada",
-    description:
-      "Interac e-Transfer à l'achat comme à la vente. L'outil que votre banque connaît déjà, sans frais surprise.",
-  },
-  {
-    icon: Lock,
-    tint: "bg-lilac text-lilac-ink",
-    title: "Le taux que vous voyez",
-    description:
-      "Verrouillé 15 minutes à la création de l'ordre. Le marché peut bouger pendant le paiement — votre prix, non.",
-  },
+const features = [
+  { icon: KeyRound, title: "Non-custodial", desc: "Aucun solde conservé. Chaque ordre est réglé directement vers votre wallet ou votre compte bancaire." },
+  { icon: Zap, title: "Règlement rapide", desc: "Achats et ventes traités en quelques minutes après la confirmation du paiement." },
+  { icon: Wallet, title: "Multi-réseaux", desc: "Recevez vos USDT sur TRC20 (Tron) ou ERC20 (Ethereum), au choix." },
+  { icon: Repeat, title: "Meilleur taux CAD", desc: "Un taux USDT/CAD transparent et compétitif, verrouillé 15 minutes par ordre." },
+  { icon: Shield, title: "Sécurité & KYC", desc: "Vérification d'identité et conformité canadienne pour protéger vos fonds." },
+  { icon: Clock, title: "Support réactif", desc: "Une équipe disponible pour vous accompagner à chaque étape." },
 ];
 
-const workflow = [
-  {
-    step: "01",
-    title: "Créez l'ordre",
-    description:
-      "Montant, réseau, destination. Le taux CAD/USDT se verrouille pour 15 minutes.",
-    visual: (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between rounded-2xl border bg-card px-4 py-3 shadow-soft">
-          <div>
-            <p className="text-[11px] text-muted-foreground">Vous payez</p>
-            <p className="font-display text-lg font-semibold tracking-tight">500,00 $</p>
-          </div>
-          <span className="rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold">CAD</span>
-        </div>
-        <div className="flex items-center justify-between rounded-2xl border bg-card px-4 py-3 shadow-soft">
-          <div>
-            <p className="text-[11px] text-muted-foreground">Vous recevez</p>
-            <p className="font-display text-lg font-semibold tracking-tight">351,00</p>
-          </div>
-          <span className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold text-accent-foreground">
-            USDT
-          </span>
-        </div>
-      </div>
-    ),
-  },
-  {
-    step: "02",
-    title: "Payez par Interac",
-    description:
-      "Un e-Transfer depuis votre banque, comme n'importe quel virement. Confirmé à réception.",
-    visual: (
-      <div className="rounded-2xl border bg-card p-4 shadow-soft">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          Méthode de paiement
-        </p>
-        <div className="mt-2.5 flex items-center justify-between rounded-xl border bg-background/60 px-3.5 py-3">
-          <span className="text-sm font-semibold">Interac e-Transfer</span>
-          <span className="text-[11px] font-medium text-accent-ink">Sans frais</span>
-        </div>
-        <div className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
-          <Check className="h-3.5 w-3.5 text-accent-ink" strokeWidth={3} />
-          Réception détectée automatiquement
-        </div>
-      </div>
-    ),
-  },
-  {
-    step: "03",
-    title: "Recevez vos USDT",
-    description:
-      "L'envoi part on-chain vers votre adresse. Le hash de transaction sert de reçu.",
-    visual: (
-      <div className="rounded-2xl border bg-card p-4 shadow-soft">
-        <div className="flex items-center justify-between">
-          <span className="font-display text-lg font-semibold tracking-tight">351,00 USDT</span>
-          <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent-ink">
-            Complété
-          </span>
-        </div>
-        <p className="mt-2 truncate font-mono text-[11px] text-muted-foreground">
-          tx : 7f3a2b…c92e
-        </p>
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full w-full rounded-full bg-accent" />
-        </div>
-      </div>
-    ),
-  },
+const networks = [
+  { name: "Tron", sub: "TRC20", glyph: "T", tint: "text-red-400" },
+  { name: "Ethereum", sub: "ERC20", glyph: "Ξ", tint: "text-indigo-300" },
+];
+
+const why = [
+  { icon: KeyRound, title: "Vos fonds restent à vous", desc: "Le modèle non-custodial élimine le risque d'un solde gelé : rien ne dort chez Ooble." },
+  { icon: Zap, title: "Ordres instantanés", desc: "Confirmés en quelques minutes, à toute heure, dès réception du paiement." },
+  { icon: Coins, title: "Prix compétitifs", desc: "Un taux USDT/CAD transparent, frais inclus, sans coût caché." },
+  { icon: Shield, title: "KYC rapide", desc: "Vérification d'identité simple pour démarrer en quelques minutes." },
+  { icon: Wallet, title: "Interface claire", desc: "Une expérience fluide, pensée pour aller à l'essentiel." },
+  { icon: Clock, title: "Toujours disponible", desc: "Créez un ordre quand vous voulez — la plateforme est ouverte 24/7." },
 ];
 
 const steps = [
-  {
-    icon: Fingerprint,
-    title: "Compte vérifié",
-    description: "Inscription et vérification d'identité en quelques minutes, une seule fois.",
-  },
-  {
-    icon: Zap,
-    title: "Ordre au taux verrouillé",
-    description: "Montant, réseau, destination : le taux est garanti 15 minutes.",
-  },
-  {
-    icon: Wallet,
-    title: "Règlement direct",
-    description: "USDT dans votre wallet, ou CAD dans votre compte. Rien ne reste chez Ooble.",
-  },
+  { n: "1", title: "Créez votre compte", desc: "Inscription en quelques secondes, vérification rapide de votre identité." },
+  { n: "2", title: "Choisissez votre opération", desc: "Achat ou vente — entrez le montant et sélectionnez votre réseau." },
+  { n: "3", title: "Réglé directement", desc: "Vos USDT arrivent dans votre wallet, ou vos CAD dans votre compte Interac." },
 ];
 
 const faqs = [
-  {
-    question: "Qu'est-ce que « non-custodial » veut dire ?",
-    answer:
-      "Ooble ne conserve aucun solde pour ses clients. Quand vous achetez, les USDT sont envoyés directement sur l'adresse wallet que vous fournissez. Quand vous vendez, le paiement CAD est envoyé directement à votre compte via Interac. Vos fonds ne dorment jamais sur la plateforme.",
-  },
-  {
-    question: "Quels réseaux sont supportés pour l'USDT ?",
-    answer:
-      "TRC20 (réseau Tron, frais très bas) et ERC20 (réseau Ethereum, compatible avec la majorité des wallets). Vous choisissez le réseau à la création de l'ordre.",
-  },
-  {
-    question: "Combien de temps prend une transaction ?",
-    answer:
-      "Le taux est verrouillé 15 minutes, le temps d'envoyer votre e-Transfer. Une fois le paiement confirmé, l'envoi des USDT part généralement en quelques minutes.",
-  },
-  {
-    question: "Pourquoi dois-je vérifier mon identité ?",
-    answer:
-      "L'échange entre dollars canadiens et cryptoactifs est une activité encadrée au Canada (FINTRAC). La vérification d'identité est obligatoire — elle se fait une seule fois, en quelques minutes.",
-  },
-  {
-    question: "Quels sont les frais ?",
-    answer:
-      "Le taux affiché inclut la marge d'Ooble — ce que vous voyez est ce que vous obtenez. Aucun frais surprise au moment de payer.",
-  },
+  { q: "Qu'est-ce que « non-custodial » veut dire ?", a: "Ooble ne conserve aucun solde. À l'achat, les USDT sont envoyés directement sur votre adresse wallet ; à la vente, le paiement CAD part directement vers votre compte via Interac. Vos fonds ne dorment jamais sur la plateforme." },
+  { q: "Comment acheter des USDT ?", a: "Entrez le montant en CAD, choisissez votre réseau et votre adresse wallet, puis payez par Interac e-Transfer. Vos USDT arrivent en quelques minutes." },
+  { q: "Quels réseaux sont supportés ?", a: "TRC20 (Tron) pour des frais très bas, et ERC20 (Ethereum) pour une compatibilité maximale avec les wallets." },
+  { q: "Comment vendre mes USDT ?", a: "Indiquez le montant, votre réseau d'envoi et votre courriel Interac. Vous recevez votre paiement CAD dès la confirmation on-chain." },
+  { q: "Quels sont les frais ?", a: "Le taux affiché inclut la marge d'Ooble — ce que vous voyez est ce que vous obtenez. Aucun frais surprise au moment de payer." },
+  { q: "Pourquoi vérifier mon identité ?", a: "L'échange entre dollars canadiens et cryptoactifs est encadré au Canada (FINTRAC). La vérification est obligatoire et se fait une seule fois, en quelques minutes." },
 ];
 
-const Index = () => (
-  <div className="grain min-h-screen bg-background">
-    <Header />
+const Wrap = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+  <div className={`mx-auto max-w-[1120px] px-6 sm:px-8 ${className}`}>{children}</div>
+);
 
-    <main className="relative">
-      {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden">
-        <div className="bg-halo absolute inset-0" aria-hidden />
-        <div className="container relative grid items-center gap-14 pb-20 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:pb-28 lg:pt-16">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border bg-card/70 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur">
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] text-accent-foreground">
-                ✦
-              </span>
-              Non-custodial · Interac e-Transfer · 🇨🇦
-            </span>
+const SectionHead = ({
+  eyebrow,
+  title,
+  sub,
+  center,
+}: {
+  eyebrow: string;
+  title: string;
+  sub?: string;
+  center?: boolean;
+}) => (
+  <div className={`mb-9 ${center ? "text-center" : ""}`}>
+    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+      {eyebrow}
+    </p>
+    <h2 className="mt-2.5 text-[1.9rem] font-extrabold leading-[1.1] tracking-tight sm:text-[2.1rem]">
+      {title}
+    </h2>
+    {sub && (
+      <p className={`mt-3 text-[15px] text-muted-foreground ${center ? "" : "max-w-lg"}`}>
+        {sub}
+      </p>
+    )}
+  </div>
+);
 
-            <h1 className="mt-6 font-display text-[2.75rem] font-semibold leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.1rem]">
-              Vos USDT en dollars
-              <br />
-              canadiens,{" "}
-              <span className="italic text-accent-ink [font-variation-settings:'opsz'_20]">
-                réglés en direct
-              </span>
-              .
-            </h1>
+const Index = () => {
+  const [faqOpen, setFaqOpen] = useState<number | null>(0);
 
-            <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-              Achetez et vendez des USDT par Interac. Chaque ordre part
-              directement vers votre wallet — jamais un solde qui traîne chez
-              nous.
+  return (
+    <div className="guide-lines min-h-screen bg-background">
+      <Header />
+      <div className="h-16" />
+
+      <main className="relative z-[1]">
+        {/* ===== HERO ===== */}
+        <header className="relative">
+          <Wrap className="pb-16 pt-16 sm:pt-20">
+            <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+              {/* Texte */}
+              <div className="animate-up">
+                <span className="inline-flex items-center gap-2 rounded-full border border-hair bg-white/[0.03] px-3.5 py-1.5 text-xs font-medium text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[hsl(172_44%_46%)]" />
+                  Non-custodial · Interac e-Transfer · 🇨🇦
+                </span>
+                <h1 className="mt-5 text-[2.4rem] font-extrabold leading-[1.04] tracking-[-0.035em] sm:text-[3.4rem]">
+                  Achetez et vendez
+                  <br />
+                  des USDT en CAD
+                </h1>
+                <p className="mt-5 max-w-md text-[17px] leading-relaxed text-muted-foreground">
+                  Achat et vente de USDT en quelques minutes. Rapide, sécurisé,
+                  au meilleur taux canadien — et vos fonds vont directement dans
+                  votre wallet.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/acheter"
+                    className="inline-flex h-[50px] items-center gap-2 rounded-xl bg-white px-7 text-[15px] font-bold text-[#141414] transition-transform hover:-translate-y-0.5"
+                  >
+                    Commencer <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <a
+                    href="#comment"
+                    className="inline-flex h-[50px] items-center rounded-xl border border-hair bg-secondary px-6 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
+                  >
+                    Comment ça marche
+                  </a>
+                </div>
+              </div>
+
+              {/* App directement sur le fond : taux + actions */}
+              <div className="animate-up">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                  Taux USDT / CAD · en direct
+                </p>
+                <div className="mb-7 flex items-center justify-between">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[3.2rem] font-bold leading-none tracking-[-1.5px]">
+                      {formatCad(DEMO_RATES.buy).replace("$", "").trim()}
+                    </span>
+                    <span className="text-base font-semibold text-muted-foreground">CAD</span>
+                  </div>
+                  <TetherMark className="h-12 w-12 opacity-90" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {actions.map(({ icon: Icon, label, sub, to, full }) => (
+                    <Link
+                      key={label}
+                      to={to}
+                      className={`group rounded-[18px] border border-hair p-[18px] text-left transition-all hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.02] ${
+                        full ? "col-span-2" : ""
+                      }`}
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="flex h-[42px] w-[42px] items-center justify-center rounded-[13px] bg-icon">
+                          <Icon className="h-5 w-5 text-white/85" strokeWidth={1.8} />
+                        </span>
+                        <ArrowUpRight className="h-4 w-4 text-white/20 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </div>
+                      <p className="text-[15px] font-semibold">{label}</p>
+                      <p className="text-xs text-muted-foreground">{sub}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Wrap>
+
+          {/* Marquee */}
+          <div className="border-y border-hair py-4">
+            <div className="mask-fade-x flex overflow-hidden">
+              <div className="flex shrink-0 animate-marquee items-center gap-14 pr-14">
+                {[...marquee, ...marquee].map((item, i) => (
+                  <span
+                    key={i}
+                    className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-muted-foreground"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[hsl(172_44%_46%)]/60" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* ===== FEATURES (grille bordée) ===== */}
+        <section id="features" className="border-t border-hair">
+          <Wrap className="py-[72px]">
+            <SectionHead
+              eyebrow="Fonctionnalités"
+              title="Tout ce qu'il vous faut pour vos USDT"
+              sub="Une plateforme simple pour acheter et vendre vos USDT, sans jamais lâcher vos clés."
+            />
+            <div className="grid border-l border-t border-hair sm:grid-cols-2 lg:grid-cols-3">
+              {features.map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="border-b border-r border-hair p-7">
+                  <span className="mb-4 flex h-[42px] w-[42px] items-center justify-center rounded-xl bg-icon">
+                    <Icon className="h-5 w-5 text-white/85" strokeWidth={1.8} />
+                  </span>
+                  <h3 className="text-base font-semibold">{title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">
+                    {desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== RÉSEAUX ===== */}
+        <section id="networks" className="border-t border-hair">
+          <Wrap className="py-[72px]">
+            <SectionHead
+              eyebrow="Réseaux"
+              title="Recevez vos USDT sur le réseau de votre choix"
+              sub="Deux réseaux éprouvés, sélectionnés à la création de votre ordre."
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {networks.map((n) => (
+                <div
+                  key={n.name}
+                  className="flex items-center gap-4 rounded-2xl border border-hair p-5 transition-colors hover:border-white/20"
+                >
+                  <span className={`flex h-12 w-12 items-center justify-center rounded-full bg-icon text-2xl font-bold ${n.tint}`}>
+                    {n.glyph}
+                  </span>
+                  <div>
+                    <p className="text-[15px] font-semibold">{n.name}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                      {n.sub}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== PAIEMENTS ===== */}
+        <section className="border-t border-hair">
+          <Wrap className="py-[72px]">
+            <SectionHead
+              eyebrow="Paiements"
+              title="Payez avec Interac e-Transfer"
+              sub="Le moyen de paiement que toutes les banques canadiennes connaissent, pour acheter comme pour être payé."
+            />
+            <div className="grid gap-3.5 sm:grid-cols-2">
+              <div className="flex items-center gap-4 rounded-[18px] border border-hair p-6">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-lg font-extrabold text-[#141414]">
+                  ⇄
+                </span>
+                <div>
+                  <p className="text-base font-semibold">Interac e-Transfer</p>
+                  <p className="text-sm text-muted-foreground">Achat et paiement instantanés</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 rounded-[18px] border border-hair p-6">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-icon text-lg font-bold">
+                  🏦
+                </span>
+                <div>
+                  <p className="text-base font-semibold">Virement bancaire</p>
+                  <p className="text-sm text-muted-foreground">Pour les gros montants · à venir</p>
+                </div>
+              </div>
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== POURQUOI OOBLE ===== */}
+        <section className="border-t border-hair">
+          <Wrap className="py-[72px]">
+            <SectionHead
+              eyebrow="Pourquoi Ooble"
+              title="L'échange de USDT, sans jamais lâcher vos fonds"
+              sub="Une plateforme pensée pour la sécurité de vos fonds et la simplicité du paiement canadien."
+            />
+            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+              {why.map(({ icon: Icon, title, desc }) => (
+                <div
+                  key={title}
+                  className="rounded-[20px] border border-hair p-6 transition-transform hover:-translate-y-0.5"
+                >
+                  <span className="mb-[18px] flex h-11 w-11 items-center justify-center rounded-[13px] bg-icon">
+                    <Icon className="h-[21px] w-[21px] text-white/90" strokeWidth={1.8} />
+                  </span>
+                  <h3 className="text-[16.5px] font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== COMMENT ÇA MARCHE ===== */}
+        <section id="comment" className="border-t border-hair">
+          <Wrap className="py-[72px]">
+            <SectionHead
+              eyebrow="Comment ça marche"
+              title="Démarrez en 3 étapes"
+              sub="De l'inscription au règlement, tout est pensé pour aller vite."
+            />
+            <div className="grid gap-5 sm:grid-cols-3">
+              {steps.map(({ n, title, desc }) => (
+                <div key={n}>
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-hair bg-icon text-[15px] font-bold">
+                    {n}
+                  </div>
+                  <h3 className="text-base font-semibold">{title}</h3>
+                  <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">
+                    {desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== FAQ ===== */}
+        <section id="faq" className="border-t border-hair">
+          <div className="mx-auto max-w-[760px] px-6 py-[72px] sm:px-8">
+            <SectionHead eyebrow="FAQ" title="Questions fréquentes" center />
+            <div>
+              {faqs.map((item, i) => {
+                const open = faqOpen === i;
+                return (
+                  <div key={i} className="border-b border-hair">
+                    <button
+                      onClick={() => setFaqOpen(open ? null : i)}
+                      className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                    >
+                      <span className={`text-[15px] font-medium ${open ? "text-white" : "text-white/80"}`}>
+                        {item.q}
+                      </span>
+                      <ChevronDown
+                        className={`h-[17px] w-[17px] shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    {open && (
+                      <p className="pb-5 text-sm leading-relaxed text-muted-foreground">
+                        {item.a}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ===== CTA ===== */}
+        <section className="border-t border-hair">
+          <Wrap className="py-[88px] text-center">
+            <h2 className="text-[2.1rem] font-extrabold tracking-tight sm:text-[2.4rem]">
+              Prêt à commencer ?
+            </h2>
+            <p className="mx-auto mt-3.5 max-w-md text-base text-muted-foreground">
+              Créez votre compte et échangez vos premiers USDT en quelques
+              minutes. Vos fonds vont directement là où ils doivent aller :
+              chez vous.
             </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link
                 to="/acheter"
-                className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:gap-3"
+                className="inline-flex h-[52px] items-center gap-2 rounded-xl bg-white px-8 text-base font-bold text-[#141414] transition-transform hover:-translate-y-0.5"
               >
-                Acheter des USDT
-                <ArrowRight className="h-4 w-4" />
+                Acheter des USDT <ArrowRight className="h-[17px] w-[17px]" />
               </Link>
               <Link
                 to="/vendre"
-                className="inline-flex items-center gap-2 rounded-full border bg-card/70 px-6 py-3.5 text-sm font-semibold backdrop-blur transition-colors hover:bg-card"
+                className="inline-flex h-[52px] items-center rounded-xl border border-hair bg-secondary px-8 text-base font-semibold text-white transition-colors hover:bg-white/10"
               >
                 Vendre des USDT
               </Link>
             </div>
+          </Wrap>
+        </section>
+      </main>
 
-            <div className="mt-10 flex items-center gap-5">
-              <div className="flex -space-x-2.5">
-                {[
-                  "bg-accent-soft text-accent-ink",
-                  "bg-butter text-butter-ink",
-                  "bg-lilac text-lilac-ink",
-                  "bg-secondary text-foreground",
-                ].map((c, i) => (
-                  <span
-                    key={i}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-background text-[11px] font-semibold ${c}`}
-                  >
-                    {["JT", "MK", "AD", "SL"][i]}
-                  </span>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">1 200+</span> ordres
-                réglés directement vers des wallets canadiens
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-center lg:justify-end">
-            <ExchangeWidget />
-          </div>
-        </div>
-
-        {/* Marquee */}
-        <div className="relative border-y bg-card/50 py-4">
-          <div className="flex overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
-            <div className="flex shrink-0 animate-marquee items-center gap-10 pr-10">
-              {[...marquee, ...marquee].map((item, i) => (
-                <span
-                  key={i}
-                  className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium text-muted-foreground"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent/60" />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== MANIFESTE / STATS ===== */}
-      <section className="border-b py-24">
-        <div className="container">
-          <div className="grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-20">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-ink">
-                Le principe
-              </p>
-              <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">
-                Un échange qui ne{" "}
-                <span className="italic">retient</span> jamais votre argent.
-              </h2>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-                La plupart des plateformes gardent vos fonds sur un compte
-                interne. Pas Ooble. Ici, chaque transaction est un ordre
-                autonome : vous payez, on livre, c'est clos. Rien à déposer,
-                rien à retirer.
-              </p>
-              <Link
-                to="/#comment"
-                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold hover:gap-2.5"
-              >
-                Voir le fonctionnement <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 self-center">
-              {[
-                { big: "0 $", label: "Solde conservé", sub: "Modèle ordre par ordre" },
-                { big: "15 min", label: "Taux garanti", sub: "Par ordre créé" },
-                { big: "2", label: "Réseaux USDT", sub: "TRC20 & ERC20" },
-                { big: "~4 min", label: "Règlement moyen", sub: "Après confirmation" },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-3xl border bg-card p-5 shadow-soft"
-                >
-                  <p className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                    {stat.big}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold">{stat.label}</p>
-                  <p className="text-xs text-muted-foreground">{stat.sub}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== PILIERS ===== */}
-      <section className="py-24">
-        <div className="container">
-          <div className="grid gap-6 md:grid-cols-3">
-            {pillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="group rounded-3xl border bg-card p-7 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift"
-              >
-                <span
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${pillar.tint}`}
-                >
-                  <pillar.icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-5 font-display text-xl font-semibold tracking-tight">
-                  {pillar.title}
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-                  {pillar.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== WORKFLOW ===== */}
-      <section id="comment" className="border-y bg-card/50 py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-ink">
-              Un flux, trois temps
-            </p>
-            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-[2.6rem]">
-              De l'ordre à votre wallet
-            </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Pas de dépôt préalable, pas de solde à surveiller. Juste des
-              ordres réglés directement.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-5 md:grid-cols-3">
-            {workflow.map((item) => (
-              <div
-                key={item.step}
-                className="flex flex-col rounded-3xl border bg-background p-6 shadow-soft"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-display text-sm font-semibold text-accent-ink">
-                    {item.step}
-                  </span>
-                  <span className="h-px flex-1 mx-3 bg-border" />
-                </div>
-                <div className="mt-5">{item.visual}</div>
-                <h3 className="mt-6 font-display text-xl font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== TRANSPARENCE / REÇU ===== */}
-      <section className="py-24">
-        <div className="container">
-          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
-            <div className="relative order-2 lg:order-1">
-              <div className="divider-dots absolute -inset-6 -z-10 rounded-[2rem] opacity-60" aria-hidden />
-              <div className="rounded-[2rem] border bg-card p-6 shadow-lift sm:p-8">
-                <div className="flex items-center justify-between">
-                  <p className="font-display text-lg font-semibold tracking-tight">
-                    Reçu de règlement
-                  </p>
-                  <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent-ink">
-                    <ArrowUpRight className="h-3.5 w-3.5" /> Complété
-                  </span>
-                </div>
-                <dl className="mt-6 space-y-4 text-sm">
-                  {[
-                    ["Montant payé", "500,00 $ CAD"],
-                    ["Taux verrouillé", formatCad(1.4245) + " / USDT"],
-                    ["USDT reçus", "351,00 USDT"],
-                    ["Réseau", "TRC20 · Tron"],
-                    ["Destination", "T•••92e"],
-                  ].map(([k, v]) => (
-                    <div
-                      key={k}
-                      className="flex items-center justify-between border-b border-dashed border-border pb-4 last:border-0 last:pb-0"
-                    >
-                      <dt className="text-muted-foreground">{k}</dt>
-                      <dd className="font-medium">{v}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <div className="mt-6 flex items-center gap-2 rounded-2xl bg-secondary/70 px-4 py-3 text-xs text-muted-foreground">
-                  <Check className="h-4 w-4 text-accent-ink" strokeWidth={3} />
-                  Vérifiable sur la blockchain — tx 7f3a2b…c92e
-                </div>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-ink">
-                Transparence
-              </p>
-              <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">
-                Sachez exactement où sont vos fonds,{" "}
-                <span className="italic">à chaque étape</span>.
-              </h2>
-              <p className="mt-6 max-w-md text-lg leading-relaxed text-muted-foreground">
-                Un ordre Ooble n'a pas de zone grise. Chaque étape est visible,
-                horodatée, et le règlement final est vérifiable directement
-                on-chain.
-              </p>
-              <ul className="mt-8 space-y-4">
-                {[
-                  "Taux verrouillé affiché avant de payer",
-                  "Suivi de l'ordre en temps réel",
-                  "Hash de transaction comme preuve de règlement",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                      <Check className="h-3 w-3" strokeWidth={3} />
-                    </span>
-                    <span className="text-sm text-foreground">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== ÉTAPES ===== */}
-      <section className="border-y bg-card/50 py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-[2.6rem]">
-              Trois étapes, c'est tout
-            </h2>
-          </div>
-          <div className="relative mx-auto mt-16 grid max-w-4xl gap-10 sm:grid-cols-3">
-            <span
-              className="absolute left-[16%] right-[16%] top-6 hidden border-t border-dashed border-border sm:block"
-              aria-hidden
-            />
-            {steps.map((step, index) => (
-              <div key={step.title} className="relative text-center">
-                <span className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border bg-background shadow-soft">
-                  <step.icon className="h-5 w-5 text-accent-ink" />
-                </span>
-                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Étape {index + 1}
-                </p>
-                <h3 className="mt-1.5 font-display text-lg font-semibold tracking-tight">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {step.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FAQ ===== */}
-      <section id="faq" className="py-24">
-        <div className="container grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-accent-ink">
-              FAQ
-            </p>
-            <h2 className="mt-4 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-              Ce qu'on nous demande le plus souvent
-            </h2>
-            <p className="mt-5 text-muted-foreground">
-              Une autre question ? Écrivez-nous, on répond vite.
-            </p>
-          </div>
-          <div className="space-y-3">
-            {faqs.map((faq) => (
-              <details
-                key={faq.question}
-                className="group rounded-3xl border bg-card px-6 py-5 shadow-soft transition-colors open:bg-card"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-semibold tracking-tight [&::-webkit-details-marker]:hidden">
-                  {faq.question}
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-transform group-open:rotate-45">
-                    <Plus className="h-4 w-4" />
-                  </span>
-                </summary>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {faq.answer}
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== CTA ===== */}
-      <section className="pb-24">
-        <div className="container">
-          <div className="relative overflow-hidden rounded-[2.5rem] bg-foreground px-8 py-16 text-center text-background sm:py-20">
-            <div
-              className="absolute inset-0 opacity-[0.14]"
-              style={{
-                backgroundImage:
-                  "radial-gradient(60% 60% at 50% 0%, hsl(var(--accent)), transparent 70%)",
-              }}
-              aria-hidden
-            />
-            <div className="relative">
-              <h2 className="mx-auto max-w-2xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
-                Prêt pour votre premier ordre ?
-              </h2>
-              <p className="mx-auto mt-5 max-w-xl text-lg text-background/70">
-                Créez un ordre en quelques minutes. Vos fonds vont directement
-                là où ils doivent aller : chez vous.
-              </p>
-              <div className="mt-9 flex flex-wrap justify-center gap-3">
-                <Link
-                  to="/acheter"
-                  className="group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-accent-foreground transition-all hover:gap-3"
-                >
-                  Acheter des USDT <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  to="/vendre"
-                  className="inline-flex items-center gap-2 rounded-full border border-background/25 px-7 py-3.5 text-sm font-semibold text-background transition-colors hover:bg-background/10"
-                >
-                  Vendre des USDT
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <Footer />
-  </div>
-);
+      <Footer />
+    </div>
+  );
+};
 
 export default Index;

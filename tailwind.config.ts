@@ -48,16 +48,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        "accent-soft": "hsl(var(--accent-soft))",
-        "accent-ink": "hsl(var(--accent-ink))",
-        butter: "hsl(var(--butter))",
-        "butter-ink": "hsl(var(--butter-ink))",
-        lilac: "hsl(var(--lilac))",
-        "lilac-ink": "hsl(var(--lilac-ink))",
       },
       fontFamily: {
-        display: ['"Fraunces"', "Georgia", "serif"],
-        body: ['"Inter"', "system-ui", "sans-serif"],
+        display: ['"Poppins"', "system-ui", "sans-serif"],
+        body: ['"Poppins"', "system-ui", "sans-serif"],
+      },
+      maxWidth: {
+        container: "1120px",
       },
       borderRadius: {
         lg: "var(--radius)",
