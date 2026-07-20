@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Logo from "./Logo";
 
 const Footer = () => (
-  <footer className="border-t border-border/60 bg-card/40">
+  <footer className="border-t bg-card">
     <div className="container py-14">
       <div className="grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
@@ -16,7 +16,7 @@ const Footer = () => (
         </div>
 
         <div>
-          <h4 className="font-display text-sm font-semibold">Produit</h4>
+          <h4 className="text-sm font-semibold">Produit</h4>
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             <li>
               <Link to="/acheter" className="hover:text-foreground">Acheter des USDT</Link>
@@ -34,7 +34,7 @@ const Footer = () => (
         </div>
 
         <div>
-          <h4 className="font-display text-sm font-semibold">Conformité</h4>
+          <h4 className="text-sm font-semibold">Conformité</h4>
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             <li>Vérification d'identité (KYC)</li>
             <li>Lutte contre le blanchiment (LBA)</li>
@@ -43,7 +43,7 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className="mt-12 border-t border-border/60 pt-6 text-xs leading-relaxed text-muted-foreground">
+      <div className="mt-12 border-t pt-6 text-xs leading-relaxed text-muted-foreground">
         <p>
           © {new Date().getFullYear()} Ooble. Les cryptoactifs comportent des
           risques ; leur valeur peut fluctuer. Ooble est une plateforme

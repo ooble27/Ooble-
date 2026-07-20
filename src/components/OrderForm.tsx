@@ -27,20 +27,20 @@ const OrderForm = ({ side }: OrderFormProps) => {
   const usdtAmount = isBuy ? value / rate : value;
 
   return (
-    <div className="rounded-2xl border border-border/80 bg-card/80 p-6 sm:p-8">
+    <div className="rounded-3xl border bg-card p-6 shadow-panel sm:p-8">
       {/* Montant */}
       <label className="text-sm font-medium">
         {isBuy ? "Montant à payer (CAD)" : "Montant à vendre (USDT)"}
       </label>
-      <div className="mt-2 flex items-baseline gap-2 rounded-xl border border-input bg-background/60 p-4 focus-within:border-primary">
+      <div className="mt-2 flex items-baseline gap-2 rounded-2xl border bg-background p-4 transition-colors focus-within:border-foreground">
         <input
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
           inputMode="decimal"
-          className="w-full bg-transparent font-display text-2xl font-semibold outline-none"
+          className="w-full bg-transparent text-2xl font-semibold tracking-tight outline-none"
           placeholder="0"
         />
-        <span className="font-display font-semibold text-muted-foreground">
+        <span className="font-semibold text-muted-foreground">
           {isBuy ? "CAD" : "USDT"}
         </span>
       </div>
@@ -54,13 +54,13 @@ const OrderForm = ({ side }: OrderFormProps) => {
             type="button"
             onClick={() => setNetwork(n.id)}
             className={cn(
-              "rounded-xl border p-4 text-left transition-colors",
+              "rounded-2xl border p-4 text-left transition-all",
               network === n.id
-                ? "border-primary bg-primary/10"
-                : "border-input bg-background/60 hover:border-border",
+                ? "border-foreground bg-secondary/70 shadow-soft"
+                : "bg-background hover:border-muted-foreground/40",
             )}
           >
-            <span className="font-display font-semibold">{n.label}</span>
+            <span className="font-semibold">{n.label}</span>
             <p className="mt-1 text-xs text-muted-foreground">{n.hint}</p>
           </button>
         ))}
@@ -76,7 +76,7 @@ const OrderForm = ({ side }: OrderFormProps) => {
             value={address}
             onChange={(e) => setAddress(e.target.value.trim())}
             placeholder={network === "trc20" ? "T..." : "0x..."}
-            className="mt-2 w-full rounded-xl border border-input bg-background/60 p-4 font-mono text-sm outline-none focus:border-primary"
+            className="mt-2 w-full rounded-2xl border bg-background p-4 font-mono text-sm outline-none transition-colors focus:border-foreground"
           />
           <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -94,7 +94,7 @@ const OrderForm = ({ side }: OrderFormProps) => {
             onChange={(e) => setInteracEmail(e.target.value.trim())}
             type="email"
             placeholder="vous@exemple.ca"
-            className="mt-2 w-full rounded-xl border border-input bg-background/60 p-4 text-sm outline-none focus:border-primary"
+            className="mt-2 w-full rounded-2xl border bg-background p-4 text-sm outline-none transition-colors focus:border-foreground"
           />
           <p className="mt-2 flex items-start gap-1.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -105,20 +105,18 @@ const OrderForm = ({ side }: OrderFormProps) => {
       )}
 
       {/* Résumé */}
-      <div className="mt-6 space-y-2.5 rounded-xl bg-secondary/60 p-4 text-sm">
+      <div className="mt-6 space-y-2.5 rounded-2xl bg-secondary/70 p-4 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Taux verrouillé</span>
           <span className="font-medium">1 USDT = {formatCad(rate)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">
-            {isBuy ? "Vous recevez" : "Vous recevez"}
-          </span>
-          <span className="font-display font-semibold text-primary">
+          <span className="text-muted-foreground">Vous recevez</span>
+          <span className="font-semibold text-emerald-600">
             {isBuy ? formatUsdt(usdtAmount) : formatCad(cadAmount)}
           </span>
         </div>
-        <div className="flex items-center justify-between border-t border-border/60 pt-2.5 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between border-t pt-2.5 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5" /> Taux garanti {RATE_LOCK_MINUTES} minutes
           </span>
@@ -130,13 +128,13 @@ const OrderForm = ({ side }: OrderFormProps) => {
       <button
         type="button"
         onClick={() => setSubmitted(true)}
-        className="mt-6 w-full rounded-full bg-primary py-3.5 font-semibold text-primary-foreground transition-all hover:brightness-110"
+        className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-85"
       >
         {isBuy ? "Créer l'ordre d'achat" : "Créer l'ordre de vente"}
       </button>
 
       {submitted && (
-        <div className="mt-4 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm leading-relaxed text-emerald-200">
+        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-relaxed text-emerald-800">
           🚧 La création d'ordres ouvrira très bientôt. Il faudra un compte
           vérifié (KYC) — l'authentification est la prochaine étape de la
           plateforme.
