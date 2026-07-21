@@ -16,17 +16,18 @@ import { InteracLogo } from "@/components/marks";
 import {
   CoinsArt,
   InteracArt,
+  NetworkCoin,
   PhoneArt,
   StepAccount,
   StepOrder,
   StepSettle,
   WalletArt,
 } from "@/components/illustrations";
-import Coin, { type CoinId } from "@/components/Coin";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { formatCad } from "@/lib/rates";
 
-const networks: { id: CoinId; name: string; tag: string }[] = [
+type NetId = "trx" | "eth" | "bnb" | "matic" | "sol" | "avax";
+const networks: { id: NetId; name: string; tag: string }[] = [
   { id: "trx", name: "Tron", tag: "TRC20" },
   { id: "eth", name: "Ethereum", tag: "ERC20" },
   { id: "bnb", name: "BNB Chain", tag: "BEP20" },
@@ -70,14 +71,16 @@ const SectionHead = ({
   children,
   sub,
   onDark,
+  center,
 }: {
   eyebrow: string;
   children: React.ReactNode;
   sub?: string;
   onDark?: boolean;
+  center?: boolean;
 }) => (
-  <div className="max-w-xl">
-    <p className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+  <div className={center ? "mx-auto max-w-2xl text-center" : "max-w-xl"}>
+    <p className={`flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary ${center ? "justify-center" : ""}`}>
       <span className="h-px w-7 bg-primary/40" />
       {eyebrow}
     </p>
@@ -209,21 +212,18 @@ const Index = () => {
         <section className="border-b py-20 lg:py-28">
           <Wrap>
             <SectionHead
+              center
               eyebrow="Réseaux"
               sub="Recevez vos USDT sur la blockchain de votre choix — vous sélectionnez le réseau à la création de votre ordre."
             >
               Six réseaux pour recevoir vos USDT
             </SectionHead>
-            <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-x-8 gap-y-14 sm:grid-cols-3">
               {networks.map((n) => (
                 <div key={n.id} className="text-center">
-                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
-                    <span className="absolute inset-0 rounded-full bg-[#EEF2F2]" />
-                    <span className="absolute inset-[9px] rounded-full border-2 border-dashed border-primary/25" />
-                    <Coin id={n.id} size={52} className="relative" />
-                  </div>
-                  <h3 className="mt-4 font-display text-base font-semibold">{n.name}</h3>
-                  <p className="text-xs font-medium text-muted-foreground">{n.tag}</p>
+                  <NetworkCoin id={n.id} className="mx-auto h-28 w-28 transition-transform hover:-translate-y-1" />
+                  <h3 className="mt-5 font-display text-lg font-semibold">{n.name}</h3>
+                  <p className="text-sm font-medium text-muted-foreground">{n.tag}</p>
                 </div>
               ))}
             </div>
