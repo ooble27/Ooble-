@@ -5,30 +5,35 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
+  Fingerprint,
   KeyRound,
+  Landmark,
   Lock,
   ShieldCheck,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import HeroCard from "@/components/HeroCard";
 import AppMockup from "@/components/AppMockup";
+import PriceCard from "@/components/PriceCard";
+import Coin, { type CoinId } from "@/components/Coin";
 import { Button } from "@/components/ui/button";
-import TetherMark from "@/components/TetherMark";
-import { EthereumMark, MapleLeaf, TransferMark, TronMark } from "@/components/marks";
-import { formatCad } from "@/lib/rates";
+import { MapleLeaf, TransferMark } from "@/components/marks";
 
-const compat = [
-  { label: "Interac", mark: <TransferMark className="h-4 w-4 text-primary" /> },
-  { label: "Tether", mark: <TetherMark className="h-4 w-4" /> },
-  { label: "Tron", mark: <TronMark className="h-4 w-4 text-[#EF4444]" /> },
-  { label: "Ethereum", mark: <EthereumMark className="h-4 w-4 text-[#627EEA]" /> },
+const networks: { id: CoinId; name: string; sub: string; note: string }[] = [
+  { id: "trx", name: "Tron", sub: "TRC20", note: "Frais très bas et confirmation rapide — idéal au quotidien." },
+  { id: "eth", name: "Ethereum", sub: "ERC20", note: "Compatible avec la grande majorité des wallets et services." },
 ];
 
 const steps = [
   { n: "1", title: "Créez votre compte", desc: "Inscrivez-vous et vérifiez votre identité en quelques minutes, une seule fois." },
   { n: "2", title: "Créez votre ordre", desc: "Entrez le montant, choisissez le réseau et votre destination. Le taux se verrouille." },
   { n: "3", title: "Réglé directement", desc: "Vos USDT arrivent dans votre wallet, ou vos CAD dans votre compte Interac." },
+];
+
+const trust = [
+  { icon: KeyRound, title: "Non-custodial", desc: "Aucun solde conservé. Vos fonds vont directement de vous à votre wallet." },
+  { icon: Fingerprint, title: "Identité vérifiée", desc: "Un KYC simple et rapide protège chaque transaction et chaque utilisateur." },
+  { icon: Landmark, title: "Conforme au Canada", desc: "Conçu autour des exigences canadiennes : conformité et tenue des dossiers." },
 ];
 
 const faqs = [
@@ -52,6 +57,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Bandeau d'annonce */}
+      <div className="bg-deep text-deep-foreground">
+        <Wrap className="flex items-center justify-center gap-2 py-2.5 text-center text-[13px]">
+          <MapleLeaf className="h-3.5 w-3.5 text-[#EF4444]" />
+          <span className="text-white/85">
+            Ooble arrive au Canada — achetez et vendez vos USDT en dollars canadiens.
+          </span>
+        </Wrap>
+      </div>
+
       <Header />
 
       <main>
@@ -75,45 +90,77 @@ const Index = () => {
                 votre wallet — aucun solde ne dort chez Ooble.
               </p>
 
-              <div className="mt-7 flex max-w-md flex-col gap-2.5 sm:flex-row">
-                <input
-                  type="email"
-                  placeholder="Votre adresse courriel"
-                  className="h-12 flex-1 rounded-xl border bg-card px-4 text-sm outline-none ring-1 ring-transparent transition-all placeholder:text-muted-foreground focus:ring-primary"
-                />
+              <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild variant="primary" shape="rounded" size="lg">
                   <Link to="/acheter">
-                    Commencer <ArrowRight className="h-4 w-4" />
+                    Acheter des USDT <ArrowRight className="h-4 w-4" />
                   </Link>
+                </Button>
+                <Button asChild variant="secondary" shape="rounded" size="lg">
+                  <Link to="/vendre">Vendre des USDT</Link>
                 </Button>
               </div>
 
-              <div className="mt-9">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Compatible avec
-                </p>
-                <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
-                  {compat.map((c) => (
-                    <span
-                      key={c.label}
-                      className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-[13px] font-semibold text-foreground/70 shadow-soft"
-                    >
-                      {c.mark}
-                      {c.label}
-                    </span>
-                  ))}
+              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <div className="flex items-center gap-2">
+                  <Coin id="usdt" size={26} />
+                  <Coin id="trx" size={26} className="-ml-3" />
+                  <Coin id="eth" size={26} className="-ml-3" />
+                  <span className="ml-1 text-sm font-medium text-muted-foreground">
+                    USDT sur TRC20 &amp; ERC20
+                  </span>
                 </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-[13px] font-semibold text-foreground/70 shadow-soft">
+                  <TransferMark className="h-4 w-4 text-primary" /> Interac
+                </span>
               </div>
             </div>
 
             <div className="flex animate-up justify-center lg:justify-end">
-              <HeroCard />
+              <PriceCard />
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== RÉSEAUX ===== */}
+        <section className="py-16 lg:py-24">
+          <Wrap>
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+              <div>
+                <Eyebrow>Réseaux supportés</Eyebrow>
+                <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+                  Recevez vos USDT sur le réseau de votre choix
+                </h2>
+                <p className="mt-4 text-muted-foreground">
+                  Sélectionnez le réseau à la création de votre ordre. Les mêmes
+                  USDT, livrés là où vous en avez besoin.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {networks.map((n) => (
+                  <div
+                    key={n.id}
+                    className="rounded-[24px] border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Coin id={n.id} size={44} />
+                      <div>
+                        <p className="font-display text-lg font-bold leading-tight">{n.name}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                          {n.sub}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{n.note}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </Wrap>
         </section>
 
         {/* ===== FEATURES (cartes avec visuels) ===== */}
-        <section className="py-16 lg:py-24">
+        <section className="pb-16 lg:pb-24">
           <Wrap>
             <div className="max-w-2xl">
               <Eyebrow>Pensé pour vos USDT</Eyebrow>
@@ -123,18 +170,18 @@ const Index = () => {
             </div>
 
             <div className="mt-12 grid gap-5 md:grid-cols-3">
-              {/* Non-custodial — diagramme de flux */}
+              {/* Non-custodial — diagramme */}
               <div className="overflow-hidden rounded-[26px] border bg-card shadow-soft">
                 <div className="bg-gradient-to-br from-accent-tint/70 to-secondary/40 p-6">
-                  <div className="flex items-center justify-between rounded-2xl bg-card/80 p-3.5 shadow-soft ring-1 ring-border/60 backdrop-blur">
+                  <div className="flex items-center justify-between rounded-2xl bg-card/90 p-3.5 shadow-soft ring-1 ring-border/60 backdrop-blur">
                     <div className="flex flex-col items-center gap-1.5">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-foreground">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary">
                         <MapleLeaf className="h-4 w-4 text-[#EF4444]" />
                       </span>
                       <span className="text-[10px] font-medium text-muted-foreground">Vous</span>
                     </div>
                     <div className="flex flex-1 items-center px-2">
-                      <span className="h-px flex-1 bg-gradient-to-r from-primary/50 to-primary/50 [mask-image:repeating-linear-gradient(90deg,#000_0_5px,transparent_5px_10px)]" />
+                      <span className="h-px flex-1 bg-primary/50 [mask-image:repeating-linear-gradient(90deg,#000_0_5px,transparent_5px_10px)]" />
                       <ArrowRight className="h-3.5 w-3.5 shrink-0 text-primary" />
                     </div>
                     <div className="flex flex-col items-center gap-1.5">
@@ -157,61 +204,56 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Multi-réseaux — sélecteur */}
+              {/* Interac */}
               <div className="overflow-hidden rounded-[26px] border bg-card shadow-soft">
-                <div className="space-y-2 bg-gradient-to-br from-accent-tint/70 to-secondary/40 p-6">
-                  <div className="flex items-center justify-between rounded-xl bg-card p-3 shadow-soft ring-1 ring-primary/40">
-                    <div className="flex items-center gap-2.5">
-                      <TronMark className="h-6 w-6 text-[#EF4444]" />
-                      <div>
-                        <p className="text-xs font-bold">Tron</p>
-                        <p className="text-[10px] text-muted-foreground">TRC20 · frais bas</p>
-                      </div>
+                <div className="bg-gradient-to-br from-accent-tint/70 to-secondary/40 p-6">
+                  <div className="rounded-2xl bg-card/90 p-4 shadow-soft ring-1 ring-border/60">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-muted-foreground">
+                        Méthode de paiement
+                      </span>
+                      <span className="text-[11px] font-semibold text-accent-ink">Sans frais</span>
                     </div>
-                    <Check className="h-4 w-4 text-primary" strokeWidth={3} />
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl bg-card/70 p-3 ring-1 ring-border/60">
-                    <div className="flex items-center gap-2.5">
-                      <EthereumMark className="h-6 w-6 text-[#627EEA]" />
-                      <div>
-                        <p className="text-xs font-bold">Ethereum</p>
-                        <p className="text-[10px] text-muted-foreground">ERC20 · partout</p>
-                      </div>
+                    <div className="mt-2.5 flex items-center gap-2.5 rounded-xl border border-primary/50 bg-accent-tint/40 px-3 py-2.5">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                        <TransferMark className="h-4 w-4" />
+                      </span>
+                      <span className="text-sm font-semibold">Interac e-Transfer</span>
+                      <Check className="ml-auto h-4 w-4 text-primary" strokeWidth={3} />
                     </div>
-                    <span className="h-4 w-4 rounded-full border-2 border-border" />
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-display text-lg font-bold">Multi-réseaux</h3>
+                  <h3 className="font-display text-lg font-bold">Payé comme au Canada</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    Recevez vos USDT sur le réseau de votre choix, sélectionné à
-                    la création de l'ordre.
+                    Interac e-Transfer à l'achat comme à la vente. L'outil que
+                    votre banque connaît déjà.
                   </p>
                 </div>
               </div>
 
-              {/* Taux — graphe */}
+              {/* Taux */}
               <div className="overflow-hidden rounded-[26px] border bg-card shadow-soft">
-                <div className="relative bg-gradient-to-br from-accent-tint/70 to-secondary/40 p-6">
+                <div className="bg-gradient-to-br from-accent-tint/70 to-secondary/40 p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-[11px] text-muted-foreground">1 USDT</p>
-                      <p className="font-display text-xl font-bold">{formatCad(1.4245)}</p>
+                    <div className="flex items-center gap-2">
+                      <Coin id="usdt" size={22} />
+                      <span className="font-display text-xl font-bold">1,4245 $</span>
                     </div>
                     <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-accent-ink">
                       <Lock className="h-3 w-3" /> 15 min
                     </span>
                   </div>
-                  <svg viewBox="0 0 240 70" className="mt-3 w-full" fill="none" preserveAspectRatio="none">
+                  <svg viewBox="0 0 240 66" className="mt-4 w-full" fill="none" preserveAspectRatio="none">
                     <path
-                      d="M0 56 L34 48 L68 52 L102 36 L136 40 L170 24 L204 28 L240 12"
+                      d="M0 54 L34 46 L68 50 L102 34 L136 38 L170 22 L204 26 L240 10"
                       stroke="hsl(var(--primary))"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                     <path
-                      d="M0 56 L34 48 L68 52 L102 36 L136 40 L170 24 L204 28 L240 12 V70 H0 Z"
+                      d="M0 54 L34 46 L68 50 L102 34 L136 38 L170 22 L204 26 L240 10 V66 H0 Z"
                       fill="hsl(var(--primary) / 0.12)"
                     />
                   </svg>
@@ -228,8 +270,8 @@ const Index = () => {
           </Wrap>
         </section>
 
-        {/* ===== SHOWCASE (app · pétrole) ===== */}
-        <section className="py-4">
+        {/* ===== APP (pétrole) ===== */}
+        <section className="pb-16 lg:pb-24">
           <Wrap>
             <div className="relative overflow-hidden rounded-[36px] bg-deep px-8 py-14 text-deep-foreground sm:px-12 sm:py-16">
               <div className="pointer-events-none absolute -left-20 top-10 h-72 w-72 rounded-full bg-primary/20 blur-3xl" aria-hidden />
@@ -269,39 +311,10 @@ const Index = () => {
                     </Button>
                   </div>
                 </div>
-
                 <div className="relative">
                   <AppMockup />
                 </div>
               </div>
-            </div>
-          </Wrap>
-        </section>
-
-        {/* ===== ÉTAPES ===== */}
-        <section id="comment" className="py-16 lg:py-24">
-          <Wrap>
-            <div className="mx-auto max-w-2xl text-center">
-              <Eyebrow>Comment ça marche</Eyebrow>
-              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-[2.6rem]">
-                Trois étapes, réglé directement
-              </h2>
-            </div>
-            <div className="mt-14 grid gap-5 sm:grid-cols-3">
-              {steps.map(({ n, title, desc }, i) => (
-                <div key={n} className="relative rounded-[26px] border bg-card p-7 shadow-soft">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary font-display text-lg font-bold text-primary-foreground">
-                      {n}
-                    </span>
-                    {i < steps.length - 1 && (
-                      <span className="hidden h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent sm:block" />
-                    )}
-                  </div>
-                  <h3 className="mt-5 font-display text-lg font-bold">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-                </div>
-              ))}
             </div>
           </Wrap>
         </section>
@@ -326,29 +339,76 @@ const Index = () => {
           </Wrap>
         </section>
 
+        {/* ===== COMMENT ÇA MARCHE ===== */}
+        <section id="comment" className="pb-16 lg:pb-24">
+          <Wrap>
+            <div className="mx-auto max-w-2xl text-center">
+              <Eyebrow>Comment ça marche</Eyebrow>
+              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-[2.6rem]">
+                Trois étapes, réglé directement
+              </h2>
+            </div>
+            <div className="mt-14 grid gap-5 sm:grid-cols-3">
+              {steps.map(({ n, title, desc }, i) => (
+                <div key={n} className="rounded-[26px] border bg-card p-7 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary font-display text-lg font-bold text-primary-foreground">
+                      {n}
+                    </span>
+                    {i < steps.length - 1 && (
+                      <span className="hidden h-px flex-1 bg-gradient-to-r from-primary/40 to-transparent sm:block" />
+                    )}
+                  </div>
+                  <h3 className="mt-5 font-display text-lg font-bold">{title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
+        {/* ===== SÉCURITÉ / CONFIANCE ===== */}
+        <section className="pb-16 lg:pb-24">
+          <Wrap>
+            <div className="rounded-[36px] border bg-gradient-to-br from-accent-tint/50 via-card to-card p-8 shadow-soft sm:p-12">
+              <div className="mx-auto max-w-2xl text-center">
+                <Eyebrow>Sécurité &amp; conformité</Eyebrow>
+                <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+                  Une plateforme qui protège vos fonds
+                </h2>
+              </div>
+              <div className="mt-12 grid gap-6 sm:grid-cols-3">
+                {trust.map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="text-center">
+                    <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-card text-primary shadow-soft ring-1 ring-border">
+                      <Icon className="h-5 w-5" strokeWidth={1.9} />
+                    </span>
+                    <h3 className="mt-4 font-display text-lg font-bold">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Wrap>
+        </section>
+
         {/* ===== DEUX FAÇONS ===== */}
         <section className="pb-16 lg:pb-24">
           <Wrap>
-            <div className="text-center">
-              <Eyebrow>Deux façons d'échanger</Eyebrow>
-              <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-[2.6rem]">
-                Acheter ou vendre, en quelques minutes
-              </h2>
-            </div>
-            <div className="mt-12 grid gap-5 md:grid-cols-2">
+            <div className="grid gap-5 md:grid-cols-2">
               <Link
                 to="/acheter"
                 className="group rounded-[28px] border bg-card p-8 shadow-soft transition-all hover:-translate-y-1 hover:shadow-lift"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-tint text-accent-ink">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-tint">
                       <TransferMark className="h-6 w-6 text-primary" />
                     </span>
                     <h3 className="mt-5 font-display text-2xl font-bold">Acheter</h3>
                     <p className="mt-1 text-sm font-medium text-muted-foreground">CAD → USDT</p>
                   </div>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     <ArrowUpRight className="h-5 w-5" />
                   </span>
                 </div>
@@ -365,8 +425,8 @@ const Index = () => {
                 <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/25 blur-2xl" aria-hidden />
                 <div className="relative flex items-start justify-between">
                   <div>
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white">
-                      <TetherMark className="h-6 w-6" />
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      <Coin id="usdt" size={28} />
                     </span>
                     <h3 className="mt-5 font-display text-2xl font-bold">Vendre</h3>
                     <p className="mt-1 text-sm font-medium text-white/60">USDT → CAD</p>
@@ -418,7 +478,7 @@ const Index = () => {
                       className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                     >
                       <span className="font-display font-semibold">{item.q}</span>
-                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${open ? "bg-primary text-primary-foreground rotate-180" : "bg-secondary text-muted-foreground"}`}>
+                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all ${open ? "rotate-180 bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
                         <ChevronDown className="h-4 w-4" />
                       </span>
                     </button>

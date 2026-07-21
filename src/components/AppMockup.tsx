@@ -1,5 +1,5 @@
 import { ArrowDown, Check } from "lucide-react";
-import TetherMark from "./TetherMark";
+import Coin from "./Coin";
 import { TransferMark } from "./marks";
 
 /** Maquette d'application Ooble (écran d'achat) — pièce produit du site. */
@@ -42,7 +42,7 @@ const AppMockup = () => (
               <div className="mt-1 flex items-center justify-between">
                 <span className="font-display text-2xl font-bold tracking-tight">351,00</span>
                 <span className="flex items-center gap-1 rounded-full bg-card px-2.5 py-1 text-xs font-bold shadow-soft">
-                  <TetherMark className="h-3.5 w-3.5" /> USDT
+                  <Coin id="usdt" size={14} /> USDT
                 </span>
               </div>
             </div>
