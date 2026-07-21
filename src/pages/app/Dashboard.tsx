@@ -34,7 +34,7 @@ const Dashboard = () => {
       }
     >
       {/* Carte pièce maîtresse — pétrole plat, taux en direct + graphe */}
-      <section className="relative overflow-hidden rounded-[1.5rem] bg-deep p-6 text-white">
+      <section className="relative overflow-hidden rounded-2xl bg-deep p-6 text-white">
         <div
           className="pointer-events-none absolute -right-20 -top-24 h-52 w-52 rounded-full opacity-40 blur-3xl"
           style={{ background: "radial-gradient(circle, hsl(174 60% 45% / 0.5), transparent 70%)" }}
@@ -97,7 +97,7 @@ const Dashboard = () => {
         {NETWORKS.map((n) => (
           <div
             key={n.id}
-            className="flex shrink-0 items-center gap-2.5 rounded-full border border-border bg-white py-1.5 pl-1.5 pr-4"
+            className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-white py-1.5 pl-1.5 pr-4"
           >
             <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full">
               <img src={`/coins/${n.id}.svg`} alt="" className="h-7 w-7" draggable={false} />
@@ -111,7 +111,7 @@ const Dashboard = () => {
       <p className="mb-3 mt-8 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Plus
       </p>
-      <div className="divide-y divide-border overflow-hidden rounded-[1.5rem] border border-border bg-white">
+      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
         {more.map(({ to, label, sub, icon: Icon }) => (
           <Link key={label} to={to} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-secondary/50">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
@@ -130,9 +130,9 @@ const Dashboard = () => {
       <p className="mb-3 mt-8 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Activité récente
       </p>
-      <div className="rounded-[1.5rem] border border-border bg-white p-8">
+      <div className="rounded-2xl border border-border bg-white p-8">
         <div className="flex flex-col items-center py-2 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
             <Inbox className="h-5 w-5" strokeWidth={1.7} />
           </span>
           <p className="mt-4 text-[15px] font-semibold text-foreground">Aucune transaction</p>

@@ -1,18 +1,17 @@
 import { NavLink } from "react-router-dom";
-import { Home, Coins, HandCoins, Send } from "lucide-react";
+import { Home, Coins, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/app", label: "Accueil", icon: Home, end: true },
   { to: "/app/acheter", label: "Acheter", icon: Coins, end: false },
   { to: "/app/vendre", label: "Vendre", icon: HandCoins, end: false },
-  { to: "/app/envoyer", label: "Envoyer", icon: Send, end: false },
 ];
 
-/** Barre de navigation flottante style application. */
+/** Barre d'onglets pleine largeur, posée en bas (texture application). */
 const BottomNav = () => (
-  <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-    <div className="pointer-events-auto flex w-full max-w-[440px] items-center justify-between gap-1 rounded-full border border-border bg-white/90 p-1.5 backdrop-blur-xl">
+  <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/90 backdrop-blur-xl">
+    <div className="mx-auto flex max-w-[460px] items-stretch justify-around px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2.5">
       {items.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
@@ -20,19 +19,13 @@ const BottomNav = () => (
           end={end}
           className={({ isActive }) =>
             cn(
-              "flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition-colors",
-              isActive
-                ? "bg-secondary text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+              "flex flex-1 flex-col items-center gap-1 py-1 text-[11px] font-medium transition-colors",
+              isActive ? "text-primary" : "text-muted-foreground",
             )
           }
         >
-          {({ isActive }) => (
-            <>
-              <Icon className="h-5 w-5" strokeWidth={2} />
-              {isActive && <span className="pr-1">{label}</span>}
-            </>
-          )}
+          <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
+          {label}
         </NavLink>
       ))}
     </div>

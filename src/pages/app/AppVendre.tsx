@@ -18,7 +18,7 @@ const BackBtn = ({ onClick }: { onClick: () => void }) => (
     type="button"
     onClick={onClick}
     aria-label="Retour"
-    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-secondary"
+    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-foreground transition-colors hover:bg-secondary"
   >
     <ArrowLeft className="h-5 w-5" />
   </button>
@@ -50,17 +50,17 @@ const AppVendre = () => {
   if (step === "amount") {
     return (
       <AppShell header={<StepHead title="Vendre USDT" sub="Entrez le montant à vendre" />}>
-        <div className="rounded-[1.5rem] border border-border bg-white p-5">
+        <div className="rounded-2xl border border-border bg-white p-5">
           <div className="flex items-center justify-between gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Montant</span>
-            <div className="flex rounded-full border border-border bg-secondary/50 p-0.5">
+            <div className="flex rounded-lg border border-border bg-secondary/50 p-0.5">
               {(["USDT", "CAD"] as Unit[]).map((u) => (
                 <button
                   key={u}
                   type="button"
                   onClick={() => setUnit(u)}
                   className={cn(
-                    "rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+                    "rounded-md px-3 py-1 text-xs font-semibold transition-colors",
                     unit === u ? "bg-white text-foreground" : "text-muted-foreground",
                   )}
                 >
@@ -88,7 +88,7 @@ const AppVendre = () => {
           </p>
         </div>
 
-        <div className="mt-3 divide-y divide-border rounded-[1.5rem] border border-border bg-white px-5">
+        <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-white px-5">
           <div className="flex items-center justify-between py-4">
             <span className="text-muted-foreground">Vous recevez</span>
             <span className="font-display text-lg font-bold">{nfCad.format(cad)} CAD</span>
@@ -110,7 +110,7 @@ const AppVendre = () => {
   if (step === "reception") {
     return (
       <AppShell header={<StepHead title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />}>
-        <div className="divide-y divide-border overflow-hidden rounded-[1.5rem] border border-border bg-white">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
           <div className="px-4 py-3.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               E-mail Interac e-Transfer
@@ -125,7 +125,7 @@ const AppVendre = () => {
               placeholder="vous@exemple.ca"
               value={email}
               onChange={(e) => setEmail(e.target.value.trim())}
-              className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted-foreground/60"
+              className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/60"
             />
           </div>
         </div>
@@ -143,9 +143,9 @@ const AppVendre = () => {
   /* ---------- Confirmation ---------- */
   return (
     <AppShell header={<StepHead title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
-      <div className="rounded-[1.5rem] border border-border bg-white p-6">
+      <div className="rounded-2xl border border-border bg-white p-6">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Check className="h-7 w-7" strokeWidth={2.4} />
           </span>
           <p className="mt-4 font-display text-2xl font-extrabold">{nfCad.format(cad)} CAD</p>

@@ -22,7 +22,7 @@ const Field = ({
   <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 transition-colors focus-within:border-primary">
     <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
     <input
-      className="w-full bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
+      className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
       {...props}
     />
   </label>
@@ -63,14 +63,14 @@ const Connexion = () => {
           </p>
 
           {/* Bascule connexion / inscription */}
-          <div className="mt-7 grid grid-cols-2 gap-1 rounded-full border border-border bg-white p-1">
+          <div className="mt-7 grid grid-cols-2 gap-1 rounded-lg border border-border bg-white p-1">
             {(["login", "register"] as Mode[]).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
                 className={cn(
-                  "rounded-full py-2.5 text-sm font-semibold transition-colors",
+                  "rounded-md py-2.5 text-sm font-semibold transition-colors",
                   mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >

@@ -21,7 +21,7 @@ const BackBtn = ({ onClick }: { onClick: () => void }) => (
     type="button"
     onClick={onClick}
     aria-label="Retour"
-    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-secondary"
+    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-foreground transition-colors hover:bg-secondary"
   >
     <ArrowLeft className="h-5 w-5" />
   </button>
@@ -59,20 +59,20 @@ const AppAcheter = () => {
   if (step === "amount") {
     return (
       <AppShell header={<StepHead title="Acheter USDT" sub="Entrez le montant à dépenser" />}>
-        <div className="rounded-[1.5rem] border border-border bg-white p-5">
+        <div className="rounded-2xl border border-border bg-white p-5">
           <div className="flex items-center justify-between gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Montant
             </span>
             <div className="flex items-center gap-3">
-              <div className="flex rounded-full border border-border bg-secondary/50 p-0.5">
+              <div className="flex rounded-lg border border-border bg-secondary/50 p-0.5">
                 {(["CAD", "USDT"] as Unit[]).map((u) => (
                   <button
                     key={u}
                     type="button"
                     onClick={() => setUnit(u)}
                     className={cn(
-                      "rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+                      "rounded-md px-3 py-1 text-xs font-semibold transition-colors",
                       unit === u ? "bg-white text-foreground" : "text-muted-foreground",
                     )}
                   >
@@ -102,7 +102,7 @@ const AppAcheter = () => {
           </div>
         </div>
 
-        <div className="mt-3 divide-y divide-border rounded-[1.5rem] border border-border bg-white px-5">
+        <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-white px-5">
           <div className="flex items-center justify-between py-4">
             <span className="text-muted-foreground">{unit === "CAD" ? "Vous recevez" : "Vous payez"}</span>
             <span className="flex items-center gap-1.5 font-display text-lg font-bold">
@@ -143,7 +143,7 @@ const AppAcheter = () => {
   if (step === "address") {
     return (
       <AppShell header={<StepHead title="Adresse de réception" sub={`Entrez votre adresse ${network?.tag}`} onBack={() => setStep("destination")} />}>
-        <div className="divide-y divide-border overflow-hidden rounded-[1.5rem] border border-border bg-white">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
           <div className="flex items-center gap-3 px-4 py-4">
             <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full">
               <img src={`/coins/${network?.id}.svg`} alt="" className="h-8 w-8" draggable={false} />
@@ -159,7 +159,7 @@ const AppAcheter = () => {
               placeholder={`Votre adresse ${network?.tag}`}
               value={address}
               onChange={(e) => setAddress(e.target.value.trim())}
-              className="w-full bg-transparent font-mono text-[15px] outline-none placeholder:text-muted-foreground/60"
+              className="w-full bg-transparent font-mono text-base outline-none placeholder:text-muted-foreground/60"
             />
           </div>
         </div>
@@ -176,9 +176,9 @@ const AppAcheter = () => {
   /* ---------- Confirmation ---------- */
   return (
     <AppShell header={<StepHead title="Ordre créé" sub="Payez par Interac e-Transfer" />}>
-      <div className="rounded-[1.5rem] border border-border bg-white p-6">
+      <div className="rounded-2xl border border-border bg-white p-6">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Check className="h-7 w-7" strokeWidth={2.4} />
           </span>
           <p className="mt-4 font-display text-2xl font-extrabold">{nfUsdt.format(usdt)} USDT</p>

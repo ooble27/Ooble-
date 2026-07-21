@@ -18,14 +18,14 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
   const initial = getUser()?.name?.charAt(0).toUpperCase() ?? "O";
   return (
   <div className="min-h-screen bg-[#F4F7F7]">
-    <div className="mx-auto flex min-h-screen max-w-[460px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    <div className="mx-auto flex min-h-screen max-w-[460px] flex-col px-5 pb-24 pt-[max(1.25rem,env(safe-area-inset-top))]">
       <div className="flex items-start justify-between gap-4 pb-6 pt-2">
         <div className="flex min-w-0 items-start gap-3">
           {backTo && (
             <Link
               to={backTo}
               aria-label="Retour"
-              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-secondary"
+              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-foreground transition-colors hover:bg-secondary"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
@@ -35,7 +35,7 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
         <Link
           to="/app/compte"
           aria-label="Mon compte"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-deep font-display text-base font-bold text-white transition-opacity hover:opacity-90"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-deep font-display text-base font-bold text-white transition-opacity hover:opacity-90"
         >
           {initial}
         </Link>
