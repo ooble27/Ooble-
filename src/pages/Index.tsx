@@ -160,14 +160,9 @@ const Index = () => {
                   </span>
                   <h3 className="mt-6 font-display text-xl font-semibold">{v.title}</h3>
                   <p className="mt-2.5 text-sm font-light leading-relaxed text-muted-foreground">
-                    {v.title === "Payé au Canada" ? (
-                      <>
-                        <InteracLogo className="font-semibold text-foreground" /> e-Transfer à
-                        l'achat comme à la vente, avec l'outil que votre banque connaît déjà.
-                      </>
-                    ) : (
-                      v.desc
-                    )}
+                    {v.title === "Payé au Canada"
+                      ? "Interac e-Transfer à l'achat comme à la vente, avec l'outil que votre banque connaît déjà."
+                      : v.desc}
                   </p>
                 </div>
               ))}
@@ -180,15 +175,24 @@ const Index = () => {
           <Wrap className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
             <div>
               <SectionHead
-                eyebrow="Interac e-Transfer"
-                sub="Payez vos achats et recevez vos ventes avec Interac e-Transfer — le virement que toutes les banques canadiennes connaissent. Rien à installer, rien de nouveau à apprendre."
+                eyebrow="Moyen de paiement"
+                sub="Quand vous achetez des USDT sur Ooble, vous réglez par Interac e-Transfer — le virement que votre banque canadienne connaît déjà. Et à la vente, vous recevez vos dollars de la même façon."
               >
-                Payez et soyez payé, comme au Canada
+                Vous payez par Interac e-Transfer
               </SectionHead>
+              <div className="mt-6 inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2 shadow-soft">
+                <InteracLogo className="h-6" />
+                <span className="text-sm font-medium text-muted-foreground">Moyen de paiement accepté</span>
+              </div>
+              <p className="mt-4 max-w-md text-xs font-light leading-relaxed text-muted-foreground">
+                Ooble accepte Interac e-Transfer comme moyen de paiement. Ooble
+                n'est pas affilié à Interac Corp. et ne fournit pas de services
+                Interac. « Interac » est une marque de commerce d'Interac Corp.
+              </p>
               <div className="mt-8">
                 <Button asChild variant="primary" shape="rounded" size="lg">
                   <Link to="/acheter">
-                    Commencer avec Interac <ArrowRight className="h-4 w-4" />
+                    Acheter des USDT <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>
