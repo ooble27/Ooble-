@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/app/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { setUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ const Field = ({
   icon: Icon,
   ...props
 }: { icon: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 transition-colors focus-within:border-foreground">
+  <label className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 transition-colors focus-within:border-foreground">
     <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
     <input
       className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
@@ -46,9 +47,10 @@ const Connexion = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <Logo />
+        <ThemeToggle />
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-10">
@@ -71,7 +73,7 @@ const Connexion = () => {
                 onClick={() => setMode(m)}
                 className={cn(
                   "rounded-md py-2.5 text-sm font-semibold transition-colors",
-                  mode === m ? "bg-white text-foreground" : "text-muted-foreground hover:text-foreground",
+                  mode === m ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {m === "login" ? "Se connecter" : "S'inscrire"}

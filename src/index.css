@@ -39,6 +39,39 @@
     --radius: 0.9rem;
   }
 
+  /* Mode sombre — palette neutre Ooble */
+  .dark {
+    --background: 0 0% 7%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 174 60% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 62%;
+
+    --accent: 174 60% 45%;
+    --accent-foreground: 0 0% 100%;
+    --accent-ink: 174 45% 66%;
+    --accent-tint: 174 26% 16%;
+
+    --deep: 193 45% 12%;
+    --deep-foreground: 0 0% 100%;
+
+    --destructive: 6 74% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 22%;
+    --input: 0 0% 26%;
+    --ring: 174 60% 45%;
+  }
+
   * {
     @apply border-border;
   }
@@ -50,7 +83,7 @@
 
   body {
     @apply bg-background font-body text-foreground antialiased;
-    font-weight: 300; /* écriture fine (façon Terex) */
+    font-weight: 400; /* poids uniforme, net (comme les pastilles), partout */
     letter-spacing: -0.01em;
   }
 

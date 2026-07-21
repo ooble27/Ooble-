@@ -24,7 +24,7 @@ const Dashboard = () => {
     >
       <div className="space-y-5">
         {/* Hero éditorial — taux en écriture fine sur blanc */}
-        <section className="rounded-2xl border border-border bg-white p-6">
+        <section className="rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Taux USDT / CAD
@@ -63,7 +63,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/app/acheter"
-            className="flex items-center gap-3 rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <Coins className="h-5 w-5" strokeWidth={1.6} />
@@ -72,7 +72,7 @@ const Dashboard = () => {
           </Link>
           <Link
             to="/app/vendre"
-            className="flex items-center gap-3 rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
           >
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <HandCoins className="h-5 w-5" strokeWidth={1.6} />
@@ -90,7 +90,7 @@ const Dashboard = () => {
             {NETWORKS.map((n) => (
               <div
                 key={n.id}
-                className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-white py-2 pl-2 pr-3.5"
+                className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card py-2 pl-2 pr-3.5"
               >
                 <img src={`/coins/${n.id}.svg`} alt="" className="h-7 w-7 rounded-full" draggable={false} />
                 <span className="whitespace-nowrap text-sm font-normal">{n.name}</span>
@@ -101,14 +101,14 @@ const Dashboard = () => {
 
         {/* Envoyer / OTC */}
         <div className="grid grid-cols-2 gap-3">
-          <Link to="/app/envoyer" className="rounded-2xl border border-border bg-white p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
+          <Link to="/app/envoyer" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <Send className="h-5 w-5" strokeWidth={1.6} />
             </span>
             <p className="mt-3 text-sm font-medium">Envoyer</p>
             <p className="text-xs font-light text-muted-foreground">Vers un wallet</p>
           </Link>
-          <Link to="/app/envoyer" className="rounded-2xl border border-border bg-white p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
+          <Link to="/app/envoyer" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <Handshake className="h-5 w-5" strokeWidth={1.6} />
             </span>
@@ -118,7 +118,7 @@ const Dashboard = () => {
         </div>
 
         {/* Activité récente */}
-        <div className="rounded-2xl border border-border bg-white p-6">
+        <div className="rounded-2xl border border-border bg-card p-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
             Activité récente
           </p>

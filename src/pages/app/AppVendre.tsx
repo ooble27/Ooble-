@@ -51,7 +51,7 @@ const AppVendre = () => {
   if (step === "amount") {
     return (
       <AppShell header={<div><h1 className="font-display text-[26px] font-semibold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
-        <div className="rounded-[20px] border border-border bg-white p-5">
+        <div className="rounded-[20px] border border-border bg-card p-5">
           <div className="mb-3.5 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
             <div className="inline-flex gap-0.5 rounded-[10px] bg-secondary/70 p-[3px]">
@@ -62,7 +62,7 @@ const AppVendre = () => {
                   onClick={() => { setUnit(u); setAmount(""); }}
                   className={cn(
                     "rounded-[7px] px-3 py-[5px] text-xs font-semibold transition-colors",
-                    unit === u ? "bg-white text-foreground" : "text-muted-foreground",
+                    unit === u ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground",
                   )}
                 >
                   {u}
@@ -88,7 +88,7 @@ const AppVendre = () => {
           <p className={cn("mt-2 text-xs", belowMin ? "text-destructive" : "text-muted-foreground")}>Minimum : {MIN_USDT} USDT</p>
         </div>
 
-        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-white px-5 py-4">
+        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-4">
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-muted-foreground">Vous recevez</span>
             <span className="text-sm font-semibold">{nfCad.format(cad)} CAD</span>
@@ -113,7 +113,7 @@ const AppVendre = () => {
   if (step === "reception") {
     return (
       <AppShell header={<StepHeader title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />}>
-        <div className="overflow-hidden rounded-[14px] border border-border bg-white">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="border-b border-border px-4 py-2.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">E-mail Interac e-Transfer</span>
           </div>
@@ -146,7 +146,7 @@ const AppVendre = () => {
   /* ---------- Confirmation ---------- */
   return (
     <AppShell header={<StepHeader title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
-      <div className="overflow-hidden rounded-[16px] border border-border bg-white">
+      <div className="overflow-hidden rounded-[16px] border border-border bg-card">
         {[
           { label: "Vous envoyez", value: `${nfUsdt.format(usdt)} USDT` },
           { label: "Vous recevez", value: `${nfCad.format(cad)} CAD` },
@@ -161,7 +161,7 @@ const AppVendre = () => {
       </div>
 
       <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Détail de l'ordre</p>
-      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-white">
+      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
         <CopyRow label="Montant à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
         <CopyRow label="Référence de l'ordre" value={orderRef} mono />
       </div>

@@ -61,7 +61,7 @@ const AppAcheter = () => {
     return (
       <AppShell header={<div><h1 className="font-display text-[26px] font-semibold tracking-tight">Acheter USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à dépenser</p></div>}>
         {/* Carte montant (radius 20, padding 20) */}
-        <div className="rounded-[20px] border border-border bg-white p-5">
+        <div className="rounded-[20px] border border-border bg-card p-5">
           <div className="mb-3.5 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
             <div className="flex items-center gap-3">
@@ -74,7 +74,7 @@ const AppAcheter = () => {
                     onClick={() => { setUnit(u); setAmount(""); }}
                     className={cn(
                       "rounded-[7px] px-3 py-[5px] text-xs font-semibold transition-colors",
-                      unit === u ? "bg-white text-foreground" : "text-muted-foreground",
+                      unit === u ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground",
                     )}
                   >
                     {u}
@@ -105,7 +105,7 @@ const AppAcheter = () => {
         </div>
 
         {/* Récapitulatif (radius 16) */}
-        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-white px-5 py-4">
+        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-4">
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-muted-foreground">{unit === "CAD" ? "Vous recevez" : "Vous payez"}</span>
             <div className="flex items-center gap-1.5">
@@ -143,7 +143,7 @@ const AppAcheter = () => {
                 onClick={() => setNet(n.id)}
                 className={cn(
                   "flex items-center gap-[9px] rounded-xl border py-[9px] pl-2.5 pr-4 transition-all active:scale-[0.98]",
-                  sel ? "border-foreground/40 bg-secondary" : "border-border bg-white",
+                  sel ? "border-foreground/40 bg-secondary" : "border-border bg-card",
                 )}
               >
                 <img src={`/coins/${n.id}.svg`} alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
@@ -167,7 +167,7 @@ const AppAcheter = () => {
   if (step === "address") {
     return (
       <AppShell header={<StepHeader title="Adresse de réception" sub={`Entrez votre adresse ${network?.tag}`} onBack={() => setStep("network")} />}>
-        <div className="overflow-hidden rounded-[14px] border border-border bg-white">
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="flex items-center gap-2.5 border-b border-border px-4 py-2.5">
             <img src={`/coins/${network?.id}.svg`} alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{network?.name}</span>
@@ -197,7 +197,7 @@ const AppAcheter = () => {
   return (
     <AppShell header={<StepHeader title="Ordre créé" sub="Payez par Interac e-Transfer" />}>
       {/* Récapitulatif en lignes (radius 16, séparateurs) */}
-      <div className="overflow-hidden rounded-[16px] border border-border bg-white">
+      <div className="overflow-hidden rounded-[16px] border border-border bg-card">
         {[
           { label: "Vous recevez", value: `${nfUsdt.format(usdt)} USDT` },
           { label: "À payer", value: `${nfCad.format(cad)} CAD` },
@@ -213,7 +213,7 @@ const AppAcheter = () => {
 
       {/* Instructions Interac */}
       <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Envoyez votre e-Transfer</p>
-      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-white">
+      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
         <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC} mono />
         <CopyRow label="Montant exact" value={`${nfCad.format(cad)} CAD`} />
         <CopyRow label="Message / référence" value={orderRef} mono />

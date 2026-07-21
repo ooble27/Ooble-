@@ -12,7 +12,7 @@ const Envoyer = () => (
       </div>
     }
   >
-    <div className="rounded-2xl border border-border bg-white p-8">
+    <div className="rounded-2xl border border-border bg-card p-8">
       <div className="flex flex-col items-center py-6 text-center">
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-foreground/70">
           <Send className="h-7 w-7" strokeWidth={1.7} />

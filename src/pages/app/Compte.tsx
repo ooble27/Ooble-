@@ -22,7 +22,7 @@ const Compte = () => {
         </div>
       }
     >
-      <div className="flex items-center gap-4 rounded-2xl border border-border bg-white p-5">
+      <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5">
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-deep font-display text-xl font-bold text-white">
           {user?.name?.charAt(0).toUpperCase() ?? "O"}
         </span>
@@ -32,7 +32,7 @@ const Compte = () => {
         </div>
       </div>
 
-      <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-white">
+      <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
         <div className="flex items-center gap-3 px-5 py-4">
           <ShieldCheck className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Vérification d'identité</span>
