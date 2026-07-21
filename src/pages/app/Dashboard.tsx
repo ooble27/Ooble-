@@ -1,31 +1,25 @@
 import { Link } from "react-router-dom";
-import { Send, Handshake, TrendingUp, Inbox, ArrowRight } from "lucide-react";
+import { Send, Handshake, Coins, HandCoins, TrendingUp, Inbox } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import RateChart from "@/components/app/RateChart";
 import { NETWORKS } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { useUsdtHistory } from "@/hooks/useUsdtHistory";
-import { getUser, firstName } from "@/lib/session";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
 const Dashboard = () => {
   const rate = useUsdtRate();
   const history = useUsdtHistory();
-  const user = getUser();
-  const name = user ? firstName(user.name) : "Ami";
   const change = history.changePct;
 
   return (
     <AppShell
       wide
       header={
-        <div>
-          <p className="text-[15px] font-light text-muted-foreground">Bonjour,</p>
-          <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight">
-            {name} <span className="align-middle">👋</span>
-          </h1>
-        </div>
+        <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight">
+          Bonjour <span className="align-middle">👋</span>
+        </h1>
       }
     >
       <div className="space-y-5">
@@ -42,7 +36,7 @@ const Dashboard = () => {
           </div>
 
           <div className="mt-5 flex items-end gap-3">
-            <span className="font-display text-[64px] font-light leading-[0.9] tracking-tight">
+            <span className="font-display text-[52px] font-light leading-[0.9] tracking-tight">
               {nf.format(rate.buy)}
             </span>
             <div className="pb-2">
@@ -69,17 +63,21 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/app/acheter"
-            className="flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
           >
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+              <Coins className="h-5 w-5" strokeWidth={1.6} />
+            </span>
             <span className="text-[15px] font-medium">Acheter</span>
-            <ArrowRight className="h-[18px] w-[18px] text-muted-foreground" />
           </Link>
           <Link
             to="/app/vendre"
-            className="flex items-center justify-between rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+            className="flex items-center gap-3 rounded-2xl border border-border bg-white px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
           >
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+              <HandCoins className="h-5 w-5" strokeWidth={1.6} />
+            </span>
             <span className="text-[15px] font-medium">Vendre</span>
-            <ArrowRight className="h-[18px] w-[18px] text-muted-foreground" />
           </Link>
         </div>
 

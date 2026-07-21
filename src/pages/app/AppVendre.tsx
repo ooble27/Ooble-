@@ -28,7 +28,7 @@ const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack
       </button>
     )}
     <div>
-      <h1 className="font-display text-[26px] font-extrabold tracking-tight">{title}</h1>
+      <h1 className="font-display text-[20px] font-semibold tracking-tight">{title}</h1>
       <p className="mt-1 text-[13px] text-muted-foreground">{sub}</p>
     </div>
   </div>
@@ -50,7 +50,7 @@ const AppVendre = () => {
   /* ---------- Montant ---------- */
   if (step === "amount") {
     return (
-      <AppShell header={<div><h1 className="font-display text-[26px] font-extrabold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
+      <AppShell header={<div><h1 className="font-display text-[26px] font-semibold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
         <div className="rounded-[20px] border border-border bg-white p-5">
           <div className="mb-3.5 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>

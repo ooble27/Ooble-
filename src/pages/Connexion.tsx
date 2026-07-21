@@ -53,7 +53,7 @@ const Connexion = () => {
 
       <main className="flex flex-1 items-center justify-center px-6 py-10">
         <div className="w-full max-w-[420px]">
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
             {isRegister ? "Créez votre compte" : "Bon retour"}
           </h1>
           <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">

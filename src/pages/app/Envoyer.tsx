@@ -7,7 +7,7 @@ const Envoyer = () => (
   <AppShell
     header={
       <div>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">Envoyer & OTC</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Envoyer & OTC</h1>
         <p className="mt-1 text-[15px] text-muted-foreground">Transferts et gros volumes</p>
       </div>
     }
