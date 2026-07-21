@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InteracLogo } from "./marks";
 import Logo from "./Logo";
 
 const columns = [
@@ -24,7 +25,7 @@ const columns = [
 ];
 
 const Footer = () => (
-  <footer className="border-t bg-secondary/40">
+  <footer className="border-t bg-background">
     <div className="mx-auto max-w-[1120px] px-6 py-16 sm:px-8">
       <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
@@ -39,6 +40,13 @@ const Footer = () => (
               Commencer <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+
+          <div className="mt-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Moyen de paiement accepté
+            </p>
+            <InteracLogo className="mt-2 h-7" />
+          </div>
         </div>
 
         {columns.map((col) => (

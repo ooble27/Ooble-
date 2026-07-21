@@ -116,16 +116,62 @@ export const InteracArt = ({ className }: ArtProps) => (
     <path d="M232 190 h66" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
     <path d="M292 181 l12 9 l-12 9" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
 
-    {/* Carte Interac */}
+    {/* Carte Interac (dessinée) */}
     <g transform="rotate(8 330 176)">
       <rect x="266" y="132" width="128" height="88" rx="14" fill="#fff" stroke={INK} strokeWidth="3.5" />
-      <text x="282" y="172" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="24" letterSpacing="-0.5" fill={INK}>
+      <text x="282" y="170" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="23" letterSpacing="-0.5" fill={INK}>
         Interac
       </text>
-      <circle cx="372" cy="164" r="5" fill="#F2C14E" />
-      <rect x="282" y="188" width="40" height="18" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2" />
+      <circle cx="371" cy="162" r="5" fill="#FDB515" />
+      <rect x="282" y="186" width="34" height="16" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2" />
+      {/* petit emblème Interac dessiné, en bas à droite */}
+      <g>
+        <rect x="352" y="182" width="30" height="30" rx="7" fill="#FDB515" stroke={INK} strokeWidth="2.5" />
+        <rect x="362" y="189" width="5" height="15" rx="2.5" fill={INK} />
+        <path d="M367 197 h7 a4 4 0 0 1 4 4 v7 h-11 Z" fill={INK} />
+        <rect x="356" y="199" width="5" height="3" rx="1.5" fill={INK} />
+        <rect x="356" y="204" width="5" height="3" rx="1.5" fill={INK} />
+      </g>
     </g>
 
     <UsdtCoin cx={322} cy={264} r={26} rot={10} />
+  </svg>
+);
+
+/* ===== Illustrations d'étapes (Comment ça marche) ===== */
+
+/** Étape 1 — Compte vérifié (carte d'identité + coche). */
+export const StepAccount = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Créez votre compte">
+    <circle cx="60" cy="60" r="54" fill={HALO} />
+    <rect x="30" y="42" width="60" height="44" rx="9" fill="#fff" stroke={INK} strokeWidth="3" />
+    <circle cx="47" cy="60" r="9" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
+    <rect x="62" y="54" width="20" height="5" rx="2.5" fill={INK} opacity="0.75" />
+    <rect x="62" y="65" width="14" height="5" rx="2.5" fill={INK} opacity="0.35" />
+    <circle cx="86" cy="42" r="12" fill="#26A17B" stroke={INK} strokeWidth="2.5" />
+    <path d="M81 42 l4 4 l6 -7" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/** Étape 2 — Créez votre ordre (reçu + pièce USDT). */
+export const StepOrder = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Créez votre ordre">
+    <circle cx="60" cy="60" r="54" fill={HALO} />
+    <rect x="34" y="32" width="46" height="56" rx="8" fill="#fff" stroke={INK} strokeWidth="3" />
+    <rect x="44" y="46" width="26" height="5" rx="2.5" fill={INK} opacity="0.75" />
+    <rect x="44" y="57" width="20" height="5" rx="2.5" fill={INK} opacity="0.35" />
+    <rect x="44" y="68" width="24" height="5" rx="2.5" fill="#2FA39B" />
+    <UsdtCoin cx={82} cy={80} r={16} rot={8} />
+  </svg>
+);
+
+/** Étape 3 — Réglé directement (portefeuille + pièce). */
+export const StepSettle = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Réglé directement">
+    <circle cx="60" cy="60" r="54" fill={HALO} />
+    <rect x="30" y="54" width="60" height="38" rx="9" fill="#0F3A43" stroke={INK} strokeWidth="3" />
+    <path d="M30 68 h60 v15 a9 9 0 0 1 -9 9 H39 a9 9 0 0 1 -9 -9 Z" fill="#2FA39B" stroke={INK} strokeWidth="3" />
+    <circle cx="76" cy="75" r="4" fill={INK} />
+    <UsdtCoin cx={54} cy={40} r={15} rot={-8} />
   </svg>
 );

@@ -13,7 +13,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { InteracLogo, MapleLeaf } from "@/components/marks";
-import { CoinsArt, InteracArt, PhoneArt, WalletArt } from "@/components/illustrations";
+import {
+  CoinsArt,
+  InteracArt,
+  PhoneArt,
+  StepAccount,
+  StepOrder,
+  StepSettle,
+  WalletArt,
+} from "@/components/illustrations";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { formatCad } from "@/lib/rates";
 
@@ -180,7 +188,11 @@ const Index = () => {
               >
                 Vous payez par Interac e-Transfer
               </SectionHead>
-              <p className="mt-6 max-w-md text-xs font-light leading-relaxed text-muted-foreground">
+              <div className="mt-6 inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2 shadow-soft">
+                <InteracLogo className="h-6" />
+                <span className="text-sm font-medium text-muted-foreground">Moyen de paiement accepté</span>
+              </div>
+              <p className="mt-4 max-w-md text-xs font-light leading-relaxed text-muted-foreground">
                 Ooble accepte Interac e-Transfer comme moyen de paiement. Ooble
                 n'est pas affilié à Interac Corp. et ne fournit pas de services
                 Interac. « Interac » est une marque de commerce d'Interac Corp.
@@ -232,16 +244,20 @@ const Index = () => {
             <SectionHead eyebrow="Comment ça marche" onDark>
               De l'inscription au règlement, en quelques minutes
             </SectionHead>
-            <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-3">
-              {steps.map(({ n, title, desc }) => (
-                <div key={n} className="border-t-2 border-white/15 pt-6">
-                  <span className="font-display text-[2.6rem] font-semibold leading-none tracking-tight text-white/20">
-                    {n}
-                  </span>
-                  <h3 className="mt-5 font-display text-lg font-semibold">{title}</h3>
-                  <p className="mt-2.5 text-sm font-light leading-relaxed text-white/60">{desc}</p>
-                </div>
-              ))}
+            <div className="mt-16 grid gap-x-10 gap-y-14 sm:grid-cols-3">
+              {steps.map(({ n, title, desc }, i) => {
+                const Art = [StepAccount, StepOrder, StepSettle][i];
+                return (
+                  <div key={n}>
+                    <Art className="h-28 w-28" />
+                    <div className="mt-5 flex items-center gap-3 border-t border-white/15 pt-5">
+                      <span className="font-display text-sm font-semibold text-primary">{n}</span>
+                      <h3 className="font-display text-lg font-semibold">{title}</h3>
+                    </div>
+                    <p className="mt-2.5 text-sm font-light leading-relaxed text-white/60">{desc}</p>
+                  </div>
+                );
+              })}
             </div>
           </Wrap>
         </section>
