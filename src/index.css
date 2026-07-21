@@ -5,33 +5,37 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 156 24% 8%;
+    --foreground: 194 32% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 156 24% 8%;
+    --card-foreground: 194 32% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 156 24% 8%;
+    --popover-foreground: 194 32% 11%;
 
-    /* Vert émeraude Ooble */
-    --primary: 152 76% 39%;
+    /* Teal Ooble (bouton / accent) */
+    --primary: 174 58% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 24% 96%;
-    --secondary-foreground: 156 24% 8%;
-    --muted: 150 20% 96%;
-    --muted-foreground: 155 8% 42%;
+    --secondary: 174 22% 95%;
+    --secondary-foreground: 194 32% 11%;
+    --muted: 180 20% 96%;
+    --muted-foreground: 192 9% 42%;
 
-    --accent: 152 76% 39%;
+    --accent: 174 58% 38%;
     --accent-foreground: 0 0% 100%;
-    --accent-ink: 156 60% 24%;
-    --accent-tint: 150 60% 95%;
+    --accent-ink: 188 52% 22%;
+    --accent-tint: 174 44% 93%;
+
+    /* Pétrole profond (panneaux sombres) */
+    --deep: 193 62% 15%;
+    --deep-foreground: 0 0% 100%;
 
     --destructive: 6 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 150 14% 91%;
-    --input: 150 14% 88%;
-    --ring: 152 76% 39%;
-    --radius: 1.25rem;
+    --border: 176 16% 90%;
+    --input: 176 16% 86%;
+    --ring: 174 58% 38%;
+    --radius: 1.1rem;
   }
 
   * {
@@ -65,30 +69,22 @@
 
   .shadow-soft {
     box-shadow:
-      0 1px 2px rgb(16 40 28 / 0.04),
-      0 12px 28px -10px rgb(16 40 28 / 0.1);
+      0 1px 2px rgb(15 58 67 / 0.05),
+      0 12px 28px -12px rgb(15 58 67 / 0.14);
   }
   .shadow-lift {
     box-shadow:
-      0 2px 4px rgb(16 40 28 / 0.04),
-      0 32px 64px -20px rgb(16 40 28 / 0.2);
+      0 2px 4px rgb(15 58 67 / 0.05),
+      0 34px 60px -22px rgb(15 58 67 / 0.28);
   }
-  .shadow-green {
-    box-shadow: 0 12px 32px -8px hsl(152 76% 39% / 0.4);
+  .shadow-teal {
+    box-shadow: 0 14px 30px -10px hsl(174 58% 38% / 0.4);
   }
 
-  .bg-mesh {
+  .bg-wash {
     background:
-      radial-gradient(50% 45% at 82% 8%, hsl(152 76% 39% / 0.1), transparent 70%),
-      radial-gradient(45% 40% at 6% 20%, hsl(150 70% 60% / 0.1), transparent 70%);
-  }
-
-  .bg-grid-soft {
-    background-image:
-      linear-gradient(hsl(150 14% 91% / 0.7) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(150 14% 91% / 0.7) 1px, transparent 1px);
-    background-size: 40px 40px;
-    mask-image: radial-gradient(ellipse 60% 55% at 50% 40%, black 20%, transparent 100%);
+      radial-gradient(48% 42% at 88% 4%, hsl(174 58% 45% / 0.13), transparent 70%),
+      radial-gradient(42% 40% at 4% 16%, hsl(186 45% 55% / 0.1), transparent 70%);
   }
 
   @keyframes ooble-up {

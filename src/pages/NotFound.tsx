@@ -9,7 +9,7 @@ const NotFound = () => (
       <p className="text-lg text-muted-foreground">Cette page n'existe pas.</p>
       <Link
         to="/"
-        className="mt-2 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-green transition-transform hover:-translate-y-0.5"
+        className="mt-2 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-teal transition-transform hover:-translate-y-0.5"
       >
         Retour à l'accueil
       </Link>

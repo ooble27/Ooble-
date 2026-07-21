@@ -48,10 +48,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        deep: {
+          DEFAULT: "hsl(var(--deep))",
+          foreground: "hsl(var(--deep-foreground))",
+        },
+        "accent-tint": "hsl(var(--accent-tint))",
+        "accent-ink": "hsl(var(--accent-ink))",
       },
       fontFamily: {
-        display: ['"Bricolage Grotesque"', "system-ui", "sans-serif"],
-        body: ['"Inter"', "system-ui", "sans-serif"],
+        display: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
+        body: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
       },
       maxWidth: {
         container: "1120px",

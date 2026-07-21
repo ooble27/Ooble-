@@ -136,7 +136,7 @@ const OrderForm = ({ side }: OrderFormProps) => {
       <button
         type="button"
         onClick={() => setSubmitted(true)}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-green transition-transform hover:-translate-y-0.5"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-teal transition-transform hover:-translate-y-0.5"
       >
         {isBuy ? "Créer l'ordre d'achat" : "Créer l'ordre de vente"}
         <ArrowRight className="h-4 w-4" />

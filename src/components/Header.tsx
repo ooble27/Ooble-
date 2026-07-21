@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Logo from "./Logo";
 
@@ -26,11 +26,11 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b transition-all duration-300",
-        scrolled ? "border-border bg-background/85 backdrop-blur-xl" : "border-transparent bg-background",
+        "sticky top-0 z-50 transition-all duration-300",
+        scrolled ? "border-b bg-background/85 backdrop-blur-xl" : "bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8">
+      <div className="mx-auto flex h-[68px] max-w-[1120px] items-center justify-between px-6 sm:px-8">
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -48,13 +48,18 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-2 md:flex">
           <Link
             to="/acheter"
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-green transition-transform hover:-translate-y-0.5"
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+          >
+            Se connecter
+          </Link>
+          <Link
+            to="/acheter"
+            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[hsl(174_58%_33%)]"
           >
             Commencer
-            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -78,9 +83,9 @@ const Header = () => {
           <Link
             to="/acheter"
             onClick={() => setOpen(false)}
-            className="mt-2 flex items-center justify-center gap-1.5 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+            className="mt-2 block rounded-lg bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
           >
-            Commencer <ArrowRight className="h-4 w-4" />
+            Commencer
           </Link>
         </nav>
       )}
