@@ -48,7 +48,7 @@ const Markets = () => (
       <tbody>
         {rows.map((r) => (
           <tr key={r.id} className="group border-b transition-colors hover:bg-secondary/40">
-            <td className="py-4 pr-4">
+            <td className="py-[18px] pr-4">
               <div className="flex items-center gap-3">
                 <Coin id={r.id} size={30} />
                 <div>
@@ -62,18 +62,18 @@ const Markets = () => (
                 )}
               </div>
             </td>
-            <td className="py-4 pr-4 text-right font-display text-sm font-bold tabular-nums">
+            <td className="py-[18px] pr-4 text-right font-display text-sm font-bold tabular-nums">
               {r.price}
             </td>
             <td
-              className={`py-4 pr-4 text-right text-sm font-semibold tabular-nums ${r.up ? "text-primary" : "text-[#E5484D]"}`}
+              className={`py-[18px] pr-4 text-right text-sm font-semibold tabular-nums ${r.up ? "text-primary" : "text-[#E5484D]"}`}
             >
               {r.chg}
             </td>
-            <td className="hidden py-4 pr-4 sm:table-cell">
+            <td className="hidden py-[18px] pr-4 sm:table-cell">
               <Spark up={r.up} />
             </td>
-            <td className="py-4 text-right">
+            <td className="py-[18px] text-right">
               {r.tradable ? (
                 <Link
                   to="/acheter"
