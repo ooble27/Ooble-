@@ -56,8 +56,8 @@ export default {
         "accent-ink": "hsl(var(--accent-ink))",
       },
       fontFamily: {
-        display: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
-        body: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
+        display: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"],
+        body: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"],
       },
       maxWidth: {
         container: "1120px",

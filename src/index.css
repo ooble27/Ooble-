@@ -4,38 +4,39 @@
 
 @layer base {
   :root {
+    /* Palette exacte (Mini Brand Guide) */
     --background: 0 0% 100%;
-    --foreground: 194 32% 11%;
+    --foreground: 220 6% 12%;            /* #1D1E20 */
     --card: 0 0% 100%;
-    --card-foreground: 194 32% 11%;
+    --card-foreground: 220 6% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 194 32% 11%;
+    --popover-foreground: 220 6% 12%;
 
-    /* Teal Ooble (bouton / accent) */
-    --primary: 174 58% 38%;
+    /* Teal #2A8E9E */
+    --primary: 190 58% 39%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 174 22% 95%;
-    --secondary-foreground: 194 32% 11%;
-    --muted: 180 20% 96%;
-    --muted-foreground: 192 9% 42%;
+    --secondary: 186 30% 96%;
+    --secondary-foreground: 220 6% 12%;
+    --muted: 200 24% 97%;
+    --muted-foreground: 218 8% 42%;
 
-    --accent: 174 58% 38%;
+    --accent: 190 58% 39%;
     --accent-foreground: 0 0% 100%;
-    --accent-ink: 188 52% 22%;
-    --accent-tint: 174 44% 93%;
+    --accent-ink: 190 60% 26%;
+    --accent-tint: 186 33% 93%;          /* #E9F3F4 */
 
-    /* Pétrole profond (panneaux sombres) */
-    --deep: 193 62% 15%;
+    /* Navy profond #180D39 */
+    --deep: 251 63% 14%;
     --deep-foreground: 0 0% 100%;
 
     --destructive: 6 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 176 16% 90%;
-    --input: 176 16% 86%;
-    --ring: 174 58% 38%;
-    --radius: 0.6rem;
+    --border: 200 16% 91%;
+    --input: 200 16% 87%;
+    --ring: 190 58% 39%;
+    --radius: 0.9rem;
   }
 
   * {
@@ -85,6 +86,26 @@
     background:
       radial-gradient(48% 42% at 88% 4%, hsl(174 58% 45% / 0.13), transparent 70%),
       radial-gradient(42% 40% at 4% 16%, hsl(186 45% 55% / 0.1), transparent 70%);
+  }
+
+  .bg-diagonal {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.06) 0,
+      rgba(255, 255, 255, 0.06) 1px,
+      transparent 1px,
+      transparent 12px
+    );
+  }
+
+  .bg-diagonal-dark {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.03) 0,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 12px
+    );
   }
 
   @keyframes ooble-up {
