@@ -47,3 +47,14 @@ export const TransferMark = ({ className }: MarkProps) => (
     />
   </svg>
 );
+
+/** Marque Interac (mot-symbole + point signature or). */
+export const InteracLogo = ({ className }: MarkProps) => (
+  <span
+    className={`inline-flex items-baseline font-display font-extrabold tracking-[-0.02em] ${className ?? ""}`}
+    aria-label="Interac"
+  >
+    Interac
+    <span className="ml-[3px] h-[5px] w-[5px] translate-y-[-1px] rounded-full bg-[#FDB515]" />
+  </span>
+);
