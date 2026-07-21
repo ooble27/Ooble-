@@ -120,9 +120,11 @@ const AppAcheter = () => {
           </div>
         </div>
 
-        <Button variant="appPrimary" size="lg" shape="soft" className="mt-6 w-full" disabled={value <= 0} onClick={() => setStep("destination")}>
-          Continuer <ArrowRight className="h-4 w-4" />
-        </Button>
+        <div className="mt-6 flex justify-end">
+          <Button variant="appPrimary" size="default" shape="soft" disabled={value <= 0} onClick={() => setStep("destination")}>
+            Continuer <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </AppShell>
     );
   }
@@ -136,9 +138,11 @@ const AppAcheter = () => {
             <NetworkChip key={n.id} network={n} selected={net === n.id} onSelect={() => setNet(n.id)} />
           ))}
         </div>
-        <Button variant="appPrimary" size="lg" shape="soft" className="mt-6 w-full" disabled={!net} onClick={() => setStep("address")}>
-          Continuer <ArrowRight className="h-4 w-4" />
-        </Button>
+        <div className="mt-6 flex justify-end">
+          <Button variant="appPrimary" size="default" shape="soft" disabled={!net} onClick={() => setStep("address")}>
+            Continuer <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </AppShell>
     );
   }
@@ -170,9 +174,11 @@ const AppAcheter = () => {
         <p className="mt-3 px-1 text-sm text-muted-foreground">
           Vos USDT sont envoyés on-chain directement à cette adresse. Vérifiez-la bien.
         </p>
-        <Button variant="appPrimary" size="lg" shape="soft" className="mt-6 w-full" disabled={address.length < 12} onClick={() => setStep("done")}>
-          Continuer <ArrowRight className="h-4 w-4" />
-        </Button>
+        <div className="mt-6 flex justify-end">
+          <Button variant="appPrimary" size="default" shape="soft" disabled={address.length < 12} onClick={() => setStep("done")}>
+            Continuer <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </AppShell>
     );
   }
@@ -182,7 +188,7 @@ const AppAcheter = () => {
     <AppShell header={<StepHead title="Ordre créé" sub="Payez par Interac e-Transfer" />}>
       <div className="rounded-2xl border border-border bg-white p-6">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a1a1a] text-white">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-secondary text-foreground">
             <Check className="h-7 w-7" strokeWidth={2.4} />
           </span>
           <p className="mt-4 font-display text-2xl font-extrabold">{nfUsdt.format(usdt)} USDT</p>
@@ -210,13 +216,13 @@ const AppAcheter = () => {
         automatique est recommandé.
       </p>
 
-      <div className="mt-6 flex flex-col gap-2.5">
-        <Button variant="appPrimary" size="lg" shape="soft" className="w-full" asChild>
-          <Link to="/app">Retour à l'accueil</Link>
-        </Button>
-        <Button variant="appOutline" size="lg" shape="soft" className="w-full"
+      <div className="mt-6 flex justify-end gap-2.5">
+        <Button variant="ghost" size="default" shape="soft"
           onClick={() => { setStep("amount"); setAmount(""); setNet(null); setAddress(""); }}>
           Nouvel ordre
+        </Button>
+        <Button variant="appPrimary" size="default" shape="soft" asChild>
+          <Link to="/app">Retour à l'accueil</Link>
         </Button>
       </div>
     </AppShell>

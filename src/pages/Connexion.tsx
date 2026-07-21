@@ -63,7 +63,7 @@ const Connexion = () => {
           </p>
 
           {/* Bascule connexion / inscription */}
-          <div className="mt-7 grid grid-cols-2 gap-1 rounded-lg border border-border bg-white p-1">
+          <div className="mt-7 grid grid-cols-2 gap-1 rounded-lg border border-border bg-secondary/60 p-1">
             {(["login", "register"] as Mode[]).map((m) => (
               <button
                 key={m}
@@ -71,7 +71,7 @@ const Connexion = () => {
                 onClick={() => setMode(m)}
                 className={cn(
                   "rounded-md py-2.5 text-sm font-semibold transition-colors",
-                  mode === m ? "bg-[#1a1a1a] text-white" : "text-muted-foreground hover:text-foreground",
+                  mode === m ? "bg-white text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {m === "login" ? "Se connecter" : "S'inscrire"}

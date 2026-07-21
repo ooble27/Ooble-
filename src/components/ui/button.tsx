@@ -14,8 +14,8 @@ const buttonVariants = cva(
         ghost: "text-foreground hover:bg-secondary",
         white: "bg-white text-primary shadow-soft hover:-translate-y-0.5",
         outlineOnDark: "border border-white/25 text-white hover:bg-white/10",
-        /* Variantes « app » — plates, sans ombre, couleur neutre luxe (façon Terex). */
-        appPrimary: "bg-[#1a1a1a] text-white hover:bg-black active:bg-black",
+        /* Variantes « app » — plates, sans ombre, style « pastille » (blanc + filet fin). */
+        appPrimary: "border border-border bg-white text-foreground hover:bg-secondary active:bg-secondary",
         appOnDark: "bg-white text-deep hover:bg-white/90 active:bg-white/80",
         appOutline: "border border-border bg-white text-foreground hover:bg-secondary",
       },
