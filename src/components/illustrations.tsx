@@ -1,4 +1,5 @@
 /* Illustrations plates originales (style ligne), palette Ooble. USDT uniquement. */
+import { cn } from "@/lib/utils";
 
 const INK = "#14201f";
 const HALO = "#EEF2F2"; // fond neutre très clair (pas de vert)
@@ -157,71 +158,36 @@ export const StepOrder = ({ className }: ArtProps) => (
   </svg>
 );
 
-/* ===== Pièces de réseaux (dessinées, style USDT) ===== */
+/* ===== Pièces de réseaux (vrai logo, présenté en pièce) ===== */
 
 type NetId = "trx" | "eth" | "bnb" | "matic" | "sol" | "avax";
 
-const NET_STYLE: Record<NetId, { color: string; edge: string }> = {
-  trx: { color: "#EF0027", edge: "#a60019" },
-  eth: { color: "#627EEA", edge: "#4560c4" },
-  bnb: { color: "#F3BA2F", edge: "#cf9a16" },
-  matic: { color: "#8247E5", edge: "#6431bd" },
-  sol: { color: "#9945FF", edge: "#7a2fd6" },
-  avax: { color: "#E84142", edge: "#bb2a2b" },
+/** Couleur de tranche (pour l'effet pièce sous le logo). */
+const NET_EDGE: Record<NetId, string> = {
+  trx: "#a60019",
+  eth: "#3a4a86",
+  bnb: "#cf9a16",
+  matic: "#5a2fa8",
+  sol: "#1c9e86",
+  avax: "#bb2a2b",
 };
 
-function netGlyph(id: NetId) {
-  switch (id) {
-    case "trx":
-      return <path d="M-15 -12 L16 -5 L2 17 Z" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinejoin="round" />;
-    case "eth":
-      return (
-        <g fill="#fff">
-          <path d="M0 -17 L11 1 L0 8 L-11 1 Z" opacity="0.95" />
-          <path d="M0 10 L11 3 L0 18 L-11 3 Z" opacity="0.7" />
-        </g>
-      );
-    case "bnb":
-      return (
-        <g fill="#fff">
-          <rect x="-6" y="-6" width="12" height="12" rx="2.5" transform="rotate(45)" />
-          <rect x="-15.5" y="-3" width="6" height="6" rx="1.6" transform="rotate(45)" />
-          <rect x="9.5" y="-3" width="6" height="6" rx="1.6" transform="rotate(45)" />
-          <rect x="-3" y="-15.5" width="6" height="6" rx="1.6" transform="rotate(45)" />
-          <rect x="-3" y="9.5" width="6" height="6" rx="1.6" transform="rotate(45)" />
-        </g>
-      );
-    case "matic":
-      return <path d="M0 -16 L14 -8 L14 8 L0 16 L-14 8 L-14 -8 Z" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinejoin="round" />;
-    case "sol":
-      return (
-        <g fill="#fff">
-          <path d="M-14 -11 h22 l6 6 h-22 Z" />
-          <path d="M-20 -1 h22 l6 6 h-22 Z" transform="translate(6 0)" />
-          <path d="M-14 9 h22 l6 6 h-22 Z" />
-        </g>
-      );
-    case "avax":
-      return (
-        <g fill="#fff">
-          <path d="M-2 -15 L15 15 L-1 15 Z" />
-          <path d="M-6 3 L-14 15 L2 15 Z" />
-        </g>
-      );
-  }
-}
-
-/** Pièce de réseau dessinée (couleur de la blockchain, style pièce USDT). */
-export const NetworkCoin = ({ id, className }: { id: NetId; className?: string }) => {
-  const s = NET_STYLE[id];
-  return (
-    <svg viewBox="0 0 128 132" className={className} fill="none" role="img" aria-label={id}>
-      <circle cx="64" cy="72" r="48" fill={s.edge} stroke={INK} strokeWidth="3.5" />
-      <circle cx="64" cy="62" r="48" fill={s.color} stroke={INK} strokeWidth="3.5" />
-      <g transform="translate(64 62)">{netGlyph(id)}</g>
-    </svg>
-  );
-};
+/** Pièce de réseau : vrai logo de la blockchain, avec tranche et contour. */
+export const NetworkCoin = ({ id, className }: { id: NetId; className?: string }) => (
+  <div className={cn("relative", className)}>
+    <div
+      className="absolute inset-0 translate-y-[7%] rounded-full border-[3px] border-[#14201f]"
+      style={{ background: NET_EDGE[id] }}
+      aria-hidden
+    />
+    <img
+      src={`/coins/${id}.svg`}
+      alt=""
+      draggable={false}
+      className="relative block w-full rounded-full border-[3px] border-[#14201f]"
+    />
+  </div>
+);
 
 /** Étape 3 — Réglé directement (portefeuille + pièce). */
 export const StepSettle = ({ className }: ArtProps) => (
