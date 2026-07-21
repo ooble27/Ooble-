@@ -12,7 +12,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { InteracLogo, MapleLeaf } from "@/components/marks";
+import { InteracLogo } from "@/components/marks";
 import {
   CoinsArt,
   InteracArt,
@@ -88,16 +88,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Bandeau d'annonce */}
-      <div className="pt-safe bg-deep text-deep-foreground">
-        <Wrap className="flex items-center justify-center gap-2 py-2.5 text-center text-[13px]">
-          <MapleLeaf className="h-3.5 w-3.5 text-[#EF4444]" />
-          <span className="text-white/85">
-            Ooble arrive au Canada — achetez et vendez vos USDT en dollars canadiens.
-          </span>
-        </Wrap>
-      </div>
-
       <Header />
 
       <main>
