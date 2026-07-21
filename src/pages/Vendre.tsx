@@ -30,7 +30,7 @@ const Vendre = () => (
     <Header />
 
     <section className="relative overflow-hidden">
-      <div className="bg-wash absolute inset-0" aria-hidden />
+      
       <main className="relative mx-auto grid max-w-[1120px] gap-12 px-6 pb-24 pt-12 sm:px-8 lg:grid-cols-[1fr_440px] lg:gap-16 lg:pt-16">
         <div>
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">

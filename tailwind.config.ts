@@ -56,8 +56,8 @@ export default {
         "accent-ink": "hsl(var(--accent-ink))",
       },
       fontFamily: {
-        display: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
-        body: ['"Hanken Grotesk"', "system-ui", "sans-serif"],
+        display: ['"Manrope"', "system-ui", "sans-serif"],
+        body: ['"Manrope"', "system-ui", "sans-serif"],
       },
       maxWidth: {
         container: "1120px",

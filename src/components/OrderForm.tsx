@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ArrowRight, Info, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { DEMO_RATES, RATE_LOCK_MINUTES, formatCad, formatUsdt } from "@/lib/rates";
+import { useUsdtRate } from "@/hooks/useUsdtRate";
+import { RATE_LOCK_MINUTES, formatCad, formatUsdt } from "@/lib/rates";
 import type { OrderSide, UsdtNetwork } from "@/lib/types";
 
 const networks: { id: UsdtNetwork; label: string; hint: string }[] = [
@@ -21,8 +22,9 @@ const OrderForm = ({ side }: OrderFormProps) => {
   const [interacEmail, setInteracEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
+  const rates = useUsdtRate();
   const isBuy = side === "buy";
-  const rate = DEMO_RATES[side];
+  const rate = isBuy ? rates.buy : rates.sell;
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const cadAmount = isBuy ? value : value * rate;
   const usdtAmount = isBuy ? value / rate : value;

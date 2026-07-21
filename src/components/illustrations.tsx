@@ -1,6 +1,7 @@
 /* Illustrations plates originales (style ligne), palette Ooble. USDT uniquement. */
 
 const INK = "#14201f";
+const HALO = "#EEF2F2"; // fond neutre très clair (pas de vert)
 
 /** Pièce USDT stylisée. */
 function UsdtCoin({ cx, cy, r, rot = 0 }: { cx: number; cy: number; r: number; rot?: number }) {
@@ -16,15 +17,6 @@ function UsdtCoin({ cx, cy, r, rot = 0 }: { cx: number; cy: number; r: number; r
   );
 }
 
-function Sparkle({ cx, cy, s = 9, fill = "#0F3A43" }: { cx: number; cy: number; s?: number; fill?: string }) {
-  return (
-    <path
-      d={`M${cx} ${cy - s} C ${cx + s * 0.2} ${cy - s * 0.2}, ${cx + s * 0.2} ${cy - s * 0.2}, ${cx + s} ${cy} C ${cx + s * 0.2} ${cy + s * 0.2}, ${cx + s * 0.2} ${cy + s * 0.2}, ${cx} ${cy + s} C ${cx - s * 0.2} ${cy + s * 0.2}, ${cx - s * 0.2} ${cy + s * 0.2}, ${cx - s} ${cy} C ${cx - s * 0.2} ${cy - s * 0.2}, ${cx - s * 0.2} ${cy - s * 0.2}, ${cx} ${cy - s} Z`}
-      fill={fill}
-    />
-  );
-}
-
 interface ArtProps {
   className?: string;
 }
@@ -32,11 +24,7 @@ interface ArtProps {
 /** Portefeuille + pièces USDT. */
 export const WalletArt = ({ className }: ArtProps) => (
   <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Portefeuille et USDT">
-    <circle cx="210" cy="185" r="165" fill="hsl(var(--accent-tint))" />
-    <Sparkle cx={62} cy={110} s={10} fill="#2FA39B" />
-    <Sparkle cx={360} cy={90} s={12} fill="#0F3A43" />
-    <Sparkle cx={368} cy={250} s={8} fill="#2FA39B" />
-
+    <circle cx="210" cy="185" r="165" fill={HALO} />
     {/* corps du portefeuille */}
     <rect x="96" y="150" width="248" height="158" rx="22" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
     {/* poche avant */}
@@ -50,7 +38,6 @@ export const WalletArt = ({ className }: ArtProps) => (
     {/* fermoir */}
     <rect x="250" y="196" width="70" height="34" rx="17" fill="#F2C14E" stroke={INK} strokeWidth="3.5" />
     <circle cx="304" cy="213" r="7" fill={INK} />
-
     {/* pièces */}
     <UsdtCoin cx={168} cy={132} r={30} rot={-6} />
     <UsdtCoin cx={92} cy={118} r={19} rot={-18} />
@@ -58,24 +45,18 @@ export const WalletArt = ({ className }: ArtProps) => (
   </svg>
 );
 
-/** Téléphone + bouclier de sécurité + carte. */
+/** Téléphone + bouclier de sécurité + carte (sans étoiles). */
 export const PhoneArt = ({ className }: ArtProps) => (
   <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Sécurité et application">
-    <circle cx="210" cy="185" r="165" fill="hsl(var(--accent-tint))" />
-    <Sparkle cx={70} cy={120} s={11} fill="#0F3A43" />
-    <Sparkle cx={356} cy={110} s={9} fill="#2FA39B" />
-    <Sparkle cx={78} cy={270} s={8} fill="#2FA39B" />
-
+    <circle cx="210" cy="185" r="165" fill={HALO} />
     {/* carte derrière */}
     <g transform="rotate(-14 150 250)">
       <rect x="70" y="212" width="150" height="92" rx="14" fill="#2FA39B" stroke={INK} strokeWidth="3.5" />
       <rect x="86" y="232" width="40" height="26" rx="5" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
       <rect x="86" y="276" width="110" height="8" rx="4" fill="#0F3A43" />
     </g>
-
     {/* téléphone */}
     <rect x="176" y="70" width="150" height="248" rx="28" fill="#fff" stroke={INK} strokeWidth="3.5" />
-    <rect x="176" y="70" width="150" height="248" rx="28" fill="none" stroke={INK} strokeWidth="3.5" />
     <rect x="228" y="82" width="46" height="8" rx="4" fill={INK} />
     {/* écran : bouclier + cadenas */}
     <path
@@ -86,7 +67,6 @@ export const PhoneArt = ({ className }: ArtProps) => (
     />
     <rect x="238" y="176" width="26" height="22" rx="5" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
     <path d="M243 176 v -6 a 8 8 0 0 1 16 0 v 6" fill="none" stroke={INK} strokeWidth="2.5" />
-
     <UsdtCoin cx={330} cy={276} r={22} rot={10} />
   </svg>
 );
@@ -94,13 +74,7 @@ export const PhoneArt = ({ className }: ArtProps) => (
 /** Grande pièce USDT + échange. */
 export const CoinsArt = ({ className }: ArtProps) => (
   <svg viewBox="0 0 420 320" className={className} fill="none" role="img" aria-label="USDT en dollars canadiens">
-    <circle cx="210" cy="160" r="150" fill="hsl(var(--accent-tint))" />
-    <Sparkle cx={70} cy={80} s={11} fill="#2FA39B" />
-    <Sparkle cx={352} cy={70} s={10} fill="#0F3A43" />
-    <Sparkle cx={360} cy={230} s={9} fill="#2FA39B" />
-    <Sparkle cx={62} cy={230} s={8} fill="#0F3A43" />
-
-    {/* flèche circulaire d'échange */}
+    <circle cx="210" cy="160" r="150" fill={HALO} />
     <path
       d="M120 160 a 90 90 0 1 1 26 60"
       fill="none"
@@ -108,11 +82,50 @@ export const CoinsArt = ({ className }: ArtProps) => (
       strokeWidth="3.5"
       strokeLinecap="round"
       strokeDasharray="2 12"
-      opacity="0.55"
+      opacity="0.5"
     />
-
     <UsdtCoin cx={210} cy={155} r={72} />
     <UsdtCoin cx={318} cy={96} r={26} rot={12} />
     <UsdtCoin cx={104} cy={214} r={20} rot={-14} />
+  </svg>
+);
+
+/** e-Transfer Interac : carte Interac + flux vers USDT. */
+export const InteracArt = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Payé par Interac e-Transfer">
+    <circle cx="210" cy="185" r="165" fill={HALO} />
+
+    {/* Téléphone avec notification e-Transfer */}
+    <g transform="rotate(-6 150 190)">
+      <rect x="78" y="96" width="150" height="196" rx="24" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <rect x="96" y="120" width="114" height="30" rx="8" fill="#EEF2F2" stroke={INK} strokeWidth="2" />
+      <circle cx="113" cy="135" r="8" fill="#F2C14E" stroke={INK} strokeWidth="2" />
+      <rect x="128" y="128" width="66" height="6" rx="3" fill={INK} opacity="0.75" />
+      <rect x="128" y="140" width="44" height="5" rx="2.5" fill={INK} opacity="0.35" />
+      {/* montant reçu */}
+      <text x="153" y="205" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="30" fill={INK}>
+        500 $
+      </text>
+      <rect x="104" y="230" width="98" height="30" rx="15" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
+      <text x="153" y="250" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill="#fff">
+        Accepter
+      </text>
+    </g>
+
+    {/* Flèche de transfert */}
+    <path d="M232 190 h66" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
+    <path d="M292 181 l12 9 l-12 9" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+
+    {/* Carte Interac */}
+    <g transform="rotate(8 330 176)">
+      <rect x="266" y="132" width="128" height="88" rx="14" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <text x="282" y="172" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="24" letterSpacing="-0.5" fill={INK}>
+        Interac
+      </text>
+      <circle cx="372" cy="164" r="5" fill="#F2C14E" />
+      <rect x="282" y="188" width="40" height="18" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2" />
+    </g>
+
+    <UsdtCoin cx={322} cy={264} r={26} rot={10} />
   </svg>
 );
