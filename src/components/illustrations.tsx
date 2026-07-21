@@ -168,7 +168,7 @@ const NET_EDGE: Record<NetId, string> = {
   eth: "#3a4a86",
   bnb: "#cf9a16",
   matic: "#5a2fa8",
-  sol: "#1c9e86",
+  sol: "#4c1d95",
   avax: "#bb2a2b",
 };
 
