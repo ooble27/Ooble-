@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import NetworkChip from "@/components/app/NetworkChip";
+import CopyRow from "@/components/app/CopyRow";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
@@ -11,10 +12,12 @@ import { cn } from "@/lib/utils";
 type Unit = "CAD" | "USDT";
 type Step = "amount" | "destination" | "address" | "done";
 
+const OOBLE_INTERAC = "paiement@ooble.ca";
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 
 const short = (a: string) => (a.length > 16 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
+const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 const BackBtn = ({ onClick }: { onClick: () => void }) => (
   <button
@@ -44,6 +47,7 @@ const AppAcheter = () => {
   const [amount, setAmount] = useState("");
   const [net, setNet] = useState<NetId | null>(null);
   const [address, setAddress] = useState("");
+  const orderRef = useMemo(() => newRef(), []);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "CAD" ? value / rate.buy : value;
@@ -186,15 +190,24 @@ const AppAcheter = () => {
         </div>
 
         <dl className="mt-6 divide-y divide-border border-t border-border text-sm">
-          <div className="flex justify-between py-3"><dt className="text-muted-foreground">À payer</dt><dd className="font-semibold">{nfCad.format(cad)} CAD</dd></div>
           <div className="flex justify-between py-3"><dt className="text-muted-foreground">Taux</dt><dd className="font-medium">1 USDT = {nfCad.format(rate.buy)} CAD</dd></div>
-          <div className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">Adresse</dt><dd className="truncate font-mono text-xs">{short(address)}</dd></div>
+          <div className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">Adresse de réception</dt><dd className="truncate font-mono text-xs">{short(address)}</dd></div>
         </dl>
       </div>
 
-      <p className="mt-3 rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-        Envoyez le e-Transfer Interac depuis votre banque. Vos USDT partent
-        dès réception du paiement.
+      {/* Instructions Interac e-Transfer */}
+      <p className="mb-2 mt-6 px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Envoyez votre e-Transfer
+      </p>
+      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
+        <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC} mono />
+        <CopyRow label="Montant exact" value={`${nfCad.format(cad)} CAD`} />
+        <CopyRow label="Message / référence" value={orderRef} mono />
+      </div>
+      <p className="mt-3 px-1 text-sm leading-relaxed text-muted-foreground">
+        Depuis votre banque, envoyez un e-Transfer Interac à cette adresse avec la
+        référence en message. Vos USDT partent on-chain dès réception — le dépôt
+        automatique est recommandé.
       </p>
 
       <div className="mt-6 flex flex-col gap-2.5">

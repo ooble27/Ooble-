@@ -15,7 +15,7 @@ const NetworkChip = ({ network, selected, onSelect }: NetworkChipProps) => (
     onClick={onSelect}
     aria-pressed={selected}
     className={cn(
-      "flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors",
+      "flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-all active:scale-[0.98]",
       selected ? "border-primary bg-primary/[0.06]" : "border-border bg-white hover:bg-secondary/50",
     )}
   >

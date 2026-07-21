@@ -45,10 +45,19 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background font-body text-foreground antialiased;
+  }
+
+  /* Feedback tactile propre (façon application native). */
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .font-display {

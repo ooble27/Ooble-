@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
+import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ type Unit = "USDT" | "CAD";
 type Step = "amount" | "reception" | "done";
 
 const MIN_USDT = 50;
+const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 
@@ -40,6 +42,7 @@ const AppVendre = () => {
   const [unit, setUnit] = useState<Unit>("USDT");
   const [amount, setAmount] = useState("");
   const [email, setEmail] = useState("");
+  const orderRef = useMemo(() => newRef(), []);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "USDT" ? value : value / rate.sell;
@@ -153,15 +156,23 @@ const AppVendre = () => {
         </div>
 
         <dl className="mt-6 divide-y divide-border border-t border-border text-sm">
-          <div className="flex justify-between py-3"><dt className="text-muted-foreground">Vous envoyez</dt><dd className="font-semibold">{nfUsdt.format(usdt)} USDT</dd></div>
           <div className="flex justify-between py-3"><dt className="text-muted-foreground">Taux</dt><dd className="font-medium">1 USDT = {nfCad.format(rate.sell)} CAD</dd></div>
-          <div className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">Interac</dt><dd className="truncate font-medium">{email}</dd></div>
+          <div className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">Reçu par Interac</dt><dd className="truncate font-medium">{email}</dd></div>
         </dl>
       </div>
 
-      <p className="mt-3 rounded-2xl border border-border bg-secondary/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
-        Les instructions d'envoi on-chain s'affichent à l'étape suivante. Votre
-        e-Transfer part dès réception de vos USDT.
+      {/* Détail de l'ordre */}
+      <p className="mb-2 mt-6 px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Envoyez vos USDT
+      </p>
+      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
+        <CopyRow label="Montant à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
+        <CopyRow label="Référence de l'ordre" value={orderRef} mono />
+      </div>
+      <p className="mt-3 px-1 text-sm leading-relaxed text-muted-foreground">
+        L'adresse de dépôt Ooble s'affiche à l'étape suivante selon le réseau choisi.
+        Votre e-Transfer Interac de <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> part
+        dès réception de vos USDT.
       </p>
 
       <div className="mt-6 flex flex-col gap-2.5">

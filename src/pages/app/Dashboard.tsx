@@ -113,7 +113,7 @@ const Dashboard = () => {
       </p>
       <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
         {more.map(({ to, label, sub, icon: Icon }) => (
-          <Link key={label} to={to} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-secondary/50">
+          <Link key={label} to={to} className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <Icon className="h-5 w-5" strokeWidth={1.8} />
             </span>

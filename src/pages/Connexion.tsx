@@ -46,7 +46,7 @@ const Connexion = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F4F7F7]">
+    <div className="flex min-h-screen flex-col bg-white">
       <header className="px-6 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <Logo />
       </header>
