@@ -124,14 +124,6 @@ export const InteracArt = ({ className }: ArtProps) => (
       </text>
       <circle cx="371" cy="162" r="5" fill="#FDB515" />
       <rect x="282" y="186" width="34" height="16" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2" />
-      {/* petit emblème Interac dessiné, en bas à droite */}
-      <g>
-        <rect x="352" y="182" width="30" height="30" rx="7" fill="#FDB515" stroke={INK} strokeWidth="2.5" />
-        <rect x="362" y="189" width="5" height="15" rx="2.5" fill={INK} />
-        <path d="M367 197 h7 a4 4 0 0 1 4 4 v7 h-11 Z" fill={INK} />
-        <rect x="356" y="199" width="5" height="3" rx="1.5" fill={INK} />
-        <rect x="356" y="204" width="5" height="3" rx="1.5" fill={INK} />
-      </g>
     </g>
 
     <UsdtCoin cx={322} cy={264} r={26} rot={10} />
