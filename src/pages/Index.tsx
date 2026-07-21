@@ -180,11 +180,7 @@ const Index = () => {
               >
                 Vous payez par Interac e-Transfer
               </SectionHead>
-              <div className="mt-6 inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2 shadow-soft">
-                <InteracLogo className="h-6" />
-                <span className="text-sm font-medium text-muted-foreground">Moyen de paiement accepté</span>
-              </div>
-              <p className="mt-4 max-w-md text-xs font-light leading-relaxed text-muted-foreground">
+              <p className="mt-6 max-w-md text-xs font-light leading-relaxed text-muted-foreground">
                 Ooble accepte Interac e-Transfer comme moyen de paiement. Ooble
                 n'est pas affilié à Interac Corp. et ne fournit pas de services
                 Interac. « Interac » est une marque de commerce d'Interac Corp.

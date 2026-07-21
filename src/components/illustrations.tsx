@@ -113,14 +113,19 @@ export const InteracArt = ({ className }: ArtProps) => (
     </g>
 
     {/* Flèche de transfert */}
-    <path d="M232 178 h58" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
-    <path d="M284 169 l12 9 l-12 9" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M232 190 h66" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
+    <path d="M292 181 l12 9 l-12 9" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
 
-    {/* Logo Interac officiel */}
-    <g transform="rotate(7 330 150)">
-      <image href="/interac.png" x="266" y="96" width="132" height="110" />
+    {/* Carte Interac */}
+    <g transform="rotate(8 330 176)">
+      <rect x="266" y="132" width="128" height="88" rx="14" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <text x="282" y="172" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="24" letterSpacing="-0.5" fill={INK}>
+        Interac
+      </text>
+      <circle cx="372" cy="164" r="5" fill="#F2C14E" />
+      <rect x="282" y="188" width="40" height="18" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2" />
     </g>
 
-    <UsdtCoin cx={322} cy={262} r={26} rot={10} />
+    <UsdtCoin cx={322} cy={264} r={26} rot={10} />
   </svg>
 );
