@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -22,8 +22,18 @@ import {
   StepSettle,
   WalletArt,
 } from "@/components/illustrations";
+import Coin, { type CoinId } from "@/components/Coin";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { formatCad } from "@/lib/rates";
+
+const networks: { id: CoinId; name: string; tag: string }[] = [
+  { id: "trx", name: "Tron", tag: "TRC20" },
+  { id: "eth", name: "Ethereum", tag: "ERC20" },
+  { id: "bnb", name: "BNB Chain", tag: "BEP20" },
+  { id: "matic", name: "Polygon", tag: "Polygon PoS" },
+  { id: "sol", name: "Solana", tag: "SPL" },
+  { id: "avax", name: "Avalanche", tag: "C-Chain" },
+];
 
 const values = [
   { icon: KeyRound, title: "Non-custodial", desc: "Aucun solde conservé. Vos USDT vont directement de vous à votre wallet, ordre par ordre." },
@@ -85,6 +95,33 @@ const SectionHead = ({
 const Index = () => {
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const { buy } = useUsdtRate();
+
+  // Adapte la couleur de la barre d'état (encoche) à la section en haut de
+  // l'écran : pétrole sur les sections sombres, blanc sinon — plus de bande
+  // blanche fixe au-dessus des sections colorées.
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    const update = () => {
+      const darks = Array.from(document.querySelectorAll<HTMLElement>("[data-dark]"));
+      const onDark = darks.some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top <= 4 && r.bottom > 4;
+      });
+      meta!.setAttribute("content", onDark ? "#0F3A43" : "#ffffff");
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -168,6 +205,31 @@ const Index = () => {
           </Wrap>
         </section>
 
+        {/* ===== RÉSEAUX ===== */}
+        <section className="border-b py-20 lg:py-28">
+          <Wrap>
+            <SectionHead
+              eyebrow="Réseaux"
+              sub="Recevez vos USDT sur la blockchain de votre choix — vous sélectionnez le réseau à la création de votre ordre."
+            >
+              Six réseaux pour recevoir vos USDT
+            </SectionHead>
+            <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-6">
+              {networks.map((n) => (
+                <div key={n.id} className="text-center">
+                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
+                    <span className="absolute inset-0 rounded-full bg-[#EEF2F2]" />
+                    <span className="absolute inset-[9px] rounded-full border-2 border-dashed border-primary/25" />
+                    <Coin id={n.id} size={52} className="relative" />
+                  </div>
+                  <h3 className="mt-4 font-display text-base font-semibold">{n.name}</h3>
+                  <p className="text-xs font-medium text-muted-foreground">{n.tag}</p>
+                </div>
+              ))}
+            </div>
+          </Wrap>
+        </section>
+
         {/* ===== INTERAC (illustration à droite) ===== */}
         <section className="border-b py-20 lg:py-28">
           <Wrap className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
@@ -229,7 +291,7 @@ const Index = () => {
         </section>
 
         {/* ===== COMMENT ÇA MARCHE (pétrole) ===== */}
-        <section id="comment" className="bg-deep py-20 text-deep-foreground lg:py-28">
+        <section id="comment" data-dark className="bg-deep py-20 text-deep-foreground lg:py-28">
           <Wrap>
             <SectionHead eyebrow="Comment ça marche" onDark>
               De l'inscription au règlement, en quelques minutes
@@ -324,7 +386,7 @@ const Index = () => {
         </section>
 
         {/* ===== CTA (pétrole) ===== */}
-        <section className="bg-deep py-20 text-deep-foreground lg:py-24">
+        <section data-dark className="bg-deep py-20 text-deep-foreground lg:py-24">
           <Wrap className="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
             <div>
               <h2 className="text-balance font-display text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-[2.8rem]">

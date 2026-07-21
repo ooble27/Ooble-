@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type CoinId = "usdt" | "trx" | "eth" | "bnb" | "matic" | "sol" | "usdc" | "btc";
+export type CoinId = "usdt" | "trx" | "eth" | "bnb" | "matic" | "sol" | "usdc" | "btc" | "avax";
 
 const NAMES: Record<CoinId, string> = {
   usdt: "Tether",
@@ -11,6 +11,7 @@ const NAMES: Record<CoinId, string> = {
   sol: "Solana",
   usdc: "USD Coin",
   btc: "Bitcoin",
+  avax: "Avalanche",
 };
 
 interface CoinProps {
