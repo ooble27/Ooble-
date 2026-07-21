@@ -23,7 +23,7 @@ const AppShell = ({ children, header, backTo, wide, className }: AppShellProps) 
     <div
       className={cn(
         "mx-auto flex min-h-screen flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-8",
-        wide ? "max-w-[1120px]" : "max-w-[480px]",
+        wide ? "max-w-[600px]" : "max-w-[480px]",
       )}
     >
       <div className="flex items-start justify-between gap-4 pb-6 pt-2">
