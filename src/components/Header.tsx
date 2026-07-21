@@ -17,9 +17,9 @@ const Header = () => {
   const { pathname } = useLocation();
 
   return (
-    // Sur mobile : header dans le flux normal (défile avec la page — aucune
-    // barre blanche ne reste au scroll). Sur desktop : collant en haut.
-    <header className="pt-safe relative z-40 border-b border-border/70 bg-background md:sticky md:top-0 md:bg-background/90 md:backdrop-blur-xl">
+    // Header dans le flux normal (mobile comme desktop) : il défile avec la
+    // page, aucune barre ne reste collée au scroll.
+    <header className="pt-safe relative z-40 border-b border-border/70 bg-background">
       <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8">
         <Logo />
 
