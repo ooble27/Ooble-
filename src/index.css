@@ -88,6 +88,10 @@
       radial-gradient(42% 40% at 4% 16%, hsl(186 45% 55% / 0.1), transparent 70%);
   }
 
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
   .deco-dots {
     background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
     background-size: 24px 24px;

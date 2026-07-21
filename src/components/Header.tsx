@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,24 +14,13 @@ const links = [
 
 const Header = () => {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
-        scrolled ? "border-b bg-background/85 backdrop-blur-xl" : "bg-transparent",
-      )}
-    >
-      <div className="mx-auto flex h-[68px] max-w-[1120px] items-center justify-between px-6 sm:px-8">
+    // Sur mobile : header dans le flux normal (défile avec la page — aucune
+    // barre blanche ne reste au scroll). Sur desktop : collant en haut.
+    <header className="relative z-40 border-b border-border/70 bg-background md:sticky md:top-0 md:bg-background/90 md:backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8">
         <Logo />
 
         <nav className="hidden items-center gap-8 md:flex">

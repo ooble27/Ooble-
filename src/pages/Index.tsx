@@ -89,7 +89,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Bandeau d'annonce */}
-      <div className="bg-deep text-deep-foreground">
+      <div className="pt-safe bg-deep text-deep-foreground">
         <Wrap className="flex items-center justify-center gap-2 py-2.5 text-center text-[13px]">
           <MapleLeaf className="h-3.5 w-3.5 text-[#EF4444]" />
           <span className="text-white/85">
