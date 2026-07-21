@@ -30,7 +30,7 @@ const Envoyer = () => (
       <span>Un gros volume à traiter ? Écrivez-nous, on s'en occupe à la main.</span>
     </div>
 
-    <Button variant="appPrimary" shape="rounded" size="lg" className="mt-6 w-full" asChild>
+    <Button variant="appPrimary" shape="soft" size="lg" className="mt-6 w-full" asChild>
       <Link to="/app/acheter">Acheter des USDT</Link>
     </Button>
   </AppShell>

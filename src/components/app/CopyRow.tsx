@@ -34,7 +34,7 @@ const CopyRow = ({ label, value, mono }: CopyRowProps) => {
         aria-label={`Copier ${label}`}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-all hover:bg-secondary active:scale-90"
       >
-        {done ? <Check className="h-4 w-4 text-primary" strokeWidth={2.6} /> : <Copy className="h-4 w-4" strokeWidth={1.9} />}
+        {done ? <Check className="h-4 w-4 text-foreground" strokeWidth={2.6} /> : <Copy className="h-4 w-4" strokeWidth={1.9} />}
       </button>
     </div>
   );

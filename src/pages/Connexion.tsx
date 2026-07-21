@@ -19,7 +19,7 @@ const Field = ({
   icon: Icon,
   ...props
 }: { icon: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 transition-colors focus-within:border-primary">
+  <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 transition-colors focus-within:border-foreground">
     <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
     <input
       className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
@@ -71,7 +71,7 @@ const Connexion = () => {
                 onClick={() => setMode(m)}
                 className={cn(
                   "rounded-md py-2.5 text-sm font-semibold transition-colors",
-                  mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  mode === m ? "bg-[#1a1a1a] text-white" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {m === "login" ? "Se connecter" : "S'inscrire"}
@@ -112,13 +112,13 @@ const Connexion = () => {
 
             {!isRegister && (
               <div className="flex justify-end">
-                <button type="button" className="text-sm font-medium text-primary hover:underline">
+                <button type="button" className="text-sm font-medium text-foreground hover:underline">
                   Mot de passe oublié ?
                 </button>
               </div>
             )}
 
-            <Button type="submit" variant="appPrimary" shape="rounded" size="lg" className="mt-2 w-full">
+            <Button type="submit" variant="appPrimary" shape="soft" size="lg" className="mt-2 w-full">
               {isRegister ? "Créer mon compte" : "Se connecter"}
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -129,7 +129,7 @@ const Connexion = () => {
             <button
               type="button"
               onClick={() => setMode(isRegister ? "login" : "register")}
-              className="font-semibold text-primary hover:underline"
+              className="font-semibold text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
             >
               {isRegister ? "Se connecter" : "Créer un compte"}
             </button>

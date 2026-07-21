@@ -63,7 +63,7 @@ const Dashboard = () => {
             {change !== null && (
               <span
                 className={`mb-1 inline-flex items-center gap-1 text-xs font-semibold ${
-                  change >= 0 ? "text-primary" : "text-white/60"
+                  change >= 0 ? "text-white/85" : "text-white/60"
                 }`}
               >
                 <TrendingUp className={`h-3.5 w-3.5 ${change < 0 ? "rotate-180" : ""}`} />
@@ -79,10 +79,10 @@ const Dashboard = () => {
           </p>
 
           <div className="mt-5 grid grid-cols-2 gap-2.5">
-            <Button asChild variant="appOnDark" size="lg" shape="rounded" className="w-full">
+            <Button asChild variant="appOnDark" size="lg" shape="soft" className="w-full">
               <Link to="/app/acheter">Acheter</Link>
             </Button>
-            <Button asChild variant="outlineOnDark" size="lg" shape="rounded" className="w-full">
+            <Button asChild variant="outlineOnDark" size="lg" shape="soft" className="w-full">
               <Link to="/app/vendre">Vendre</Link>
             </Button>
           </div>

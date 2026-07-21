@@ -102,7 +102,7 @@ const AppVendre = () => {
           </div>
         </div>
 
-        <Button variant="appPrimary" size="lg" shape="rounded" className="mt-6 w-full" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
+        <Button variant="appPrimary" size="lg" shape="soft" className="mt-6 w-full" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
           Continuer <ArrowRight className="h-4 w-4" />
         </Button>
       </AppShell>
@@ -136,7 +136,7 @@ const AppVendre = () => {
           Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par
           e-Transfer à cette adresse dès réception de vos USDT.
         </p>
-        <Button variant="appPrimary" size="lg" shape="rounded" className="mt-6 w-full" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("done")}>
+        <Button variant="appPrimary" size="lg" shape="soft" className="mt-6 w-full" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("done")}>
           Continuer <ArrowRight className="h-4 w-4" />
         </Button>
       </AppShell>
@@ -148,7 +148,7 @@ const AppVendre = () => {
     <AppShell header={<StepHead title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
       <div className="rounded-2xl border border-border bg-white p-6">
         <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1a1a1a] text-white">
             <Check className="h-7 w-7" strokeWidth={2.4} />
           </span>
           <p className="mt-4 font-display text-2xl font-extrabold">{nfCad.format(cad)} CAD</p>
@@ -176,10 +176,10 @@ const AppVendre = () => {
       </p>
 
       <div className="mt-6 flex flex-col gap-2.5">
-        <Button variant="appPrimary" size="lg" shape="rounded" className="w-full" asChild>
+        <Button variant="appPrimary" size="lg" shape="soft" className="w-full" asChild>
           <Link to="/app">Retour à l'accueil</Link>
         </Button>
-        <Button variant="appOutline" size="lg" shape="rounded" className="w-full"
+        <Button variant="appOutline" size="lg" shape="soft" className="w-full"
           onClick={() => { setStep("amount"); setAmount(""); setEmail(""); }}>
           Nouvel ordre
         </Button>

@@ -46,7 +46,7 @@ const Compte = () => {
         </div>
       </div>
 
-      <Button variant="appOutline" shape="rounded" size="lg" className="mt-6 w-full" onClick={logout}>
+      <Button variant="appOutline" shape="soft" size="lg" className="mt-6 w-full" onClick={logout}>
         <LogOut className="h-4 w-4" /> Se déconnecter
       </Button>
 

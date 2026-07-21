@@ -16,7 +16,7 @@ const NetworkChip = ({ network, selected, onSelect }: NetworkChipProps) => (
     aria-pressed={selected}
     className={cn(
       "flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-all active:scale-[0.98]",
-      selected ? "border-primary bg-primary/[0.06]" : "border-border bg-white hover:bg-secondary/50",
+      selected ? "border-foreground bg-secondary/60" : "border-border bg-white hover:bg-secondary/50",
     )}
   >
     <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full">
@@ -27,7 +27,7 @@ const NetworkChip = ({ network, selected, onSelect }: NetworkChipProps) => (
       <span className="block text-xs text-muted-foreground">{network.tag}</span>
     </span>
     {selected && (
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
         <Check className="h-3.5 w-3.5" strokeWidth={3} />
       </span>
     )}
