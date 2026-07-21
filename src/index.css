@@ -88,6 +88,15 @@
       radial-gradient(42% 40% at 4% 16%, hsl(186 45% 55% / 0.1), transparent 70%);
   }
 
+  .deco-dots {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
   .bg-diagonal {
     background-image: repeating-linear-gradient(
       -45deg,
