@@ -40,10 +40,10 @@ const Header = () => {
 
         <div className="hidden items-center gap-1.5 md:flex">
           <Button asChild variant="ghost" shape="rounded" size="default">
-            <Link to="/acheter">Se connecter</Link>
+            <Link to="/connexion">Se connecter</Link>
           </Button>
           <Button asChild variant="primary" shape="rounded" size="default">
-            <Link to="/acheter">Commencer</Link>
+            <Link to="/connexion">Commencer</Link>
           </Button>
         </div>
 
@@ -65,7 +65,7 @@ const Header = () => {
             </Link>
           ))}
           <Button asChild variant="primary" shape="rounded" className="mt-2 w-full">
-            <Link to="/acheter" onClick={() => setOpen(false)}>
+            <Link to="/connexion" onClick={() => setOpen(false)}>
               Commencer
             </Link>
           </Button>
