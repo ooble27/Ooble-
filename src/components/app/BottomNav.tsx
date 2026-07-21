@@ -12,7 +12,7 @@ const items = [
 /** Barre de navigation flottante style application. */
 const BottomNav = () => (
   <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-    <div className="pointer-events-auto flex w-full max-w-[440px] items-center justify-between gap-1 rounded-full border border-border/70 bg-white/95 p-1.5 shadow-lift backdrop-blur">
+    <div className="pointer-events-auto flex w-full max-w-[440px] items-center justify-between gap-1 rounded-full border border-border bg-white/90 p-1.5 backdrop-blur-xl">
       {items.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}

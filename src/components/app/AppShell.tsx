@@ -25,7 +25,7 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
             <Link
               to={backTo}
               aria-label="Retour"
-              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-white text-foreground shadow-soft transition-colors hover:bg-secondary"
+              className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:bg-secondary"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
@@ -35,7 +35,7 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
         <Link
           to="/app/compte"
           aria-label="Mon compte"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-deep font-display text-base font-bold text-white shadow-soft ring-1 ring-black/5 transition-transform hover:-translate-y-0.5"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-deep font-display text-base font-bold text-white transition-opacity hover:opacity-90"
         >
           {initial}
         </Link>

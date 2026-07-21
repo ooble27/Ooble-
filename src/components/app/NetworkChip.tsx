@@ -15,13 +15,11 @@ const NetworkChip = ({ network, selected, onSelect }: NetworkChipProps) => (
     onClick={onSelect}
     aria-pressed={selected}
     className={cn(
-      "flex items-center gap-3 rounded-2xl border bg-white px-3.5 py-3 text-left transition-all",
-      selected
-        ? "border-primary ring-4 ring-primary/10"
-        : "border-border/70 hover:border-input",
+      "flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors",
+      selected ? "border-primary bg-primary/[0.06]" : "border-border bg-white hover:bg-secondary/50",
     )}
   >
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/60 bg-white">
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full">
       <img src={`/coins/${network.id}.svg`} alt="" className="h-9 w-9" draggable={false} />
     </span>
     <span className="min-w-0 flex-1">

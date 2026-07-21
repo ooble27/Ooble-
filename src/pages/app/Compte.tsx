@@ -22,7 +22,7 @@ const Compte = () => {
         </div>
       }
     >
-      <div className="flex items-center gap-4 rounded-[1.5rem] border border-border/70 bg-white p-5 shadow-soft">
+      <div className="flex items-center gap-4 rounded-[1.5rem] border border-border bg-white p-5">
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-deep font-display text-xl font-bold text-white">
           {user?.name?.charAt(0).toUpperCase() ?? "O"}
         </span>
@@ -32,7 +32,7 @@ const Compte = () => {
         </div>
       </div>
 
-      <div className="mt-4 divide-y divide-border/60 rounded-[1.5rem] border border-border/70 bg-white shadow-soft">
+      <div className="mt-4 divide-y divide-border rounded-[1.5rem] border border-border bg-white">
         <div className="flex items-center gap-3 px-5 py-4">
           <ShieldCheck className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Vérification d'identité</span>
@@ -46,7 +46,7 @@ const Compte = () => {
         </div>
       </div>
 
-      <Button variant="secondary" size="lg" className="mt-6 w-full" onClick={logout}>
+      <Button variant="appOutline" shape="rounded" size="lg" className="mt-6 w-full" onClick={logout}>
         <LogOut className="h-4 w-4" /> Se déconnecter
       </Button>
 

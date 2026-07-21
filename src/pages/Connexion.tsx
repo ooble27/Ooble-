@@ -19,7 +19,7 @@ const Field = ({
   icon: Icon,
   ...props
 }: { icon: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <label className="flex items-center gap-3 rounded-2xl border border-input bg-white px-4 py-3.5 transition-colors focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
+  <label className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3.5 transition-colors focus-within:border-primary">
     <Icon className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
     <input
       className="w-full bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
@@ -63,7 +63,7 @@ const Connexion = () => {
           </p>
 
           {/* Bascule connexion / inscription */}
-          <div className="mt-7 grid grid-cols-2 gap-1 rounded-full border border-border/70 bg-white p-1 shadow-soft">
+          <div className="mt-7 grid grid-cols-2 gap-1 rounded-full border border-border bg-white p-1">
             {(["login", "register"] as Mode[]).map((m) => (
               <button
                 key={m}
@@ -71,7 +71,7 @@ const Connexion = () => {
                 onClick={() => setMode(m)}
                 className={cn(
                   "rounded-full py-2.5 text-sm font-semibold transition-colors",
-                  mode === m ? "bg-primary text-primary-foreground shadow-teal" : "text-muted-foreground hover:text-foreground",
+                  mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {m === "login" ? "Se connecter" : "S'inscrire"}
@@ -118,7 +118,7 @@ const Connexion = () => {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="mt-2 w-full">
+            <Button type="submit" variant="appPrimary" shape="rounded" size="lg" className="mt-2 w-full">
               {isRegister ? "Créer mon compte" : "Se connecter"}
               <ArrowRight className="h-4 w-4" />
             </Button>

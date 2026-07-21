@@ -14,6 +14,10 @@ const buttonVariants = cva(
         ghost: "text-foreground hover:bg-secondary",
         white: "bg-white text-primary shadow-soft hover:-translate-y-0.5",
         outlineOnDark: "border border-white/25 text-white hover:bg-white/10",
+        /* Variantes « app » — plates, sans ombre (texture application). */
+        appPrimary: "bg-primary text-primary-foreground hover:brightness-95 active:brightness-90",
+        appOnDark: "bg-white text-deep hover:bg-white/90 active:bg-white/80",
+        appOutline: "border border-border bg-white text-foreground hover:bg-secondary",
       },
       size: {
         sm: "h-9 px-4 text-sm",
