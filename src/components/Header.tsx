@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 
 const links = [
@@ -48,19 +49,13 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
-          <Link
-            to="/acheter"
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
-            Se connecter
-          </Link>
-          <Link
-            to="/acheter"
-            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-[hsl(174_58%_33%)]"
-          >
-            Commencer
-          </Link>
+        <div className="hidden items-center gap-1.5 md:flex">
+          <Button asChild variant="ghost" shape="rounded" size="default">
+            <Link to="/acheter">Se connecter</Link>
+          </Button>
+          <Button asChild variant="primary" shape="rounded" size="default">
+            <Link to="/acheter">Commencer</Link>
+          </Button>
         </div>
 
         <button className="p-2 text-foreground md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
@@ -80,13 +75,11 @@ const Header = () => {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/acheter"
-            onClick={() => setOpen(false)}
-            className="mt-2 block rounded-lg bg-primary px-5 py-3 text-center text-sm font-semibold text-primary-foreground"
-          >
-            Commencer
-          </Link>
+          <Button asChild variant="primary" shape="rounded" className="mt-2 w-full">
+            <Link to="/acheter" onClick={() => setOpen(false)}>
+              Commencer
+            </Link>
+          </Button>
         </nav>
       )}
     </header>

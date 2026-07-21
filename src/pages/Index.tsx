@@ -12,7 +12,17 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroCard from "@/components/HeroCard";
+import { Button } from "@/components/ui/button";
+import TetherMark from "@/components/TetherMark";
+import { EthereumMark, MapleLeaf, TransferMark, TronMark } from "@/components/marks";
 import { formatCad } from "@/lib/rates";
+
+const compat = [
+  { label: "Interac", mark: <TransferMark className="h-4 w-4 text-primary" /> },
+  { label: "Tether", mark: <TetherMark className="h-4 w-4" /> },
+  { label: "Tron", mark: <TronMark className="h-4 w-4 text-[#EF4444]" /> },
+  { label: "Ethereum", mark: <EthereumMark className="h-4 w-4 text-[#627EEA]" /> },
+];
 
 const features = [
   {
@@ -64,8 +74,8 @@ const Index = () => {
           <Wrap className="relative grid items-center gap-14 pb-16 pt-10 lg:grid-cols-[1.05fr_0.95fr] lg:pb-24 lg:pt-16">
             <div className="animate-up">
               <span className="inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-soft">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                Non-custodial · Interac e-Transfer · 🇨🇦
+                <MapleLeaf className="h-3.5 w-3.5 text-[#EF4444]" />
+                Non-custodial · Interac e-Transfer · Fait pour le Canada
               </span>
               <h1 className="mt-6 font-display text-[2.7rem] font-extrabold leading-[1.05] tracking-tight sm:text-[3.4rem]">
                 Achetez des USDT,
@@ -83,26 +93,29 @@ const Index = () => {
                 <input
                   type="email"
                   placeholder="Votre adresse courriel"
-                  className="h-12 flex-1 rounded-xl border bg-card px-4 text-sm outline-none ring-1 ring-transparent transition-all focus:ring-primary"
+                  className="h-12 flex-1 rounded-xl border bg-card px-4 text-sm outline-none ring-1 ring-transparent transition-all placeholder:text-muted-foreground focus:ring-primary"
                 />
-                <Link
-                  to="/acheter"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-teal transition-transform hover:-translate-y-0.5"
-                >
-                  Commencer <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Button asChild variant="primary" shape="rounded" size="lg">
+                  <Link to="/acheter">
+                    Commencer <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
 
               <div className="mt-9">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   Compatible avec
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-x-7 gap-y-2 text-[15px] font-bold text-foreground/45">
-                  <span>Interac</span>
-                  <span>Tron</span>
-                  <span>Ethereum</span>
-                  <span>MetaMask</span>
-                  <span>Ledger</span>
+                <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
+                  {compat.map((c) => (
+                    <span
+                      key={c.label}
+                      className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-[13px] font-semibold text-foreground/70 shadow-soft"
+                    >
+                      {c.mark}
+                      {c.label}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -364,18 +377,14 @@ const Index = () => {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3 lg:justify-end">
-                  <Link
-                    to="/acheter"
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:-translate-y-0.5"
-                  >
-                    Commencer <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/vendre"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                  >
-                    Vendre des USDT
-                  </Link>
+                  <Button asChild variant="primary" shape="rounded" size="lg">
+                    <Link to="/acheter">
+                      Commencer <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outlineOnDark" shape="rounded" size="lg">
+                    <Link to="/vendre">Vendre des USDT</Link>
+                  </Button>
                 </div>
               </div>
             </div>

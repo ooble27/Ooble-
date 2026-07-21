@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ArrowRight, Info, Lock } from "lucide-react";
+import { ArrowRight, Info, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { DEMO_RATES, RATE_LOCK_MINUTES, formatCad, formatUsdt } from "@/lib/rates";
 import type { OrderSide, UsdtNetwork } from "@/lib/types";
 
@@ -133,19 +134,24 @@ const OrderForm = ({ side }: OrderFormProps) => {
         </div>
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={() => setSubmitted(true)}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-teal transition-transform hover:-translate-y-0.5"
+        variant="primary"
+        shape="pill"
+        className="mt-6 h-12 w-full"
       >
         {isBuy ? "Créer l'ordre d'achat" : "Créer l'ordre de vente"}
         <ArrowRight className="h-4 w-4" />
-      </button>
+      </Button>
 
       {submitted && (
-        <div className="mt-4 rounded-2xl border border-primary/30 bg-accent-tint p-4 text-sm leading-relaxed text-accent-ink">
-          🚧 La création d'ordres ouvrira très bientôt. Il faudra un compte
-          vérifié (KYC) — l'authentification est la prochaine étape.
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-primary/30 bg-accent-tint p-4 text-sm leading-relaxed text-accent-ink">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+          <span>
+            La création d'ordres ouvrira très bientôt. Il faudra un compte
+            vérifié (KYC) — l'authentification est la prochaine étape.
+          </span>
         </div>
       )}
     </div>

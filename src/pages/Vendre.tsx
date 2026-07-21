@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Banknote, Send, Timer } from "lucide-react";
+import { ArrowLeft, Banknote, Send, Timer } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import OrderForm from "@/components/OrderForm";
@@ -33,8 +33,8 @@ const Vendre = () => (
       <div className="bg-wash absolute inset-0" aria-hidden />
       <main className="relative mx-auto grid max-w-[1120px] gap-12 px-6 pb-24 pt-12 sm:px-8 lg:grid-cols-[1fr_440px] lg:gap-16 lg:pt-16">
         <div>
-          <Link to="/" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            ← Accueil
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Accueil
           </Link>
           <span className="mt-6 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-soft">
             Vente · USDT → CAD

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 
 const columns = [
@@ -33,12 +34,11 @@ const Footer = () => (
             e-Transfer. Non-custodial : chaque ordre est réglé directement vers
             votre wallet ou votre compte — aucun solde conservé.
           </p>
-          <Link
-            to="/acheter"
-            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-teal transition-transform hover:-translate-y-0.5"
-          >
-            Commencer <ArrowRight className="h-4 w-4" />
-          </Link>
+          <Button asChild variant="primary" shape="pill" className="mt-6">
+            <Link to="/acheter">
+              Commencer <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
 
         {columns.map((col) => (
