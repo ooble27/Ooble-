@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getUser } from "@/lib/session";
 import BottomNav from "./BottomNav";
 
 interface AppShellProps {
@@ -13,7 +14,9 @@ interface AppShellProps {
 }
 
 /** Coquille de l'app connectée : fond neutre, colonne centrée, barre du bas. */
-const AppShell = ({ children, header, backTo, className }: AppShellProps) => (
+const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
+  const initial = getUser()?.name?.charAt(0).toUpperCase() ?? "O";
+  return (
   <div className="min-h-screen bg-[#F4F7F7]">
     <div className="mx-auto flex min-h-screen max-w-[460px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
       <div className="flex items-start justify-between gap-4 pb-6 pt-2">
@@ -32,9 +35,9 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => (
         <Link
           to="/app/compte"
           aria-label="Mon compte"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-white text-foreground shadow-soft transition-colors hover:bg-secondary"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-deep font-display text-base font-bold text-white shadow-soft ring-1 ring-black/5 transition-transform hover:-translate-y-0.5"
         >
-          <User className="h-5 w-5" strokeWidth={1.9} />
+          {initial}
         </Link>
       </div>
 
@@ -43,6 +46,7 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => (
 
     <BottomNav />
   </div>
-);
+  );
+};
 
 export default AppShell;
