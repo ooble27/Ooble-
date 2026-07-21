@@ -1,17 +1,17 @@
 import { NavLink } from "react-router-dom";
-import { Home, Coins, HandCoins } from "lucide-react";
+import { House, Coins, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/app", label: "Accueil", icon: Home, end: true },
+  { to: "/app", label: "Accueil", icon: House, end: true },
   { to: "/app/acheter", label: "Acheter", icon: Coins, end: false },
   { to: "/app/vendre", label: "Vendre", icon: HandCoins, end: false },
 ];
 
-/** Barre d'onglets pleine largeur, posée en bas (texture application). */
+/** Barre de navigation flottante (structure Terex, recolorée Ooble). */
 const BottomNav = () => (
-  <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/90 backdrop-blur-xl">
-    <div className="mx-auto flex max-w-[460px] items-stretch justify-around px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2.5">
+  <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+    <div className="flex w-full max-w-[390px] items-center justify-around gap-1.5 rounded-[24px] border border-border bg-white/95 p-2 backdrop-blur-xl">
       {items.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
@@ -19,17 +19,32 @@ const BottomNav = () => (
           end={end}
           className={({ isActive }) =>
             cn(
-              "flex flex-1 flex-col items-center gap-1 py-1 text-[11px] font-medium transition-colors",
-              isActive ? "text-foreground" : "text-muted-foreground",
+              "flex items-center justify-center rounded-2xl py-[13px] transition-all duration-300",
+              isActive ? "gap-2 bg-secondary px-[18px]" : "gap-0 bg-transparent px-[15px]",
             )
           }
         >
-          <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
-          {label}
+          {({ isActive }) => (
+            <>
+              <Icon
+                size={21}
+                strokeWidth={isActive ? 2.1 : 1.7}
+                className={cn("shrink-0 transition-colors", isActive ? "text-foreground" : "text-muted-foreground")}
+              />
+              <span
+                className={cn(
+                  "overflow-hidden whitespace-nowrap text-[13px] font-semibold tracking-[0.01em] text-foreground transition-all duration-300",
+                  isActive ? "max-w-[80px] opacity-100" : "max-w-0 opacity-0",
+                )}
+              >
+                {label}
+              </span>
+            </>
+          )}
         </NavLink>
       ))}
     </div>
-  </nav>
+  </div>
 );
 
 export default BottomNav;

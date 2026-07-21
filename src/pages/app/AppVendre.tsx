@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Mail } from "lucide-react";
+import { ArrowLeft, HandCoins, Check, Mail } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
@@ -11,27 +11,25 @@ type Unit = "USDT" | "CAD";
 type Step = "amount" | "reception" | "done";
 
 const MIN_USDT = 50;
-const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
+const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
-const BackBtn = ({ onClick }: { onClick: () => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-label="Retour"
-    className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-foreground transition-colors hover:bg-secondary"
-  >
-    <ArrowLeft className="h-5 w-5" />
-  </button>
-);
-
-const StepHead = ({ title, sub, onBack }: { title: string; sub: string; onBack?: () => void }) => (
-  <div className="flex items-start gap-3">
-    {onBack && <BackBtn onClick={onBack} />}
+const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack?: () => void }) => (
+  <div className="mb-4 flex items-start gap-3">
+    {onBack && (
+      <button
+        type="button"
+        onClick={onBack}
+        aria-label="Retour"
+        className="mt-0.5 flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-secondary/70 active:scale-95"
+      >
+        <ArrowLeft className="h-[18px] w-[18px]" />
+      </button>
+    )}
     <div>
       <h1 className="font-display text-[26px] font-extrabold tracking-tight">{title}</h1>
-      <p className="mt-1 text-[15px] text-muted-foreground">{sub}</p>
+      <p className="mt-1 text-[13px] text-muted-foreground">{sub}</p>
     </div>
   </div>
 );
@@ -52,18 +50,18 @@ const AppVendre = () => {
   /* ---------- Montant ---------- */
   if (step === "amount") {
     return (
-      <AppShell header={<StepHead title="Vendre USDT" sub="Entrez le montant à vendre" />}>
-        <div className="rounded-2xl border border-border bg-white p-5">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Montant</span>
-            <div className="flex rounded-lg border border-border bg-secondary/50 p-0.5">
+      <AppShell header={<div><h1 className="font-display text-[26px] font-extrabold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
+        <div className="rounded-[20px] border border-border bg-white p-5">
+          <div className="mb-3.5 flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
+            <div className="inline-flex gap-0.5 rounded-[10px] bg-secondary/70 p-[3px]">
               {(["USDT", "CAD"] as Unit[]).map((u) => (
                 <button
                   key={u}
                   type="button"
-                  onClick={() => setUnit(u)}
+                  onClick={() => { setUnit(u); setAmount(""); }}
                   className={cn(
-                    "rounded-md px-3 py-1 text-xs font-semibold transition-colors",
+                    "rounded-[7px] px-3 py-[5px] text-xs font-semibold transition-colors",
                     unit === u ? "bg-white text-foreground" : "text-muted-foreground",
                   )}
                 >
@@ -73,38 +71,38 @@ const AppVendre = () => {
             </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-3 border-t border-border pt-5">
+          <div className="relative">
             <input
               inputMode="decimal"
               placeholder="0"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ""))}
-              className="w-full bg-transparent font-display text-[40px] font-extrabold leading-none tracking-tight outline-none placeholder:text-muted-foreground/40"
+              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[18px] pl-5 pr-[84px] text-[34px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
             />
-            <span className="flex shrink-0 items-center gap-1.5 text-lg font-semibold text-muted-foreground">
-              {unit === "USDT" && <img src="/coins/usdt.svg" alt="" className="h-6 w-6" />}
+            <span className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-muted-foreground">
+              {unit === "USDT" && <img src="/coins/usdt.svg" alt="" className="h-5 w-5" />}
               {unit}
             </span>
           </div>
-          <p className={cn("mt-4 border-t border-border pt-3 text-sm", belowMin ? "text-destructive" : "text-muted-foreground")}>
-            Minimum : {MIN_USDT} USDT
-          </p>
+
+          <p className={cn("mt-2 text-xs", belowMin ? "text-destructive" : "text-muted-foreground")}>Minimum : {MIN_USDT} USDT</p>
         </div>
 
-        <div className="mt-3 divide-y divide-border rounded-2xl border border-border bg-white px-5">
-          <div className="flex items-center justify-between py-4">
-            <span className="text-muted-foreground">Vous recevez</span>
-            <span className="font-display text-lg font-bold">{nfCad.format(cad)} CAD</span>
+        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-white px-5 py-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] text-muted-foreground">Vous recevez</span>
+            <span className="text-sm font-semibold">{nfCad.format(cad)} CAD</span>
           </div>
-          <div className="flex items-center justify-between py-4 text-sm">
-            <span className="text-muted-foreground">Taux</span>
-            <span className="font-medium">1 USDT = {nfCad.format(rate.sell)} CAD</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] text-muted-foreground">Taux</span>
+            <span className="text-[13px] text-muted-foreground">1 USDT = {nfCad.format(rate.sell)} CAD</span>
           </div>
         </div>
 
-        <div className="mt-6 flex justify-start">
-          <Button variant="appPrimary" size="default" shape="soft" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
-            Continuer <ArrowRight className="h-4 w-4" />
+        {/* Continuer — à GAUCHE (Vendre) */}
+        <div className="mt-3.5 flex justify-start">
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
+            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>
         </div>
       </AppShell>
@@ -114,14 +112,12 @@ const AppVendre = () => {
   /* ---------- Réception Interac ---------- */
   if (step === "reception") {
     return (
-      <AppShell header={<StepHead title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />}>
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
-          <div className="px-4 py-3.5">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              E-mail Interac e-Transfer
-            </span>
+      <AppShell header={<StepHeader title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />}>
+        <div className="overflow-hidden rounded-[14px] border border-border bg-white">
+          <div className="border-b border-border px-4 py-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">E-mail Interac e-Transfer</span>
           </div>
-          <div className="flex items-center gap-3 px-4 py-4">
+          <div className="flex items-center gap-2.5 px-4 py-4">
             <Mail className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
             <input
               type="email"
@@ -134,13 +130,13 @@ const AppVendre = () => {
             />
           </div>
         </div>
-        <p className="mt-3 px-1 text-sm text-muted-foreground">
-          Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par
-          e-Transfer à cette adresse dès réception de vos USDT.
+        <p className="mt-3 px-1 text-[13px] text-muted-foreground">
+          Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par e-Transfer à cette adresse dès réception de vos USDT.
         </p>
+
         <div className="mt-6 flex justify-start">
-          <Button variant="appPrimary" size="default" shape="soft" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("done")}>
-            Continuer <ArrowRight className="h-4 w-4" />
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("done")}>
+            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>
         </div>
       </AppShell>
@@ -149,42 +145,32 @@ const AppVendre = () => {
 
   /* ---------- Confirmation ---------- */
   return (
-    <AppShell header={<StepHead title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
-      <div className="rounded-2xl border border-border bg-white p-6">
-        <div className="flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-secondary text-foreground">
-            <Check className="h-7 w-7" strokeWidth={2.4} />
-          </span>
-          <p className="mt-4 font-display text-2xl font-extrabold">{nfCad.format(cad)} CAD</p>
-          <p className="text-sm text-muted-foreground">à recevoir par Interac</p>
-        </div>
-
-        <dl className="mt-6 divide-y divide-border border-t border-border text-sm">
-          <div className="flex justify-between py-3"><dt className="text-muted-foreground">Taux</dt><dd className="font-medium">1 USDT = {nfCad.format(rate.sell)} CAD</dd></div>
-          <div className="flex justify-between gap-4 py-3"><dt className="text-muted-foreground">Reçu par Interac</dt><dd className="truncate font-medium">{email}</dd></div>
-        </dl>
+    <AppShell header={<StepHeader title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
+      <div className="overflow-hidden rounded-[16px] border border-border bg-white">
+        {[
+          { label: "Vous envoyez", value: `${nfUsdt.format(usdt)} USDT` },
+          { label: "Vous recevez", value: `${nfCad.format(cad)} CAD` },
+          { label: "Taux", value: `1 USDT = ${nfCad.format(rate.sell)} CAD` },
+          { label: "Reçu par Interac", value: email, mono: true },
+        ].map((r, i, arr) => (
+          <div key={r.label} className={cn("flex items-center justify-between px-4 py-[14px]", i < arr.length - 1 && "border-b border-border")}>
+            <span className="text-[13px] text-muted-foreground">{r.label}</span>
+            <span className={cn("max-w-[60%] break-all text-right text-[13px] font-medium", r.mono && "font-mono text-[11px]")}>{r.value}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Détail de l'ordre */}
-      <p className="mb-2 mt-6 px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        Envoyez vos USDT
-      </p>
-      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-white">
+      <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Détail de l'ordre</p>
+      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-white">
         <CopyRow label="Montant à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
         <CopyRow label="Référence de l'ordre" value={orderRef} mono />
       </div>
-      <p className="mt-3 px-1 text-sm leading-relaxed text-muted-foreground">
-        L'adresse de dépôt Ooble s'affiche à l'étape suivante selon le réseau choisi.
-        Votre e-Transfer Interac de <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> part
-        dès réception de vos USDT.
-      </p>
 
       <div className="mt-6 flex justify-start gap-2.5">
-        <Button variant="appPrimary" size="default" shape="soft" asChild>
-          <Link to="/app">Retour à l'accueil</Link>
+        <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" asChild>
+          <Link to="/app"><Check className="h-[17px] w-[17px]" strokeWidth={2} /> Terminé</Link>
         </Button>
-        <Button variant="ghost" size="default" shape="soft"
-          onClick={() => { setStep("amount"); setAmount(""); setEmail(""); }}>
+        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setEmail(""); }}>
           Nouvel ordre
         </Button>
       </div>

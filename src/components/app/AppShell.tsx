@@ -18,7 +18,7 @@ const AppShell = ({ children, header, backTo, className }: AppShellProps) => {
   const initial = getUser()?.name?.charAt(0).toUpperCase() ?? "O";
   return (
   <div className="min-h-screen bg-white">
-    <div className="mx-auto flex min-h-screen max-w-[460px] flex-col px-5 pb-24 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    <div className="mx-auto flex min-h-screen max-w-[480px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
       <div className="flex items-start justify-between gap-4 pb-6 pt-2">
         <div className="flex min-w-0 items-start gap-3">
           {backTo && (
