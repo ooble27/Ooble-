@@ -178,7 +178,7 @@ const Index = () => {
               >
                 Vous payez par Interac e-Transfer
               </SectionHead>
-              <div className="mt-6 inline-flex items-center gap-3 rounded-full border bg-card px-4 py-2 shadow-soft">
+              <div className="mt-6 inline-flex items-center gap-3 rounded-xl border bg-card px-4 py-2.5 shadow-soft">
                 <InteracLogo className="h-6" />
                 <span className="text-sm font-medium text-muted-foreground">Moyen de paiement accepté</span>
               </div>

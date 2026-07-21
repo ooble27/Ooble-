@@ -17,9 +17,9 @@ const Header = () => {
   const { pathname } = useLocation();
 
   return (
-    // Header dans le flux normal (mobile comme desktop) : il défile avec la
-    // page, aucune barre ne reste collée au scroll.
-    <header className="pt-safe relative z-40 border-b border-border/70 bg-background">
+    // Header dans le flux normal (mobile comme desktop) : posé directement sur
+    // la page, sans bordure ni couche distincte, il défile avec la page.
+    <header className="pt-safe relative z-40 bg-transparent">
       <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8">
         <Logo />
 
