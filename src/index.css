@@ -50,6 +50,8 @@
 
   body {
     @apply bg-background font-body text-foreground antialiased;
+    font-weight: 300; /* écriture fine (façon Terex) */
+    letter-spacing: -0.01em;
   }
 
   /* Feedback tactile propre (façon application native). */

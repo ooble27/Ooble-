@@ -56,8 +56,8 @@ export default {
         "accent-ink": "hsl(var(--accent-ink))",
       },
       fontFamily: {
-        display: ['"Manrope"', "system-ui", "sans-serif"],
-        body: ['"Manrope"', "system-ui", "sans-serif"],
+        display: ['"Poppins"', "system-ui", "sans-serif"],
+        body: ['"Poppins"', "system-ui", "sans-serif"],
       },
       maxWidth: {
         container: "1120px",
