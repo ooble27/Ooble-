@@ -142,7 +142,7 @@ const AppAcheter = () => {
                 type="button"
                 onClick={() => setNet(n.id)}
                 className={cn(
-                  "flex items-center gap-[9px] rounded-full border py-[9px] pl-2.5 pr-4 transition-all active:scale-[0.98]",
+                  "flex items-center gap-[9px] rounded-xl border py-[9px] pl-2.5 pr-4 transition-all active:scale-[0.98]",
                   sel ? "border-foreground/40 bg-secondary" : "border-border bg-white",
                 )}
               >
