@@ -1,58 +1,62 @@
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Coins, HandCoins, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  nfCad, nfUsdt, timeAgo,
+  TYPE_META, nfCad, nfUsdt, timeAgo,
   type AdminOrder, type OrderStatus, type OrderType,
 } from "@/lib/adminOrders";
-import { StatusBadge, TypeTag, ClientCell } from "./AdminBits";
+import { StatusBadge, ClientCell, SubTabs } from "./AdminBits";
 
 interface Props {
   orders: AdminOrder[];
   onOpen: (order: AdminOrder) => void;
 }
 
-type TypeFilter = "all" | OrderType;
+type TypeTab = "all" | OrderType;
 type StatusFilter = "all" | OrderStatus;
 
-const TYPE_TABS: { id: TypeFilter; label: string }[] = [
+const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
   { id: "all", label: "Tous" },
-  { id: "buy", label: "Achats" },
-  { id: "sell", label: "Ventes" },
-];
-
-const STATUS_TABS: { id: StatusFilter; label: string }[] = [
-  { id: "all", label: "Tous statuts" },
   { id: "recu", label: "À traiter" },
   { id: "cours", label: "En cours" },
   { id: "attente", label: "En attente" },
-  { id: "termine", label: "Terminés" },
-  { id: "annule", label: "Annulés" },
+  { id: "termine", label: "Terminées" },
+  { id: "annule", label: "Annulées" },
 ];
 
-const Chip = ({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={cn(
-      "whitespace-nowrap rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors",
-      active ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
-    )}
-  >
-    {children}
-  </button>
-);
+const TypeCell = ({ type }: { type: OrderType }) => {
+  const Icon = type === "buy" ? Coins : HandCoins;
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
+      <Icon className="h-[13px] w-[13px]" strokeWidth={1.8} /> {TYPE_META[type].label}
+    </span>
+  );
+};
 
-/** Liste complète des commandes avec recherche et filtres. */
 const OrdersList = ({ orders, onOpen }: Props) => {
-  const [q, setQ] = useState("");
-  const [type, setType] = useState<TypeFilter>("all");
+  const [type, setType] = useState<TypeTab>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [q, setQ] = useState("");
 
+  const byType = useMemo(
+    () => ({
+      all: orders,
+      buy: orders.filter((o) => o.type === "buy"),
+      sell: orders.filter((o) => o.type === "sell"),
+    }),
+    [orders],
+  );
+
+  const TABS = [
+    { id: "all", label: "Toutes", count: byType.all.length },
+    { id: "buy", label: "Achats", count: byType.buy.length },
+    { id: "sell", label: "Ventes", count: byType.sell.length },
+  ];
+
+  const base = byType[type];
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return orders
-      .filter((o) => (type === "all" ? true : o.type === type))
+    return base
       .filter((o) => (status === "all" ? true : o.status === status))
       .filter((o) =>
         needle === ""
@@ -62,93 +66,81 @@ const OrdersList = ({ orders, onOpen }: Props) => {
             o.clientEmail.toLowerCase().includes(needle),
       )
       .sort((a, b) => a.createdMinsAgo - b.createdMinsAgo);
-  }, [orders, q, type, status]);
+  }, [base, q, status]);
+
+  const cols = "grid grid-cols-[1fr_auto] md:grid-cols-[1.7fr_0.8fr_1fr_0.8fr_0.7fr] items-center gap-3";
 
   return (
     <div className="space-y-4">
-      {/* Recherche */}
+      {/* Achats / Ventes — onglets soulignés (comme la file) */}
+      <SubTabs tabs={TABS} active={type} onChange={(id) => setType(id as TypeTab)} />
+
+      {/* Recherche (police 16px pour éviter le zoom mobile) */}
       <div className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 py-2.5">
         <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Rechercher une référence, un client, un e-mail…"
-          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
+          className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/70 md:text-[13px]"
         />
       </div>
 
-      {/* Filtres */}
-      <div className="flex flex-wrap items-center gap-2">
-        {TYPE_TABS.map((t) => (
-          <Chip key={t.id} active={type === t.id} onClick={() => setType(t.id)}>{t.label}</Chip>
-        ))}
-        <span className="mx-1 hidden h-5 w-px bg-border sm:block" />
-        {STATUS_TABS.map((s) => (
-          <Chip key={s.id} active={status === s.id} onClick={() => setStatus(s.id)}>{s.label}</Chip>
-        ))}
+      {/* Filtres de statut (petites pastilles) */}
+      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-0.5 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+        {STATUS_FILTERS.map((f) => {
+          const count = f.id === "all" ? base.length : base.filter((o) => o.status === f.id).length;
+          const on = status === f.id;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setStatus(f.id)}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
+                on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+              )}
+            >
+              {f.label}
+              <span className={cn("text-[11px]", on ? "text-background/70" : "text-muted-foreground/70")}>{count}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Tableau (desktop) */}
-      <div className="hidden overflow-hidden rounded-2xl border border-border bg-card md:block">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-              <th className="px-5 py-3 font-semibold">Référence</th>
-              <th className="px-5 py-3 font-semibold">Client</th>
-              <th className="px-5 py-3 font-semibold">Type</th>
-              <th className="px-5 py-3 text-right font-semibold">Montant</th>
-              <th className="px-5 py-3 font-semibold">Statut</th>
-              <th className="px-5 py-3 text-right font-semibold">Créée</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((o, i) => (
-              <tr
-                key={o.id}
-                onClick={() => onOpen(o)}
-                className={cn("cursor-pointer transition-colors hover:bg-secondary/40", i < rows.length - 1 && "border-b border-border")}
-              >
-                <td className="px-5 py-3 font-mono text-[13px] font-medium">{o.ref}</td>
-                <td className="px-5 py-3"><ClientCell name={o.clientName} email={o.clientEmail} /></td>
-                <td className="px-5 py-3"><TypeTag type={o.type} /></td>
-                <td className="px-5 py-3 text-right text-[13px] font-semibold">
-                  <span className="whitespace-nowrap">{nfCad.format(o.cad)} CAD</span>
-                  <span className="block text-[12px] font-normal text-muted-foreground">{nfUsdt.format(o.usdt)} USDT</span>
-                </td>
-                <td className="px-5 py-3"><StatusBadge status={o.status} /></td>
-                <td className="px-5 py-3 text-right text-[12px] text-muted-foreground">{timeAgo(o.createdMinsAgo)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {rows.length === 0 && (
-          <p className="px-5 py-12 text-center text-sm text-muted-foreground">Aucune commande ne correspond.</p>
-        )}
-      </div>
+      {/* Tableau compact (identique à la file d'attente) */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Type</span>
+          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Montant</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Statut</span>
+          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Date</span>
+        </div>
 
-      {/* Cartes (mobile) */}
-      <div className="space-y-2.5 md:hidden">
-        {rows.map((o) => (
-          <div key={o.id} onClick={() => onOpen(o)}
-               className="cursor-pointer rounded-2xl border border-border bg-card p-4 transition-colors active:bg-secondary/50">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[13px] font-medium">{o.ref}</span>
-              <StatusBadge status={o.status} />
+        {rows.map((o, i) => (
+          <div
+            key={o.id}
+            onClick={() => onOpen(o)}
+            className={cn(cols, "cursor-pointer px-4 py-3 transition-colors hover:bg-secondary/40", i < rows.length - 1 && "border-b border-border")}
+          >
+            <ClientCell name={o.clientName} email={o.ref} />
+            <div className="hidden md:block"><TypeCell type={o.type} /></div>
+            <div className="text-right">
+              <p className="whitespace-nowrap text-[13px] font-semibold">{nfCad.format(o.cad)} CAD</p>
+              <p className="text-[11px] text-muted-foreground">{nfUsdt.format(o.usdt)} USDT</p>
             </div>
-            <div className="mt-3"><ClientCell name={o.clientName} email={o.clientEmail} /></div>
-            <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-              <TypeTag type={o.type} />
-              <div className="text-right">
-                <p className="text-[13px] font-semibold">{nfCad.format(o.cad)} CAD</p>
-                <p className="text-[12px] text-muted-foreground">{timeAgo(o.createdMinsAgo)}</p>
-              </div>
-            </div>
+            <div className="hidden md:block"><StatusBadge status={o.status} /></div>
+            <span className="hidden text-right text-[12px] text-muted-foreground md:block">{timeAgo(o.createdMinsAgo)}</span>
           </div>
         ))}
+
         {rows.length === 0 && (
-          <p className="rounded-2xl border border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground">
-            Aucune commande ne correspond.
-          </p>
+          <div className="flex flex-col items-center py-16 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+              <Inbox className="h-5 w-5" strokeWidth={1.6} />
+            </span>
+            <p className="mt-3 text-sm text-muted-foreground">Aucune commande ne correspond.</p>
+          </div>
         )}
       </div>
     </div>
