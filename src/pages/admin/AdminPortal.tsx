@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Sparkles,
+  Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Sparkles, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -60,113 +60,87 @@ const AdminPortal = () => {
   }, [orders]);
 
   const active = NAV.find((n) => n.id === tab)!;
+  const ActiveIcon = active.icon;
   const openOrder = (o: AdminOrder) => setSelected(o);
 
   return (
     <div className="app-type min-h-screen bg-background text-foreground">
-      <div className="lg:flex">
-        {/* Barre latérale (desktop) */}
-        <aside className="hidden lg:flex lg:h-screen lg:w-64 lg:shrink-0 lg:flex-col lg:border-r lg:border-border lg:bg-card lg:sticky lg:top-0">
-          <div className="flex items-center gap-2.5 px-5 py-5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <span className="text-[15px] font-bold">O</span>
-            </span>
-            <div>
-              <p className="text-[14px] font-semibold leading-tight">Ooble</p>
-              <p className="text-[11px] leading-tight text-muted-foreground">Back-office</p>
-            </div>
+      {/* Barre du haut */}
+      <div className="border-b border-border">
+        <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:px-8">
+          <Link
+            to="/app"
+            aria-label="Retour à l'app"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
+          >
+            <ArrowLeft className="h-[18px] w-[18px]" />
+          </Link>
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-[19px] font-semibold leading-tight tracking-tight">Administration</h1>
+            <p className="truncate text-[12px] text-muted-foreground">Pilotez la plateforme Ooble</p>
           </div>
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
+            <Shield className="h-[13px] w-[13px]" /> Admin
+          </span>
+        </div>
+      </div>
 
-          <nav className="flex-1 space-y-1 px-3 py-2">
-            {NAV.map(({ id, label, icon: Icon }) => {
-              const on = id === tab;
-              const badge = id === "queue" && counts.toTreat > 0 ? counts.toTreat : null;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition-colors",
-                    on ? "bg-secondary font-medium text-foreground" : "text-muted-foreground hover:bg-secondary/50",
-                  )}
-                >
-                  <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={on ? 2 : 1.7} />
-                  <span className="flex-1">{label}</span>
-                  {badge && (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
-                      {badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="border-t border-border px-3 py-3">
-            <Link to="/app" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] text-muted-foreground transition-colors hover:bg-secondary/50">
-              <ArrowLeft className="h-[18px] w-[18px]" /> Retour à l'app
-            </Link>
-          </div>
-        </aside>
-
-        {/* Contenu */}
-        <main className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-8 lg:py-8">
-            {/* En-tête */}
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="font-display text-[22px] font-semibold tracking-tight lg:text-[26px]">{active.label}</h1>
-                <p className="mt-1 text-[13px] text-muted-foreground">{active.desc}</p>
-              </div>
-              <Link
-                to="/app"
-                className="flex h-10 items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-[13px] font-medium transition-colors hover:bg-secondary lg:hidden"
+      <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-8">
+        {/* Pastilles de navigation — défilables */}
+        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+          {NAV.map(({ id, label, icon: Icon }) => {
+            const on = id === tab;
+            const badge = id === "queue" && counts.toTreat > 0 ? counts.toTreat : null;
+            return (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
+                  on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                )}
               >
-                <ArrowLeft className="h-4 w-4" /> App
-              </Link>
-            </div>
+                <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
+                {label}
+                {badge && (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                    {badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-            {/* Onglets (mobile / tablette) */}
-            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
-              {NAV.map(({ id, label, icon: Icon }) => {
-                const on = id === tab;
-                const badge = id === "queue" && counts.toTreat > 0 ? counts.toTreat : null;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setTab(id)}
-                    className={cn(
-                      "flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors",
-                      on ? "border-foreground bg-secondary" : "border-border bg-card text-muted-foreground",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} /> {label}
-                    {badge && <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{badge}</span>}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Statistiques (file + commandes) */}
-            {(tab === "queue" || tab === "orders") && (
-              <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <Stat label="À traiter" value={String(counts.toTreat)} />
-                <Stat label="En cours" value={String(counts.inProgress)} />
-                <Stat label="Terminées" value={String(counts.doneCount)} />
-                <Stat label="Volume traité" value={`${nfCad.format(counts.volume)} $`} />
-              </div>
-            )}
-
-            {/* Vue active */}
-            <div className="mt-6">
-              {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onAdvance={advance} />}
-              {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
-              {tab === "kyc" && <Placeholder label="KYC — vérifications d'identité" />}
-              {tab === "accounting" && <Placeholder label="Comptabilité — revenus et marges" />}
-              {tab === "team" && <Placeholder label="Équipe & rôles" />}
-            </div>
+        {/* Titre de section */}
+        <div className="mt-6 flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+            <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
+          </span>
+          <div>
+            <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
+            <p className="text-[12px] text-muted-foreground">{active.desc}</p>
           </div>
-        </main>
+        </div>
+
+        {/* Statistiques (file + commandes) */}
+        {(tab === "queue" || tab === "orders") && (
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <Stat label="À traiter" value={String(counts.toTreat)} />
+            <Stat label="En cours" value={String(counts.inProgress)} />
+            <Stat label="Terminées" value={String(counts.doneCount)} />
+            <Stat label="Volume traité" value={`${nfCad.format(counts.volume)} $`} />
+          </div>
+        )}
+
+        {/* Vue active */}
+        <div className="mt-5">
+          {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onAdvance={advance} />}
+          {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
+          {tab === "kyc" && <Placeholder label="KYC — vérifications d'identité" />}
+          {tab === "accounting" && <Placeholder label="Comptabilité — revenus et marges" />}
+          {tab === "team" && <Placeholder label="Équipe & rôles" />}
+        </div>
       </div>
 
       <OrderDetailSheet order={selected} onClose={() => setSelected(null)} onAdvance={advance} />
