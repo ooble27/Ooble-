@@ -48,7 +48,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
         </Link>
       </div>
 
-      <div className={cn("flex-1", center && "flex flex-col justify-center pb-[22vh]", className)}>{children}</div>
+      <div className={cn("flex-1", center && "flex flex-col justify-center pb-[26vh]", className)}>{children}</div>
     </div>
 
     <BottomNav />

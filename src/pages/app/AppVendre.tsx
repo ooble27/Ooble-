@@ -116,7 +116,8 @@ const AppVendre = () => {
   /* ---------- Réception Interac ---------- */
   if (step === "reception") {
     return (
-      <AppShell header={<StepHeader title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />}>
+      <AppShell center>
+        <StepHeader title="Réception" sub="Où envoyer vos dollars" onBack={() => setStep("amount")} />
         <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="border-b border-border px-4 py-2.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">E-mail Interac e-Transfer</span>
