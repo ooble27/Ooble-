@@ -39,13 +39,13 @@
     --radius: 0.9rem;
   }
 
-  /* Mode sombre — palette neutre Ooble */
+  /* Mode sombre — gris neutre façon Terex (#1a1a1a), pas de noir pur */
   .dark {
-    --background: 0 0% 7%;
+    --background: 0 0% 10%;
     --foreground: 0 0% 96%;
-    --card: 0 0% 12%;
+    --card: 0 0% 13%;
     --card-foreground: 0 0% 96%;
-    --popover: 0 0% 12%;
+    --popover: 0 0% 13%;
     --popover-foreground: 0 0% 96%;
 
     --primary: 174 60% 45%;

@@ -94,6 +94,57 @@ const sell = (
   createdMinsAgo: mins, assignedTo,
 });
 
+/* ------------------------------------------------------------------ */
+/*  KYC — vérifications d'identité (démo)                              */
+/* ------------------------------------------------------------------ */
+
+export type KycStatus = "attente" | "verifie" | "refuse";
+
+export interface KycRequest {
+  id: string;
+  clientName: string;
+  email: string;
+  docType: string;
+  submittedMinsAgo: number;
+  status: KycStatus;
+}
+
+export const KYC_STATUS_META: Record<KycStatus, { label: string; dot: string; tone: string }> = {
+  attente: { label: "À vérifier", dot: "bg-primary",     tone: "text-foreground" },
+  verifie: { label: "Vérifié",    dot: "bg-emerald-500", tone: "text-muted-foreground" },
+  refuse:  { label: "Refusé",     dot: "bg-destructive", tone: "text-muted-foreground" },
+};
+
+export const SEED_KYC: KycRequest[] = [
+  { id: "K1", clientName: "Amélie Tremblay", email: "amelie.t@gmail.com",     docType: "Permis de conduire", submittedMinsAgo: 14,  status: "attente" },
+  { id: "K2", clientName: "Marc Gagnon",     email: "marc.gagnon@icloud.com", docType: "Passeport",          submittedMinsAgo: 40,  status: "attente" },
+  { id: "K3", clientName: "Hugo Bouchard",   email: "hugo.bouchard@gmail.com",docType: "Carte santé",        submittedMinsAgo: 95,  status: "attente" },
+  { id: "K4", clientName: "Isabelle Girard", email: "i.girard@videotron.ca",  docType: "Permis de conduire", submittedMinsAgo: 240, status: "verifie" },
+  { id: "K5", clientName: "David Roy",       email: "davidroy88@gmail.com",   docType: "Passeport",          submittedMinsAgo: 520, status: "verifie" },
+  { id: "K6", clientName: "Vincent Ouellet", email: "vince.o@hotmail.com",    docType: "Carte santé",        submittedMinsAgo: 610, status: "refuse" },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Équipe du back-office (démo)                                       */
+/* ------------------------------------------------------------------ */
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: "Admin" | "Opérateur" | "KYC" | "Marketing";
+  active: boolean;
+  handled: number;
+}
+
+export const SEED_TEAM: TeamMember[] = [
+  { id: "T1", name: "Vous",          email: "admin@ooble.ca",   role: "Admin",     active: true,  handled: 128 },
+  { id: "T2", name: "Karim Benali",  email: "karim@ooble.ca",   role: "Opérateur", active: true,  handled: 74 },
+  { id: "T3", name: "Awa Diallo",    email: "awa@ooble.ca",     role: "Opérateur", active: true,  handled: 61 },
+  { id: "T4", name: "Léa Fontaine",  email: "lea@ooble.ca",     role: "KYC",       active: true,  handled: 39 },
+  { id: "T5", name: "Sam Nguyen",    email: "sam@ooble.ca",     role: "Marketing", active: false, handled: 0 },
+];
+
 /** Jeu de données de démonstration. */
 export const SEED_ORDERS: AdminOrder[] = [
   sell("OOB-7K2P4A", "recu",    "Amélie Tremblay", "amelie.t@gmail.com",   1200, 3),

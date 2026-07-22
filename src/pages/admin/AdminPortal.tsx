@@ -1,16 +1,19 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Sparkles, Shield,
+  Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SEED_ORDERS,
-  type AdminOrder, type OrderStatus,
+  type AdminOrder,
 } from "@/lib/adminOrders";
 import OrdersQueue from "@/components/admin/OrdersQueue";
 import OrdersList from "@/components/admin/OrdersList";
-import OrderDetailSheet from "@/components/admin/OrderDetailSheet";
+import OrderDetail from "@/components/admin/OrderDetail";
+import KycPanel from "@/components/admin/KycPanel";
+import AccountingPanel from "@/components/admin/AccountingPanel";
+import TeamPanel from "@/components/admin/TeamPanel";
 
 type TabId = "queue" | "orders" | "kyc" | "accounting" | "team";
 
@@ -22,18 +25,6 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "team",       label: "Équipe",         desc: "Membres et rôles du back-office", icon: Users },
 ];
 
-const Placeholder = ({ label }: { label: string }) => (
-  <div className="flex flex-col items-center rounded-2xl border border-border bg-card py-20 text-center">
-    <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-      <Sparkles className="h-6 w-6" strokeWidth={1.6} />
-    </span>
-    <p className="mt-4 text-[15px] font-medium">{label}</p>
-    <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-      Module prévu dans la prochaine étape du back-office.
-    </p>
-  </div>
-);
-
 const AdminPortal = () => {
   const [orders, setOrders] = useState<AdminOrder[]>(SEED_ORDERS);
   const [tab, setTab] = useState<TabId>("queue");
@@ -43,7 +34,6 @@ const AdminPortal = () => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
     setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
   };
-  const advance = (id: string, status: OrderStatus) => patch(id, { status });
 
   const toTreat = useMemo(() => orders.filter((o) => o.status === "recu").length, [orders]);
 
@@ -82,7 +72,7 @@ const AdminPortal = () => {
             return (
               <button
                 key={id}
-                onClick={() => setTab(id)}
+                onClick={() => { setTab(id); setSelected(null); }}
                 className={cn(
                   "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
                   on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
@@ -100,28 +90,34 @@ const AdminPortal = () => {
           })}
         </div>
 
-        {/* Titre de section */}
-        <div className="mt-6 flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-            <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
-          </span>
-          <div>
-            <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
-            <p className="text-[12px] text-muted-foreground">{active.desc}</p>
+        {selected ? (
+          <div className="mt-6">
+            <OrderDetail order={selected} onBack={() => setSelected(null)} onPatch={patch} />
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Titre de section */}
+            <div className="mt-6 flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+                <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
+              </span>
+              <div>
+                <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
+                <p className="text-[12px] text-muted-foreground">{active.desc}</p>
+              </div>
+            </div>
 
-        {/* Vue active */}
-        <div className="mt-5">
-          {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
-          {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
-          {tab === "kyc" && <Placeholder label="KYC — vérifications d'identité" />}
-          {tab === "accounting" && <Placeholder label="Comptabilité — revenus et marges" />}
-          {tab === "team" && <Placeholder label="Équipe & rôles" />}
-        </div>
+            {/* Vue active */}
+            <div className="mt-5">
+              {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
+              {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
+              {tab === "kyc" && <KycPanel />}
+              {tab === "accounting" && <AccountingPanel orders={orders} />}
+              {tab === "team" && <TeamPanel />}
+            </div>
+          </>
+        )}
       </div>
-
-      <OrderDetailSheet order={selected} onClose={() => setSelected(null)} onAdvance={advance} />
     </div>
   );
 };
