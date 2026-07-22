@@ -10,6 +10,7 @@ import AppVendre from "./pages/app/AppVendre";
 import Envoyer from "./pages/app/Envoyer";
 import AppOTC from "./pages/app/AppOTC";
 import Compte from "./pages/app/Compte";
+import AdminPortal from "./pages/admin/AdminPortal";
 import RequireAuth from "./components/app/RequireAuth";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,9 @@ const App = () => (
         <Route path="/app/envoyer" element={<RequireAuth><Envoyer /></RequireAuth>} />
         <Route path="/app/otc" element={<RequireAuth><AppOTC /></RequireAuth>} />
         <Route path="/app/compte" element={<RequireAuth><Compte /></RequireAuth>} />
+
+        {/* Back-office (accès équipe — rôles à brancher plus tard) */}
+        <Route path="/admin" element={<RequireAuth><AdminPortal /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
