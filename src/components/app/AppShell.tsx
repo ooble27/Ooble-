@@ -23,7 +23,7 @@ const AppShell = ({ children, header, backTo, wide, className }: AppShellProps) 
   <div className="app-type min-h-screen bg-background">
     <div
       className={cn(
-        "mx-auto flex min-h-screen flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-8",
+        "mx-auto flex min-h-screen flex-col px-4 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-8",
         wide ? "max-w-[600px]" : "max-w-[480px]",
       )}
     >
