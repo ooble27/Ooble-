@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowLeft, Copy, Check, Hand, ArrowRight, Ban, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Copy, Check, Hand, Ban, RotateCcw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,10 +17,13 @@ interface Props {
 
 type SectionId = "client" | "transaction" | "paiement" | "destination" | "historique";
 
-/** Chronologie de la commande (façon Terex). */
+const dateFmt = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+
+/** Chronologie (façon Terex). */
 const Timeline = ({ order }: { order: AdminOrder }) => {
   const flow: AdminOrder["status"][] = ["attente", "recu", "cours", "termine"];
-  const reached = (target: AdminOrder["status"]) => flow.indexOf(order.status) >= flow.indexOf(target);
+  const reached = (t: AdminOrder["status"]) => flow.indexOf(order.status) >= flow.indexOf(t);
   const steps = [
     { label: "Commande créée", done: true, hint: timeAgo(order.createdMinsAgo) },
     { label: "Fonds reçus (Interac)", done: reached("recu"), hint: "" },
@@ -28,7 +31,6 @@ const Timeline = ({ order }: { order: AdminOrder }) => {
     { label: order.type === "buy" ? "USDT envoyés au client" : "CAD versés au client", done: order.status === "termine", hint: "" },
   ];
   if (order.status === "annule") steps.push({ label: "Commande annulée", done: true, hint: "" });
-
   return (
     <div className="px-5 py-4">
       <ol>
@@ -83,11 +85,14 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
     base.push({ id: "historique", label: "Historique" });
     return base;
   }, [order.type]);
-
   const active = SECTIONS.some((s) => s.id === section) ? section : "client";
 
+  const sends = order.type === "buy" ? `${nfCad.format(order.cad)} CAD` : `${nfUsdt.format(order.usdt)} USDT`;
+  const receives = order.type === "buy" ? `${nfUsdt.format(order.usdt)} USDT` : `${nfCad.format(order.cad)} CAD`;
+  const createdAt = dateFmt.format(new Date(Date.now() - order.createdMinsAgo * 60000));
+
   return (
-    <div className="space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4">
       {/* En-tête */}
       <div className="flex items-start gap-3">
         <button
@@ -97,39 +102,43 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
         >
           <ArrowLeft className="h-[18px] w-[18px]" />
         </button>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="font-display text-[19px] font-semibold tracking-tight">Traiter la commande</h2>
-            <StatusBadge status={order.status} />
-          </div>
+        <div className="min-w-0">
+          <p className="text-[15px] font-semibold">
+            {TYPE_META[order.type].label} USDT <span className="text-muted-foreground">·</span> <StatusBadge status={order.status} className="align-baseline" />
+          </p>
           <button onClick={() => copy(order.ref, "ref")} className="mt-0.5 inline-flex items-center gap-1.5 font-mono text-[12px] text-muted-foreground transition-colors hover:text-foreground">
             {order.ref} {copied === "ref" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
           </button>
         </div>
       </div>
 
-      {/* Résumé compact */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card px-4 py-3">
-          <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">{TYPE_META[order.type].label}</p>
-          <p className="mt-1 text-[16px] font-semibold">
-            {order.type === "buy" ? `${nfCad.format(order.cad)} CAD` : `${nfUsdt.format(order.usdt)} USDT`}
-          </p>
+      {/* Carte client + montants */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-[14px] font-semibold text-foreground/70">
+            {initials(order.clientName)}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[15px] font-semibold">{order.clientName}</p>
+            <p className="text-[12px] text-muted-foreground">{createdAt}</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-border bg-card px-4 py-3">
-          <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Contrepartie</p>
-          <p className="mt-1 text-[16px] font-semibold">
-            {order.type === "buy" ? `${nfUsdt.format(order.usdt)} USDT` : `${nfCad.format(order.cad)} CAD`}
-          </p>
-        </div>
-        <div className="col-span-2 rounded-2xl border border-border bg-card px-4 py-3 sm:col-span-1">
-          <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">À faire</p>
-          <p className="mt-1 text-[14px] font-medium">{TYPE_META[order.type].verb}</p>
+
+        <div className="mt-5 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Le client envoie</p>
+            <p className="mt-1 truncate font-display text-[22px] font-semibold tracking-tight">{sends}</p>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <div className="min-w-0 text-right">
+            <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Le client reçoit</p>
+            <p className="mt-1 truncate font-display text-[22px] font-semibold tracking-tight">{receives}</p>
+          </div>
         </div>
       </div>
 
-      {/* Sections (pastilles) */}
-      <div className="flex flex-wrap gap-2">
+      {/* Onglets de section — contrôle segmenté */}
+      <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-secondary/40 p-1">
         {SECTIONS.map((s) => {
           const on = s.id === active;
           return (
@@ -137,8 +146,8 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
               key={s.id}
               onClick={() => setSection(s.id)}
               className={cn(
-                "rounded-[10px] border px-3.5 py-2 text-[13px] font-medium transition-colors",
-                on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                "flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
+                on ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground",
               )}
             >
               {s.label}
@@ -154,33 +163,36 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
             <Row label="Nom complet" value={order.clientName} />
             <Row label="E-mail" value={order.clientEmail} mono copyKey="email" />
             <Row label="Type de compte" value="Particulier" />
+            <button className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/40">
+              <span className="text-[13px] font-medium">Voir la fiche complète du client</span>
+              <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
+            </button>
           </>
         )}
         {active === "transaction" && (
           <>
-            <Row label="Type" value={TYPE_META[order.type].label} />
+            <Row label="Type" value={`${TYPE_META[order.type].label} USDT`} />
             <Row label="Montant CAD" value={`${nfCad.format(order.cad)} CAD`} />
             <Row label="Montant USDT" value={`${nfUsdt.format(order.usdt)} USDT`} />
             <Row label="Taux" value={`1 USDT = ${nfCad.format(order.rate)} CAD`} />
+            <Row label="Créée le" value={createdAt} />
             <Row label="Référence" value={order.ref} mono copyKey="tref" />
           </>
         )}
         {active === "paiement" && (
-          <>
-            {order.type === "buy" ? (
-              <>
-                <Row label="Moyen" value="Interac e-Transfer (entrant)" />
-                <Row label="Le client paie" value={`${nfCad.format(order.cad)} CAD`} />
-                <Row label="Référence" value={order.ref} mono copyKey="pref" />
-              </>
-            ) : (
-              <>
-                <Row label="Moyen" value="Interac e-Transfer (sortant)" />
-                <Row label="À verser au client" value={`${nfCad.format(order.cad)} CAD`} />
-                <Row label="E-mail Interac" value={order.interacEmail} mono copyKey="interac" />
-              </>
-            )}
-          </>
+          order.type === "buy" ? (
+            <>
+              <Row label="Moyen" value="Interac e-Transfer (entrant)" />
+              <Row label="Le client paie" value={`${nfCad.format(order.cad)} CAD`} />
+              <Row label="Référence" value={order.ref} mono copyKey="pref" />
+            </>
+          ) : (
+            <>
+              <Row label="Moyen" value="Interac e-Transfer (sortant)" />
+              <Row label="À verser au client" value={`${nfCad.format(order.cad)} CAD`} />
+              <Row label="E-mail Interac" value={order.interacEmail} mono copyKey="interac" />
+            </>
+          )
         )}
         {active === "destination" && order.type === "buy" && (
           <>
@@ -194,45 +206,39 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
       {/* Barre d'actions */}
       <div className="flex flex-wrap gap-2.5">
         {order.status === "attente" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
-                  onClick={() => onPatch(order.id, { status: "recu" })}>
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
             <Check className="h-[17px] w-[17px]" /> Marquer reçu
           </Button>
         )}
         {order.status === "recu" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
-                  onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
             <Hand className="h-[17px] w-[17px]" /> Prendre en charge
           </Button>
         )}
         {order.status === "cours" && (
           <>
-            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
-                    onClick={() => onPatch(order.id, { status: "termine" })}>
-              <ArrowRight className="h-[17px] w-[17px]" /> Marquer terminé
+            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
+              <Check className="h-[17px] w-[17px]" /> Marquer terminé
             </Button>
-            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
-                    onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
+            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
               Libérer
             </Button>
           </>
         )}
         {order.status !== "termine" && order.status !== "annule" && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
-                  onClick={() => onPatch(order.id, { status: "annule" })}>
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
             <Ban className="h-[17px] w-[17px]" /> Annuler
           </Button>
         )}
         {(order.status === "termine" || order.status === "annule") && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
-                  onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
             <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
           </Button>
         )}
       </div>
 
-      <p className="text-center text-[12px] text-muted-foreground">
-        Commande {STATUS_META[order.status].label.toLowerCase()}.
+      <p className="pt-1 text-center text-[12px] text-muted-foreground">
+        Cette commande est <span className="text-foreground">{STATUS_META[order.status].label.toLowerCase()}</span>.
       </p>
     </div>
   );
