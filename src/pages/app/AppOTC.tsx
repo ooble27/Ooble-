@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Handshake, Check, ShieldCheck, Zap, BadgePercent } from "lucide-react";
+import { Handshake, Check } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
@@ -11,22 +11,43 @@ type Side = "buy" | "sell";
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 0 });
 const newRef = () => `OTC-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-const perks = [
-  { icon: BadgePercent, title: "Meilleur taux", sub: "Marge réduite dès 25 000 $" },
-  { icon: Zap, title: "Règlement dédié", sub: "Un interlocuteur, sur mesure" },
-  { icon: ShieldCheck, title: "Non-custodial", sub: "Vos USDT, vos clés" },
+const USAGES = [
+  "Réserve de valeur / épargne",
+  "Paiements commerciaux",
+  "Transferts internationaux",
+  "Trading",
+  "Autre",
 ];
+const SOURCES = [
+  "Salaire / revenus",
+  "Épargne personnelle",
+  "Vente de biens ou services",
+  "Activité commerciale",
+  "Autre",
+];
+
+const fieldClass =
+  "w-full rounded-[12px] border border-border bg-secondary/40 px-4 py-3.5 text-base outline-none placeholder:text-muted-foreground/60 focus:border-foreground";
+
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <span className="mb-1.5 block px-1 text-[13px] font-medium text-muted-foreground">{children}</span>
+);
 
 const AppOTC = () => {
   const [side, setSide] = useState<Side>("buy");
   const [amount, setAmount] = useState("");
+  const [address, setAddress] = useState("");
+  const [usage, setUsage] = useState("");
+  const [source, setSource] = useState("");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const ref = useMemo(() => newRef(), []);
 
   const value = parseFloat(amount.replace(/[^\d.]/g, "")) || 0;
-  const valid = value >= 25000 && /^\S+@\S+\.\S+$/.test(email);
+  const valid =
+    value > 0 && address.length >= 12 && usage && source && /^\S+@\S+\.\S+$/.test(email);
 
+  /* ---------- Confirmation ---------- */
   if (sent) {
     return (
       <AppShell backTo="/app" header={<div><h1 className="font-display text-[22px] font-semibold tracking-tight">Demande envoyée</h1><p className="mt-1 text-[13px] text-muted-foreground">Notre desk vous répond sous peu</p></div>}>
@@ -60,81 +81,108 @@ const AppOTC = () => {
     );
   }
 
+  /* ---------- Formulaire ---------- */
   return (
     <AppShell
       backTo="/app"
       header={
         <div>
           <h1 className="font-display text-[22px] font-semibold tracking-tight">Desk OTC</h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">Pour les gros volumes</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">Cotation sur mesure pour les gros volumes</p>
         </div>
       }
     >
-      {/* Avantages */}
-      <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
-        {perks.map(({ icon: Icon, title, sub }) => (
-          <div key={title} className="flex items-center gap-3 px-5 py-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-              <Icon className="h-5 w-5" strokeWidth={1.7} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold">{title}</span>
-              <span className="block text-[13px] text-muted-foreground">{sub}</span>
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Demande de cotation */}
-      <p className="mb-2 mt-6 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Demander une cotation</p>
-      <div className="space-y-3 rounded-[16px] border border-border bg-card p-5">
+      <div className="space-y-4 rounded-[16px] border border-border bg-card p-5">
         {/* Sens */}
-        <div className="flex rounded-[10px] border border-border bg-secondary/60 p-0.5">
-          {([
-            { key: "buy" as Side, label: "Acheter" },
-            { key: "sell" as Side, label: "Vendre" },
-          ]).map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setSide(key)}
-              className={cn(
-                "flex-1 rounded-md py-2 text-sm font-semibold transition-colors",
-                side === key ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground",
-              )}
-            >
-              {label}
-            </button>
-          ))}
+        <div>
+          <Label>Sens de l'opération</Label>
+          <div className="flex rounded-[10px] border border-border bg-secondary/60 p-0.5">
+            {([
+              { key: "buy" as Side, label: "Acheter" },
+              { key: "sell" as Side, label: "Vendre" },
+            ]).map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSide(key)}
+                className={cn(
+                  "flex-1 rounded-md py-2 text-sm font-semibold transition-colors",
+                  side === key ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Volume */}
-        <div className="relative">
+        {/* Montant */}
+        <div>
+          <Label>Montant souhaité</Label>
+          <div className="relative">
+            <input
+              inputMode="numeric"
+              placeholder="0"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
+              className={cn(fieldClass, "pr-16")}
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">USDT</span>
+          </div>
+        </div>
+
+        {/* Adresse */}
+        <div>
+          <Label>Adresse USDT</Label>
           <input
-            inputMode="numeric"
-            placeholder="Volume"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
-            className="w-full rounded-[12px] border border-border bg-secondary/40 py-3.5 pl-4 pr-16 text-base outline-none placeholder:text-muted-foreground/60"
+            type="text"
+            spellCheck={false}
+            autoCapitalize="none"
+            placeholder="Votre adresse de réception / d'envoi"
+            value={address}
+            onChange={(e) => setAddress(e.target.value.trim())}
+            className={cn(fieldClass, "font-mono")}
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">USDT</span>
         </div>
 
-        {/* Email */}
-        <input
-          type="email"
-          spellCheck={false}
-          autoCapitalize="none"
-          placeholder="E-mail de contact"
-          value={email}
-          onChange={(e) => setEmail(e.target.value.trim())}
-          className="w-full rounded-[12px] border border-border bg-secondary/40 py-3.5 px-4 text-base outline-none placeholder:text-muted-foreground/60"
-        />
+        {/* Usage des fonds */}
+        <div>
+          <Label>Usage prévu des fonds</Label>
+          <select value={usage} onChange={(e) => setUsage(e.target.value)} className={cn(fieldClass, !usage && "text-muted-foreground/60")}>
+            <option value="" disabled>Sélectionnez…</option>
+            {USAGES.map((u) => <option key={u} value={u}>{u}</option>)}
+          </select>
+        </div>
 
-        <p className="px-1 text-xs text-muted-foreground">Volume minimum : 25 000 USDT.</p>
+        {/* Provenance des fonds */}
+        <div>
+          <Label>Provenance des fonds</Label>
+          <select value={source} onChange={(e) => setSource(e.target.value)} className={cn(fieldClass, !source && "text-muted-foreground/60")}>
+            <option value="" disabled>Sélectionnez…</option>
+            {SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        {/* Contact */}
+        <div>
+          <Label>E-mail de contact</Label>
+          <input
+            type="email"
+            spellCheck={false}
+            autoCapitalize="none"
+            placeholder="vous@exemple.ca"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.trim())}
+            className={fieldClass}
+          />
+        </div>
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <p className="mt-3 px-1 text-xs text-muted-foreground">
+        Informations demandées pour la conformité (vérification de la provenance des fonds).
+      </p>
+
+      <div className="mt-5 flex justify-end">
         <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!valid} onClick={() => setSent(true)}>
           <Handshake className="h-[17px] w-[17px]" strokeWidth={2} /> Demander un devis
         </Button>
