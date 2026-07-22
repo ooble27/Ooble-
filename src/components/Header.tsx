@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
+import ThemeToggle from "./app/ThemeToggle";
 
 const links = [
   { to: "/acheter", label: "Acheter" },
@@ -38,7 +39,8 @@ const Header = () => {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-1.5 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           <Button asChild variant="ghost" shape="rounded" size="default">
             <Link to="/connexion">Se connecter</Link>
           </Button>
@@ -47,9 +49,12 @@ const Header = () => {
           </Button>
         </div>
 
-        <button className="p-2 text-foreground md:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button className="p-2 text-foreground" onClick={() => setOpen(!open)} aria-label="Menu">
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {open && (

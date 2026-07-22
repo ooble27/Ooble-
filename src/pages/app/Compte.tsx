@@ -1,12 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck, KeyRound } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound, Sun, Moon } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { getUser, clearUser } from "@/lib/session";
+import { getTheme, setTheme, type Theme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 const Compte = () => {
   const navigate = useNavigate();
   const user = getUser();
+  const [theme, setThemeState] = useState<Theme>(getTheme);
+
+  const chooseTheme = (t: Theme) => {
+    setTheme(t);
+    setThemeState(t);
+  };
 
   const logout = () => {
     clearUser();
@@ -29,6 +38,29 @@ const Compte = () => {
         <div className="min-w-0">
           <p className="truncate font-display text-lg font-bold">{user?.name}</p>
           <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
+        </div>
+      </div>
+
+      {/* Apparence — bascule clair / sombre */}
+      <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+        <span className="flex-1 text-sm font-medium">Apparence</span>
+        <div className="flex rounded-lg border border-border bg-secondary/60 p-0.5">
+          {([
+            { key: "light" as Theme, icon: Sun, label: "Clair" },
+            { key: "dark" as Theme, icon: Moon, label: "Sombre" },
+          ]).map(({ key, icon: Icon, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => chooseTheme(key)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                theme === key ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground",
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" /> {label}
+            </button>
+          ))}
         </div>
       </div>
 

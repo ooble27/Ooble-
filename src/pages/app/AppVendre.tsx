@@ -51,8 +51,8 @@ const AppVendre = () => {
   if (step === "amount") {
     return (
       <AppShell header={<div><h1 className="font-display text-[22px] font-semibold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
-        <div className="rounded-[20px] border border-border bg-card p-5">
-          <div className="mb-3.5 flex items-center justify-between">
+        <div className="rounded-[20px] border border-border bg-card p-4">
+          <div className="mb-3 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
             <div className="inline-flex gap-0.5 rounded-[10px] bg-secondary/70 p-[3px]">
               {(["USDT", "CAD"] as Unit[]).map((u) => (
@@ -77,7 +77,7 @@ const AppVendre = () => {
               placeholder="0"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ""))}
-              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[16px] pl-5 pr-[84px] text-[30px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
+              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[13px] pl-5 pr-[84px] text-[30px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
             />
             <span className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-muted-foreground">
               {unit === "USDT" && <img src="/coins/usdt.svg" alt="" className="h-5 w-5" />}
@@ -88,7 +88,7 @@ const AppVendre = () => {
           <p className={cn("mt-2 text-xs", belowMin ? "text-destructive" : "text-muted-foreground")}>Minimum : {MIN_USDT} USDT</p>
         </div>
 
-        <div className="mt-3.5 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-4">
+        <div className="mt-3 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-3.5">
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-muted-foreground">Vous recevez</span>
             <span className="text-sm font-semibold">{nfCad.format(cad)} CAD</span>
@@ -100,7 +100,7 @@ const AppVendre = () => {
         </div>
 
         {/* Continuer — à GAUCHE (Vendre) */}
-        <div className="mt-3.5 flex justify-start">
+        <div className="mt-3 flex justify-start">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
             <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>
