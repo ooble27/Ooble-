@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck, KeyRound, Sun, Moon } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
 import { getUser, clearUser } from "@/lib/session";
@@ -76,6 +77,11 @@ const Compte = () => {
           <KeyRound className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Non-custodial — vos clés, vos USDT</span>
         </div>
+        <Link to="/admin" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">
+          <LayoutGrid className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
+          <span className="flex-1 text-sm font-medium">Back-office</span>
+          <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
+        </Link>
       </div>
 
       <Button variant="appOutline" shape="soft" size="lg" className="mt-6 w-full" onClick={logout}>

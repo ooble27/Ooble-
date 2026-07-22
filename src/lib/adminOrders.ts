@@ -55,6 +55,9 @@ export const TYPE_META: Record<OrderType, { label: string; verb: string }> = {
   transfer: { label: "Envoi",  verb: "Exécuter l'envoi" },
 };
 
+/** Opérateur connecté au back-office (démo). Sert à « Mes commandes ». */
+export const CURRENT_OPERATOR = "Vous";
+
 export const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 export const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 

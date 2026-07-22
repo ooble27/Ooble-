@@ -1,86 +1,170 @@
-import { ArrowRight, Check, Inbox } from "lucide-react";
+import { useState } from "react";
+import { Hand, Clock, Coins, HandCoins, Inbox } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  TYPE_META, nfCad, nfUsdt, timeAgo,
-  type AdminOrder, type OrderStatus,
+  CURRENT_OPERATOR, TYPE_META, nfCad, nfUsdt,
+  type AdminOrder,
 } from "@/lib/adminOrders";
-import { StatusBadge, ClientCell, Channel } from "./AdminBits";
+import { ClientCell } from "./AdminBits";
 
 interface Props {
   orders: AdminOrder[];
   onOpen: (order: AdminOrder) => void;
-  onAdvance: (id: string, status: OrderStatus) => void;
+  onPatch: (id: string, changes: Partial<AdminOrder>) => void;
 }
 
-/** File d'attente : commandes reçues à traiter + celles en cours. */
-const OrdersQueue = ({ orders, onOpen, onAdvance }: Props) => {
-  // À traiter d'abord (recu), puis en cours (cours) ; plus anciennes en haut.
-  const queue = orders
-    .filter((o) => o.status === "recu" || o.status === "cours")
-    .sort((a, b) => {
-      if (a.status !== b.status) return a.status === "recu" ? -1 : 1;
-      return b.createdMinsAgo - a.createdMinsAgo;
-    });
+type SubTab = "queue" | "mine" | "others";
 
-  if (queue.length === 0) {
-    return (
-      <div className="flex flex-col items-center rounded-2xl border border-border bg-card py-16 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-          <Inbox className="h-6 w-6" strokeWidth={1.6} />
-        </span>
-        <p className="mt-4 text-[15px] font-medium">File vide</p>
-        <p className="mt-1 text-sm text-muted-foreground">Aucune commande à traiter pour le moment.</p>
-      </div>
-    );
-  }
+/** Ancienneté courte : « 16 min », « 3 h », « 2 j ». */
+const ageShort = (mins: number) => {
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  if (h < 24) return `${h} h`;
+  return `${Math.floor(h / 24)} j`;
+};
+
+const TypeCell = ({ order }: { order: AdminOrder }) => {
+  const Icon = order.type === "buy" ? Coins : HandCoins;
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
+      <Icon className="h-[13px] w-[13px]" strokeWidth={1.8} /> {TYPE_META[order.type].label}
+    </span>
+  );
+};
+
+const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
+  const [tab, setTab] = useState<SubTab>("queue");
+
+  const active = orders
+    .filter((o) => o.status === "recu" || o.status === "cours")
+    .sort((a, b) => b.createdMinsAgo - a.createdMinsAgo);
+
+  const unassigned = active.filter((o) => o.status === "recu");
+  const mine = active.filter((o) => o.status === "cours" && o.assignedTo === CURRENT_OPERATOR);
+  const others = active.filter((o) => o.status === "cours" && o.assignedTo !== CURRENT_OPERATOR);
+
+  const TABS: { id: SubTab; label: string; count: number; empty: string }[] = [
+    { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — tout est pris en charge." },
+    { id: "mine",   label: "Mes commandes",  count: mine.length,       empty: "Aucune commande en charge — prenez-en une dans la file." },
+    { id: "others", label: "Par l'équipe",   count: others.length,     empty: "Aucune commande traitée par un autre membre." },
+  ];
+  const list = tab === "queue" ? unassigned : tab === "mine" ? mine : others;
+
+  const cols = "grid grid-cols-[1fr_auto_auto] md:grid-cols-[1.7fr_0.9fr_1fr_0.7fr_auto] items-center gap-3";
 
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {queue.map((o) => (
-        <div
-          key={o.id}
-          className="flex cursor-pointer flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/40"
-          onClick={() => onOpen(o)}
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[13px] font-semibold">{o.ref}</span>
-            <StatusBadge status={o.status} />
-          </div>
+    <div className="space-y-4">
+      {/* Sous-onglets (compteurs) */}
+      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+        {TABS.map((t) => {
+          const on = t.id === tab;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors",
+                on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+              )}
+            >
+              {t.label}
+              {t.count > 0 && (
+                <span className={cn("flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
+                  on ? "bg-foreground text-background" : "bg-secondary text-muted-foreground")}>
+                  {t.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-          <div className="mt-3">
-            <ClientCell name={o.clientName} email={o.clientEmail} />
-          </div>
+      {/* Tableau */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        {/* En-tête (desktop) */}
+        <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Type</span>
+          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Montant</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Ancienneté</span>
+          <span />
+        </div>
 
-          <div className="mt-3 flex items-end justify-between border-t border-border pt-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                {TYPE_META[o.type].label}
-              </p>
-              <p className="mt-0.5 text-[15px] font-semibold">
+        {list.map((o, i) => (
+          <div
+            key={o.id}
+            onClick={() => onOpen(o)}
+            className={cn(cols, "cursor-pointer px-4 py-3 transition-colors hover:bg-secondary/40", i < list.length - 1 && "border-b border-border")}
+          >
+            {/* Client + référence */}
+            <div className="min-w-0">
+              <ClientCell name={o.clientName} email={o.ref} />
+            </div>
+
+            {/* Type (desktop) */}
+            <div className="hidden md:block"><TypeCell order={o} /></div>
+
+            {/* Montant */}
+            <div className="text-right">
+              <p className="whitespace-nowrap text-[13px] font-semibold">
                 {o.type === "buy" ? `${nfCad.format(o.cad)} CAD` : `${nfUsdt.format(o.usdt)} USDT`}
               </p>
+              <p className="hidden text-[11px] text-muted-foreground md:block">
+                {o.type === "buy" ? `${nfUsdt.format(o.usdt)} USDT` : `${nfCad.format(o.cad)} CAD`}
+              </p>
             </div>
-            <span className="text-[12px] text-muted-foreground">{timeAgo(o.createdMinsAgo)}</span>
-          </div>
 
-          <div className="mt-2.5"><Channel order={o} /></div>
+            {/* Ancienneté (desktop) */}
+            <span className="hidden items-center gap-1.5 text-[12.5px] text-muted-foreground md:inline-flex">
+              <Clock className="h-3 w-3" /> {ageShort(o.createdMinsAgo)}
+            </span>
 
-          {/* Actions rapides */}
-          <div className="mt-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
-            {o.status === "recu" ? (
-              <Button variant="appPrimary" shape="soft" className="h-auto flex-1 gap-2 py-[10px] text-[13px]"
-                      onClick={() => onAdvance(o.id, "cours")}>
-                <ArrowRight className="h-4 w-4" /> Prendre en charge
-              </Button>
-            ) : (
-              <Button variant="appPrimary" shape="soft" className="h-auto flex-1 gap-2 py-[10px] text-[13px]"
-                      onClick={() => onAdvance(o.id, "termine")}>
-                <Check className="h-4 w-4" /> Marquer terminé
-              </Button>
-            )}
+            {/* Action (à droite) */}
+            <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+              {tab === "queue" && (
+                <Button
+                  variant="appPrimary"
+                  shape="soft"
+                  className="h-auto gap-1.5 px-3 py-1.5 text-[12.5px]"
+                  onClick={() => onPatch(o.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}
+                >
+                  <Hand className="h-[13px] w-[13px]" /> Prendre
+                </Button>
+              )}
+              {tab === "mine" && (
+                <>
+                  <Button
+                    variant="appOutline"
+                    shape="soft"
+                    className="hidden h-auto px-3 py-1.5 text-[12.5px] md:inline-flex"
+                    onClick={() => onPatch(o.id, { status: "recu", assignedTo: null })}
+                  >
+                    Libérer
+                  </Button>
+                  <Button variant="appPrimary" shape="soft" className="h-auto px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                    Traiter
+                  </Button>
+                </>
+              )}
+              {tab === "others" && (
+                <Button variant="appOutline" shape="soft" className="h-auto px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                  Ouvrir
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+
+        {list.length === 0 && (
+          <div className="flex flex-col items-center py-16 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+              <Inbox className="h-5 w-5" strokeWidth={1.6} />
+            </span>
+            <p className="mt-3 text-sm text-muted-foreground">{TABS.find((t) => t.id === tab)!.empty}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  SEED_ORDERS, nfCad,
+  SEED_ORDERS,
   type AdminOrder, type OrderStatus,
 } from "@/lib/adminOrders";
 import OrdersQueue from "@/components/admin/OrdersQueue";
@@ -21,13 +21,6 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "accounting", label: "Comptabilité",   desc: "Revenus et marges", icon: Calculator },
   { id: "team",       label: "Équipe",         desc: "Membres et rôles du back-office", icon: Users },
 ];
-
-const Stat = ({ label, value }: { label: string; value: string }) => (
-  <div className="rounded-2xl border border-border bg-card px-5 py-4">
-    <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
-    <p className="mt-1.5 font-display text-[24px] font-light leading-none tracking-tight">{value}</p>
-  </div>
-);
 
 const Placeholder = ({ label }: { label: string }) => (
   <div className="flex flex-col items-center rounded-2xl border border-border bg-card py-20 text-center">
@@ -46,18 +39,13 @@ const AdminPortal = () => {
   const [tab, setTab] = useState<TabId>("queue");
   const [selected, setSelected] = useState<AdminOrder | null>(null);
 
-  const advance = (id: string, status: OrderStatus) => {
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-    setSelected((s) => (s && s.id === id ? { ...s, status } : s));
+  const patch = (id: string, changes: Partial<AdminOrder>) => {
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
+    setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
   };
+  const advance = (id: string, status: OrderStatus) => patch(id, { status });
 
-  const counts = useMemo(() => {
-    const toTreat = orders.filter((o) => o.status === "recu").length;
-    const inProgress = orders.filter((o) => o.status === "cours").length;
-    const doneToday = orders.filter((o) => o.status === "termine");
-    const volume = doneToday.reduce((s, o) => s + o.cad, 0);
-    return { toTreat, inProgress, doneCount: doneToday.length, volume };
-  }, [orders]);
+  const toTreat = useMemo(() => orders.filter((o) => o.status === "recu").length, [orders]);
 
   const active = NAV.find((n) => n.id === tab)!;
   const ActiveIcon = active.icon;
@@ -90,7 +78,7 @@ const AdminPortal = () => {
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
           {NAV.map(({ id, label, icon: Icon }) => {
             const on = id === tab;
-            const badge = id === "queue" && counts.toTreat > 0 ? counts.toTreat : null;
+            const badge = id === "queue" && toTreat > 0 ? toTreat : null;
             return (
               <button
                 key={id}
@@ -123,19 +111,9 @@ const AdminPortal = () => {
           </div>
         </div>
 
-        {/* Statistiques (file + commandes) */}
-        {(tab === "queue" || tab === "orders") && (
-          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label="À traiter" value={String(counts.toTreat)} />
-            <Stat label="En cours" value={String(counts.inProgress)} />
-            <Stat label="Terminées" value={String(counts.doneCount)} />
-            <Stat label="Volume traité" value={`${nfCad.format(counts.volume)} $`} />
-          </div>
-        )}
-
         {/* Vue active */}
         <div className="mt-5">
-          {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onAdvance={advance} />}
+          {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
           {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
           {tab === "kyc" && <Placeholder label="KYC — vérifications d'identité" />}
           {tab === "accounting" && <Placeholder label="Comptabilité — revenus et marges" />}
