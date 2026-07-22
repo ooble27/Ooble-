@@ -38,7 +38,7 @@ export const ClientCell = ({ name, email }: { name: string; email: string }) => 
       </span>
       <div className="min-w-0">
         <p className="truncate text-[13px] font-medium leading-tight">{name}</p>
-        <p className="truncate text-[12px] leading-tight text-muted-foreground">{email}</p>
+        <p className="truncate text-[11.5px] leading-tight text-muted-foreground">{email}</p>
       </div>
     </div>
   );

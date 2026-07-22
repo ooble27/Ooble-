@@ -45,8 +45,8 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
   const others = active.filter((o) => o.status === "cours" && o.assignedTo !== CURRENT_OPERATOR);
 
   const TABS: { id: SubTab; label: string; count: number; empty: string }[] = [
-    { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — tout est pris en charge." },
-    { id: "mine",   label: "Mes commandes",  count: mine.length,       empty: "Aucune commande en charge — prenez-en une dans la file." },
+    { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — toutes les commandes actives sont prises en charge." },
+    { id: "mine",   label: "Mes commandes",  count: mine.length,       empty: "Aucune commande en charge — prenez-en une dans la file d'attente." },
     { id: "others", label: "Par l'équipe",   count: others.length,     empty: "Aucune commande traitée par un autre membre." },
   ];
   const list = tab === "queue" ? unassigned : tab === "mine" ? mine : others;
@@ -62,10 +62,10 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {/* En-tête (desktop) */}
         <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Type</span>
-          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Montant</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Ancienneté</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Client</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Type</span>
+          <span className="text-right text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Montant</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Ancienneté</span>
           <span />
         </div>
 
@@ -73,7 +73,7 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
           <div
             key={o.id}
             onClick={() => onOpen(o)}
-            className={cn(cols, "cursor-pointer px-4 py-3 transition-colors hover:bg-secondary/40", i < list.length - 1 && "border-b border-border")}
+            className={cn(cols, "cursor-pointer px-4 py-2.5 transition-colors hover:bg-secondary/40", i < list.length - 1 && "border-b border-border")}
           >
             {/* Client + référence */}
             <div className="min-w-0">
@@ -139,7 +139,7 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
               <Inbox className="h-5 w-5" strokeWidth={1.6} />
             </span>
-            <p className="mt-3 text-sm text-muted-foreground">{TABS.find((t) => t.id === tab)!.empty}</p>
+            <p className="mt-3 text-[13px] text-muted-foreground">{TABS.find((t) => t.id === tab)!.empty}</p>
           </div>
         )}
       </div>

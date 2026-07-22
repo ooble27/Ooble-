@@ -38,14 +38,14 @@ const KycPanel = () => {
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Document</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Soumis</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Client</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Document</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Soumis</span>
           <span />
         </div>
 
         {list.map((r, i) => (
-          <div key={r.id} className={cn(cols, "px-4 py-3", i < list.length - 1 && "border-b border-border")}>
+          <div key={r.id} className={cn(cols, "px-4 py-2.5", i < list.length - 1 && "border-b border-border")}>
             <ClientCell name={r.clientName} email={r.email} />
             <span className="hidden text-[13px] text-muted-foreground md:block">{r.docType}</span>
             <span className="hidden text-[12.5px] text-muted-foreground md:block">{timeAgo(r.submittedMinsAgo)}</span>
@@ -71,7 +71,7 @@ const KycPanel = () => {
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
               <FileCheck className="h-5 w-5" strokeWidth={1.6} />
             </span>
-            <p className="mt-3 text-sm text-muted-foreground">Aucune vérification ici.</p>
+            <p className="mt-3 text-[13px] text-muted-foreground">Aucune vérification ici.</p>
           </div>
         )}
       </div>

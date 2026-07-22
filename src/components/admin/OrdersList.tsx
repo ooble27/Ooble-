@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Search, Coins, HandCoins, Inbox, Download, RefreshCw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   STATUS_META, TYPE_META, nfCad, nfUsdt, timeAgo,
   type AdminOrder, type OrderStatus, type OrderType,
@@ -95,15 +94,15 @@ const OrdersList = ({ orders, onOpen }: Props) => {
           {base.length} commande{base.length > 1 ? "s" : ""} · {clientCount} client{clientCount > 1 ? "s" : ""}
         </p>
         <div className="flex gap-2">
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={exportCSV}>
+          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={exportCSV}>
             <Download className="h-[14px] w-[14px]" /> CSV
-          </Button>
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={() => window.print()}>
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={() => window.print()}>
             <Download className="h-[14px] w-[14px]" /> PDF
-          </Button>
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={() => { setQ(""); setStatus("all"); }}>
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={() => { setQ(""); setStatus("all"); }}>
             <RefreshCw className="h-[14px] w-[14px]" /> Actualiser
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -131,12 +130,12 @@ const OrdersList = ({ orders, onOpen }: Props) => {
               key={f.id}
               onClick={() => setStatus(f.id)}
               className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12.5px] font-medium transition-colors",
-                on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-[10px] border px-3.5 py-[7px] text-[12.5px] font-semibold transition-colors",
+                on ? "border-foreground/25 bg-secondary text-foreground" : "border-border bg-transparent text-muted-foreground hover:text-foreground",
               )}
             >
               {f.label}
-              <span className={cn("text-[11px]", on ? "text-background/70" : "text-muted-foreground/70")}>{count}</span>
+              <span className="text-[11px] opacity-60">{count}</span>
             </button>
           );
         })}
@@ -145,10 +144,10 @@ const OrdersList = ({ orders, onOpen }: Props) => {
       {/* Tableau */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Type</span>
-          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Montant</span>
-          <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Date</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Client</span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Type</span>
+          <span className="text-right text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Montant</span>
+          <span className="text-right text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Date</span>
           <span />
         </div>
 
@@ -156,7 +155,7 @@ const OrdersList = ({ orders, onOpen }: Props) => {
           <div
             key={o.id}
             onClick={() => onOpen(o)}
-            className={cn(cols, "cursor-pointer px-4 py-3 transition-colors hover:bg-secondary/40", i < rows.length - 1 && "border-b border-border")}
+            className={cn(cols, "cursor-pointer px-4 py-2.5 transition-colors hover:bg-secondary/40", i < rows.length - 1 && "border-b border-border")}
           >
             {/* Client + statut dessous */}
             <div className="flex min-w-0 items-center gap-2.5">
@@ -190,7 +189,7 @@ const OrdersList = ({ orders, onOpen }: Props) => {
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
               <Inbox className="h-5 w-5" strokeWidth={1.6} />
             </span>
-            <p className="mt-3 text-sm text-muted-foreground">Aucune commande ne correspond.</p>
+            <p className="mt-3 text-[13px] text-muted-foreground">Aucune commande ne correspond.</p>
           </div>
         )}
       </div>
