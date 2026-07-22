@@ -8,6 +8,26 @@ import { useUsdtHistory } from "@/hooks/useUsdtHistory";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
+/**
+ * Signe animé « Ooble » — deux anneaux qui respirent + un point en orbite,
+ * en teal de la charte. SVG autonome (animation SMIL), remplace l'emoji main.
+ */
+const HeroMark = () => (
+  <svg viewBox="0 0 46 40" className="inline-block h-7 w-8 shrink-0 align-middle text-primary" aria-hidden="true">
+    <g fill="none" strokeWidth="3.2" strokeLinecap="round">
+      <circle cx="18" cy="20" r="8.5" stroke="currentColor">
+        <animate attributeName="stroke-opacity" values="1;0.35;1" dur="2.8s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="28" cy="20" r="8.5" stroke="currentColor">
+        <animate attributeName="stroke-opacity" values="0.35;1;0.35" dur="2.8s" repeatCount="indefinite" />
+      </circle>
+    </g>
+    <circle cx="23" cy="6" r="2.3" fill="currentColor">
+      <animateTransform attributeName="transform" type="rotate" from="0 23 20" to="360 23 20" dur="6s" repeatCount="indefinite" />
+    </circle>
+  </svg>
+);
+
 const Dashboard = () => {
   const rate = useUsdtRate();
   const history = useUsdtHistory();
@@ -17,8 +37,8 @@ const Dashboard = () => {
     <AppShell
       wide
       header={
-        <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
-          Bonjour <span className="align-middle">👋</span>
+        <h1 className="flex items-center gap-2 font-display text-[22px] font-semibold leading-tight tracking-tight">
+          Bonjour <HeroMark />
         </h1>
       }
     >
@@ -30,29 +50,29 @@ const Dashboard = () => {
           Envoyer/Desk OTC.
         */}
         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-          {/* Hero éditorial — taux en écriture fine sur blanc */}
+          {/* Hero éditorial — taux clair et lisible */}
           <section className="flex flex-col rounded-2xl border border-border bg-card p-5">
-            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Taux USDT / CAD
-            </span>
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                Taux USDT / CAD
+              </span>
+              {change !== null && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  <TrendingUp className={`h-3 w-3 ${change < 0 ? "rotate-180" : ""}`} />
+                  {change >= 0 ? "+" : ""}{change.toFixed(2)} % · 7 j
+                </span>
+              )}
+            </div>
 
-            <div className="mt-4 flex items-end gap-3">
-              <span className="font-display text-[30px] font-light leading-[0.9] tracking-tight">
+            <div className="mt-4 flex items-baseline gap-2">
+              <span className="font-display text-[34px] font-light leading-none tracking-tight">
                 {nf.format(rate.buy)}
               </span>
-              <div className="pb-1">
-                <span className="block text-base font-normal text-muted-foreground">$ CAD</span>
-                {change !== null && (
-                  <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                    <TrendingUp className={`h-3.5 w-3.5 ${change < 0 ? "rotate-180" : ""}`} />
-                    {change >= 0 ? "+" : ""}{change.toFixed(2)} %
-                  </span>
-                )}
-              </div>
+              <span className="text-[15px] font-medium text-muted-foreground">$ CAD</span>
             </div>
-            <p className="mt-2 text-sm font-light text-muted-foreground">pour 1 USDT · marché + 2 %</p>
+            <p className="mt-2 text-sm font-light text-muted-foreground">1 USDT en dollars canadiens · marché + 2 %</p>
 
-            <RateChart data={history.points} className="mt-3 h-20 w-full text-foreground/55 md:mt-auto md:h-auto md:min-h-[5rem] md:flex-1" />
+            <RateChart data={history.points} className="mt-4 h-20 w-full text-foreground/55 md:mt-auto md:h-auto md:min-h-[5rem] md:flex-1" />
           </section>
 
           {/* Colonne droite (empilée) : actions, réseaux, envoyer/otc */}

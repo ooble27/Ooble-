@@ -27,7 +27,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
   <div className="app-type min-h-screen bg-background">
     <div className="mx-auto flex min-h-screen max-w-[400px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] lg:max-w-[960px]">
       {/* Barre du haut — largeur constante, avatar toujours au même endroit */}
-      <div className="flex items-start justify-between gap-4 pb-6 pt-2">
+      <div className="flex items-start justify-between gap-4 pb-6 pt-2 lg:pb-10 lg:pt-4">
         <div className="flex min-w-0 items-start gap-3">
           {backTo && (
             <Link
@@ -52,8 +52,8 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
       <div
         className={cn(
           "flex-1",
-          !wide && "lg:max-w-[600px]",
-          center && "flex flex-col justify-center pb-[26vh] lg:justify-start lg:pb-0 lg:pt-4",
+          !wide && "lg:mx-auto lg:w-full lg:max-w-[600px]",
+          center && "flex flex-col justify-center pb-[26vh] lg:justify-start lg:pb-0",
           className,
         )}
       >
