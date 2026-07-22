@@ -138,7 +138,7 @@ const AppAcheter = () => {
     return (
       <AppShell center>
         <StepHeader title="Destination" sub="Choisissez où recevoir vos USDT" onBack={() => setStep("amount")} />
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="flex flex-wrap gap-2">
           {NETWORKS.map((n) => {
             const sel = net === n.id;
             return (
@@ -147,13 +147,12 @@ const AppAcheter = () => {
                 type="button"
                 onClick={() => setNet(n.id)}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-xl border py-[9px] pl-2.5 pr-3 transition-colors active:scale-[0.98]",
-                  sel ? "border-foreground/40 bg-secondary" : "border-border bg-card",
+                  "flex items-center gap-2.5 rounded-xl border py-2 pl-2 pr-3.5 transition-colors active:scale-[0.98]",
+                  sel ? "border-foreground bg-secondary" : "border-border bg-card",
                 )}
               >
-                <img src={`/coins/${n.id}.svg`} alt="" className="h-[26px] w-[26px] shrink-0 rounded-full" draggable={false} />
-                <span className={cn("min-w-0 flex-1 truncate text-left text-[13px]", sel ? "text-foreground" : "text-muted-foreground")}>{n.name}</span>
-                <Check className={cn("h-3.5 w-3.5 shrink-0 text-foreground transition-opacity", sel ? "opacity-100" : "opacity-0")} strokeWidth={2.5} />
+                <img src={`/coins/${n.id}.svg`} alt="" className="h-7 w-7 shrink-0 rounded-full" draggable={false} />
+                <span className="whitespace-nowrap text-sm">{n.name}</span>
               </button>
             );
           })}
