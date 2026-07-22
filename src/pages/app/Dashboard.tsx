@@ -24,18 +24,12 @@ const Dashboard = () => {
     >
       <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
         {/* Hero éditorial — taux en écriture fine sur blanc */}
-        <section className="rounded-2xl border border-border bg-card p-5 lg:col-span-2 lg:p-7">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Taux USDT / CAD
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-              <span className={`h-1.5 w-1.5 rounded-full ${rate.live ? "bg-primary" : "bg-muted-foreground/40"}`} />
-              {rate.live ? "En direct" : "Estimé"}
-            </span>
-          </div>
+        <section className="rounded-2xl border border-border bg-card p-5 lg:p-6">
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Taux USDT / CAD
+          </span>
 
-          <div className="mt-5 flex items-end gap-3">
+          <div className="mt-4 flex items-end gap-3">
             <span className="font-display text-[30px] font-light leading-[0.9] tracking-tight">
               {nf.format(rate.buy)}
             </span>
@@ -118,7 +112,7 @@ const Dashboard = () => {
         </div>
 
         {/* Activité récente */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
             Activité récente
           </p>
