@@ -90,25 +90,25 @@ const OrderDetailSheet = ({ order, onClose, onAdvance }: Props) => {
             {/* Barre d'actions */}
             <footer className="flex flex-wrap gap-2.5 border-t border-border px-5 py-4">
               {order.status === "attente" && (
-                <Button variant="appPrimary" shape="soft" className="h-auto flex-1 gap-2 py-[11px] text-sm"
+                <Button variant="appPrimary" shape="rounded" className="h-auto flex-1 gap-2 rounded-[10px] py-[11px] text-sm"
                         onClick={() => onAdvance(order.id, "recu")}>
                   <Check className="h-[17px] w-[17px]" /> Marquer reçu
                 </Button>
               )}
               {order.status === "recu" && (
-                <Button variant="appPrimary" shape="soft" className="h-auto flex-1 gap-2 py-[11px] text-sm"
+                <Button variant="appPrimary" shape="rounded" className="h-auto flex-1 gap-2 rounded-[10px] py-[11px] text-sm"
                         onClick={() => onAdvance(order.id, "cours")}>
                   <ArrowRight className="h-[17px] w-[17px]" /> Prendre en charge
                 </Button>
               )}
               {order.status === "cours" && (
-                <Button variant="appPrimary" shape="soft" className="h-auto flex-1 gap-2 py-[11px] text-sm"
+                <Button variant="appPrimary" shape="rounded" className="h-auto flex-1 gap-2 rounded-[10px] py-[11px] text-sm"
                         onClick={() => onAdvance(order.id, "termine")}>
                   <Check className="h-[17px] w-[17px]" /> Marquer terminé
                 </Button>
               )}
               {order.status !== "termine" && order.status !== "annule" && (
-                <Button variant="appOutline" shape="soft" className="h-auto gap-2 py-[11px] text-sm"
+                <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] py-[11px] text-sm"
                         onClick={() => onAdvance(order.id, "annule")}>
                   <Ban className="h-[17px] w-[17px]" /> Annuler
                 </Button>

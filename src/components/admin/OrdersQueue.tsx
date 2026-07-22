@@ -55,8 +55,8 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
 
   return (
     <div className="space-y-4">
-      {/* Sous-onglets (compteurs) */}
-      <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+      {/* Sous-onglets — barre soulignée (modèle Terex) */}
+      <div className="-mx-5 flex gap-1 overflow-x-auto border-b border-border px-5 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => {
           const on = t.id === tab;
           return (
@@ -64,14 +64,13 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors",
-                on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                "-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 pb-2.5 pt-2 text-[13px] font-medium transition-colors",
+                on ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
               )}
             >
               {t.label}
               {t.count > 0 && (
-                <span className={cn("flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold",
-                  on ? "bg-foreground text-background" : "bg-secondary text-muted-foreground")}>
+                <span className="rounded-full bg-secondary px-1.5 py-px text-[11px] font-semibold text-muted-foreground">
                   {t.count}
                 </span>
               )}
@@ -125,8 +124,8 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
               {tab === "queue" && (
                 <Button
                   variant="appPrimary"
-                  shape="soft"
-                  className="h-auto gap-1.5 px-3 py-1.5 text-[12.5px]"
+                  shape="rounded"
+                  className="h-auto gap-1.5 rounded-[10px] px-3 py-1.5 text-[12.5px]"
                   onClick={() => onPatch(o.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}
                 >
                   <Hand className="h-[13px] w-[13px]" /> Prendre
@@ -136,19 +135,19 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
                 <>
                   <Button
                     variant="appOutline"
-                    shape="soft"
-                    className="hidden h-auto px-3 py-1.5 text-[12.5px] md:inline-flex"
+                    shape="rounded"
+                    className="hidden h-auto rounded-[10px] px-3 py-1.5 text-[12.5px] md:inline-flex"
                     onClick={() => onPatch(o.id, { status: "recu", assignedTo: null })}
                   >
                     Libérer
                   </Button>
-                  <Button variant="appPrimary" shape="soft" className="h-auto px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                  <Button variant="appPrimary" shape="rounded" className="h-auto rounded-[10px] px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
                     Traiter
                   </Button>
                 </>
               )}
               {tab === "others" && (
-                <Button variant="appOutline" shape="soft" className="h-auto px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                <Button variant="appOutline" shape="rounded" className="h-auto rounded-[10px] px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
                   Ouvrir
                 </Button>
               )}
