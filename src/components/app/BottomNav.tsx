@@ -10,7 +10,7 @@ const items = [
 
 /** Barre de navigation flottante (structure Terex, recolorée Ooble). */
 const BottomNav = () => (
-  <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:hidden">
+  <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
     <div className="flex w-full max-w-[390px] items-center justify-around gap-1.5 rounded-[24px] border border-border bg-card/95 p-2 backdrop-blur-xl">
       {items.map(({ to, label, icon: Icon, end }) => (
         <NavLink
