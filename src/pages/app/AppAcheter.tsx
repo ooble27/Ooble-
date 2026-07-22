@@ -31,7 +31,7 @@ const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack
       </button>
     )}
     <div>
-      <h1 className="font-display text-[20px] font-semibold tracking-tight">{title}</h1>
+      <h1 className="font-display text-[18px] font-semibold tracking-tight">{title}</h1>
       <p className="mt-1 text-[13px] text-muted-foreground">{sub}</p>
     </div>
   </div>
@@ -59,7 +59,7 @@ const AppAcheter = () => {
   /* ---------- Montant ---------- */
   if (step === "amount") {
     return (
-      <AppShell header={<div><h1 className="font-display text-[26px] font-semibold tracking-tight">Acheter USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à dépenser</p></div>}>
+      <AppShell header={<div><h1 className="font-display text-[22px] font-semibold tracking-tight">Acheter USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à dépenser</p></div>}>
         {/* Carte montant (radius 20, padding 20) */}
         <div className="rounded-[20px] border border-border bg-card p-5">
           <div className="mb-3.5 flex items-center justify-between">
@@ -95,7 +95,7 @@ const AppAcheter = () => {
               placeholder="0"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ""))}
-              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[18px] pl-5 pr-[84px] text-[34px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
+              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[16px] pl-5 pr-[84px] text-[30px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
             />
             <span className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-muted-foreground">
               {unit === "USDT" && <img src="/coins/usdt.svg" alt="" className="h-5 w-5" />}

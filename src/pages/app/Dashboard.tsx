@@ -17,14 +17,14 @@ const Dashboard = () => {
     <AppShell
       wide
       header={
-        <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight">
+        <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
           Bonjour <span className="align-middle">👋</span>
         </h1>
       }
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Hero éditorial — taux en écriture fine sur blanc */}
-        <section className="rounded-2xl border border-border bg-card p-6">
+        <section className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Taux USDT / CAD
@@ -36,11 +36,11 @@ const Dashboard = () => {
           </div>
 
           <div className="mt-5 flex items-end gap-3">
-            <span className="font-display text-[52px] font-light leading-[0.9] tracking-tight">
+            <span className="font-display text-[30px] font-light leading-[0.9] tracking-tight">
               {nf.format(rate.buy)}
             </span>
-            <div className="pb-2">
-              <span className="block text-lg font-normal text-muted-foreground">$ CAD</span>
+            <div className="pb-1">
+              <span className="block text-base font-normal text-muted-foreground">$ CAD</span>
               {change !== null && (
                 <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${change >= 0 ? "text-primary" : "text-muted-foreground"}`}>
                   <TrendingUp className={`h-3.5 w-3.5 ${change < 0 ? "rotate-180" : ""}`} />
@@ -53,7 +53,7 @@ const Dashboard = () => {
 
           <RateChart
             data={history.points}
-            className="mt-4 h-24 w-full"
+            className="mt-3 h-20 w-full"
             stroke="#1f9c88"
             fillFrom="rgba(38,161,123,0.14)"
           />
