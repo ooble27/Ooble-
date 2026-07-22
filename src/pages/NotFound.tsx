@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => (
-  <div className="min-h-screen bg-background">
+  <div className="app-type min-h-screen bg-background">
     <Header />
     <div className="mx-auto flex max-w-[1120px] flex-col items-center justify-center gap-4 px-6 py-48 text-center">
       <p className="font-display text-7xl font-extrabold tracking-tight text-primary">404</p>

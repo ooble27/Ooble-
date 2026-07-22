@@ -26,7 +26,7 @@ const steps = [
 ];
 
 const Vendre = () => (
-  <div className="min-h-screen bg-background">
+  <div className="app-type min-h-screen bg-background">
     <Header />
 
     <section className="relative overflow-hidden">
