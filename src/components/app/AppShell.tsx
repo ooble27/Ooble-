@@ -9,19 +9,28 @@ interface AppShellProps {
   header?: React.ReactNode;
   /** Affiche une flèche retour vers `backTo`. */
   backTo?: string;
+  /** Élargit la colonne sur tablette/desktop (tableau de bord uniquement). */
+  wide?: boolean;
   /** Centre verticalement le contenu (écrans courts de saisie). */
   center?: boolean;
   className?: string;
 }
 
 /**
- * Coquille de l'app connectée : une seule colonne étroite, centrée et
- * identique sur mobile comme sur desktop (esprit « application mobile »).
- * L'avatar reste ainsi toujours au même endroit, en haut à droite.
+ * Coquille de l'app connectée. Les pages de saisie gardent une colonne
+ * étroite (identique au mobile). Seul le tableau de bord (`wide`) s'élargit
+ * sur tablette/desktop pour occuper l'espace. Dans tous les cas la barre du
+ * haut occupe la pleine largeur de la colonne, donc l'avatar reste tout à
+ * droite.
  */
-const AppShell = ({ children, header, backTo, center, className }: AppShellProps) => (
+const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => (
   <div className="app-type min-h-screen bg-background">
-    <div className="mx-auto flex min-h-screen max-w-[440px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
+    <div
+      className={cn(
+        "mx-auto flex min-h-screen flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]",
+        wide ? "max-w-[400px] md:max-w-[720px] lg:max-w-[960px]" : "max-w-[400px]",
+      )}
+    >
       {/* Barre du haut */}
       <div className="flex items-start justify-between gap-4 pb-6 pt-2">
         <div className="flex min-w-0 items-start gap-3">
