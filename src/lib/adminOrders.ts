@@ -41,12 +41,13 @@ export interface AdminOrder {
   assignedTo?: string | null;
 }
 
-export const STATUS_META: Record<OrderStatus, { label: string; dot: string; tone: string }> = {
-  attente: { label: "En attente", dot: "bg-muted-foreground/40", tone: "text-muted-foreground" },
-  recu:    { label: "À traiter",  dot: "bg-primary",             tone: "text-foreground" },
-  cours:   { label: "En cours",   dot: "bg-amber-500",           tone: "text-foreground" },
-  termine: { label: "Terminé",    dot: "bg-emerald-500",         tone: "text-muted-foreground" },
-  annule:  { label: "Annulé",     dot: "bg-destructive",         tone: "text-muted-foreground" },
+/** Statut = texte coloré (sans pastille ni point), façon Terex. */
+export const STATUS_META: Record<OrderStatus, { label: string; text: string }> = {
+  attente: { label: "En attente", text: "text-muted-foreground" },
+  recu:    { label: "À traiter",  text: "text-foreground" },
+  cours:   { label: "En cours",   text: "text-foreground" },
+  termine: { label: "Terminée",   text: "text-muted-foreground/60" },
+  annule:  { label: "Annulée",    text: "text-destructive" },
 };
 
 export const TYPE_META: Record<OrderType, { label: string; verb: string }> = {
@@ -109,10 +110,10 @@ export interface KycRequest {
   status: KycStatus;
 }
 
-export const KYC_STATUS_META: Record<KycStatus, { label: string; dot: string; tone: string }> = {
-  attente: { label: "À vérifier", dot: "bg-primary",     tone: "text-foreground" },
-  verifie: { label: "Vérifié",    dot: "bg-emerald-500", tone: "text-muted-foreground" },
-  refuse:  { label: "Refusé",     dot: "bg-destructive", tone: "text-muted-foreground" },
+export const KYC_STATUS_META: Record<KycStatus, { label: string; text: string }> = {
+  attente: { label: "À vérifier", text: "text-foreground" },
+  verifie: { label: "Vérifié",    text: "text-muted-foreground/60" },
+  refuse:  { label: "Refusé",     text: "text-destructive" },
 };
 
 export const SEED_KYC: KycRequest[] = [
@@ -128,11 +129,22 @@ export const SEED_KYC: KycRequest[] = [
 /*  Équipe du back-office (démo)                                       */
 /* ------------------------------------------------------------------ */
 
+export type TeamRole = "Opérateur" | "KYC" | "Support" | "Marketing" | "Admin";
+
+/** Rôles du back-office et ce qu'ils autorisent (façon Terex). */
+export const TEAM_ROLES: { role: TeamRole; desc: string }[] = [
+  { role: "Opérateur", desc: "Traite les commandes : achats, ventes, envois." },
+  { role: "KYC",       desc: "Vérifications d'identité uniquement." },
+  { role: "Support",   desc: "Assistance et messages clients." },
+  { role: "Marketing", desc: "Campagnes email aux clients." },
+  { role: "Admin",     desc: "Accès complet : opérations, finance, équipe." },
+];
+
 export interface TeamMember {
   id: string;
   name: string;
   email: string;
-  role: "Admin" | "Opérateur" | "KYC" | "Marketing";
+  role: TeamRole;
   active: boolean;
   handled: number;
 }

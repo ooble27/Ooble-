@@ -2,15 +2,10 @@ import { cn } from "@/lib/utils";
 import { STATUS_META, TYPE_META, type AdminOrder, type OrderStatus, type OrderType } from "@/lib/adminOrders";
 import { NETWORKS } from "@/components/app/networks";
 
-/** Pastille de statut (point coloré + libellé), sobre sur blanc. */
-export const StatusBadge = ({ status }: { status: OrderStatus }) => {
+/** Statut = simple texte coloré (façon Terex), sans point ni pastille. */
+export const StatusBadge = ({ status, className }: { status: OrderStatus; className?: string }) => {
   const m = STATUS_META[status];
-  return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-2.5 py-1 text-[12px] font-medium">
-      <span className={cn("h-1.5 w-1.5 rounded-full", m.dot)} />
-      <span className={m.tone}>{m.label}</span>
-    </span>
-  );
+  return <span className={cn("whitespace-nowrap text-[13px] font-semibold", m.text, className)}>{m.label}</span>;
 };
 
 /** Libellé du type d'opération. */
@@ -48,3 +43,28 @@ export const ClientCell = ({ name, email }: { name: string; email: string }) => 
     </div>
   );
 };
+
+/** Barre d'onglets soulignés (compacte, façon Terex). */
+export interface SubTabDef { id: string; label: string; count?: number }
+export const SubTabs = ({ tabs, active, onChange }: { tabs: SubTabDef[]; active: string; onChange: (id: string) => void }) => (
+  <div className="-mx-5 flex gap-0.5 overflow-x-auto border-b border-border px-5 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+    {tabs.map((t) => {
+      const on = t.id === active;
+      return (
+        <button
+          key={t.id}
+          onClick={() => onChange(t.id)}
+          className={cn(
+            "-mb-px inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-2.5 pb-2 pt-1.5 text-[13px] font-medium transition-colors",
+            on ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {t.label}
+          {t.count !== undefined && t.count > 0 && (
+            <span className="text-[11px] font-semibold text-muted-foreground">{t.count}</span>
+          )}
+        </button>
+      );
+    })}
+  </div>
+);

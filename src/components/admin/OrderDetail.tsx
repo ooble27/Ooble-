@@ -15,7 +15,39 @@ interface Props {
   onPatch: (id: string, changes: Partial<AdminOrder>) => void;
 }
 
-type SectionId = "client" | "commande" | "paiement" | "reseau";
+type SectionId = "client" | "transaction" | "paiement" | "destination" | "historique";
+
+/** Chronologie de la commande (façon Terex). */
+const Timeline = ({ order }: { order: AdminOrder }) => {
+  const flow: AdminOrder["status"][] = ["attente", "recu", "cours", "termine"];
+  const reached = (target: AdminOrder["status"]) => flow.indexOf(order.status) >= flow.indexOf(target);
+  const steps = [
+    { label: "Commande créée", done: true, hint: timeAgo(order.createdMinsAgo) },
+    { label: "Fonds reçus (Interac)", done: reached("recu"), hint: "" },
+    { label: order.assignedTo ? `Prise en charge — ${order.assignedTo}` : "Prise en charge", done: reached("cours"), hint: "" },
+    { label: order.type === "buy" ? "USDT envoyés au client" : "CAD versés au client", done: order.status === "termine", hint: "" },
+  ];
+  if (order.status === "annule") steps.push({ label: "Commande annulée", done: true, hint: "" });
+
+  return (
+    <div className="px-5 py-4">
+      <ol>
+        {steps.map((st, i) => (
+          <li key={i} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", st.done ? "bg-foreground" : "border border-border")} />
+              {i < steps.length - 1 && <span className={cn("w-px flex-1", st.done ? "bg-foreground/30" : "bg-border")} />}
+            </div>
+            <div className={cn(i < steps.length - 1 ? "pb-5" : "pb-0")}>
+              <p className={cn("text-[13px]", st.done ? "font-medium text-foreground" : "text-muted-foreground")}>{st.label}</p>
+              {st.hint && <p className="mt-0.5 text-[12px] text-muted-foreground">{st.hint}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
 
 const OrderDetail = ({ order, onBack, onPatch }: Props) => {
   const [section, setSection] = useState<SectionId>("client");
@@ -44,10 +76,11 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
   const SECTIONS = useMemo(() => {
     const base: { id: SectionId; label: string }[] = [
       { id: "client", label: "Client" },
-      { id: "commande", label: "Commande" },
+      { id: "transaction", label: "Transaction" },
       { id: "paiement", label: "Paiement" },
     ];
-    if (order.type === "buy") base.push({ id: "reseau", label: "Réseau" });
+    if (order.type === "buy") base.push({ id: "destination", label: "Destination" });
+    base.push({ id: "historique", label: "Historique" });
     return base;
   }, [order.type]);
 
@@ -123,13 +156,13 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
             <Row label="Type de compte" value="Particulier" />
           </>
         )}
-        {active === "commande" && (
+        {active === "transaction" && (
           <>
             <Row label="Type" value={TYPE_META[order.type].label} />
             <Row label="Montant CAD" value={`${nfCad.format(order.cad)} CAD`} />
             <Row label="Montant USDT" value={`${nfUsdt.format(order.usdt)} USDT`} />
             <Row label="Taux" value={`1 USDT = ${nfCad.format(order.rate)} CAD`} />
-            <Row label="Créée" value={timeAgo(order.createdMinsAgo)} />
+            <Row label="Référence" value={order.ref} mono copyKey="tref" />
           </>
         )}
         {active === "paiement" && (
@@ -149,31 +182,32 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
             )}
           </>
         )}
-        {active === "reseau" && order.type === "buy" && (
+        {active === "destination" && order.type === "buy" && (
           <>
             <Row label="Réseau" value={(() => { const n = NETWORKS.find((x) => x.id === order.network); return n ? `${n.name} · ${n.tag}` : "—"; })()} />
             <Row label="Adresse de réception" value={order.address} mono copyKey="addr" />
           </>
         )}
+        {active === "historique" && <Timeline order={order} />}
       </div>
 
       {/* Barre d'actions */}
       <div className="flex flex-wrap gap-2.5">
         {order.status === "attente" && (
-          <Button variant="appPrimary" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
                   onClick={() => onPatch(order.id, { status: "recu" })}>
             <Check className="h-[17px] w-[17px]" /> Marquer reçu
           </Button>
         )}
         {order.status === "recu" && (
-          <Button variant="appPrimary" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
                   onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
             <Hand className="h-[17px] w-[17px]" /> Prendre en charge
           </Button>
         )}
         {order.status === "cours" && (
           <>
-            <Button variant="appPrimary" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm"
+            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold"
                     onClick={() => onPatch(order.id, { status: "termine" })}>
               <ArrowRight className="h-[17px] w-[17px]" /> Marquer terminé
             </Button>

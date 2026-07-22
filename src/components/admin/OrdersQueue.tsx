@@ -6,7 +6,7 @@ import {
   CURRENT_OPERATOR, TYPE_META, nfCad, nfUsdt,
   type AdminOrder,
 } from "@/lib/adminOrders";
-import { ClientCell } from "./AdminBits";
+import { ClientCell, SubTabs } from "./AdminBits";
 
 interface Props {
   orders: AdminOrder[];
@@ -55,29 +55,8 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
 
   return (
     <div className="space-y-4">
-      {/* Sous-onglets — barre soulignée (modèle Terex) */}
-      <div className="-mx-5 flex gap-1 overflow-x-auto border-b border-border px-5 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-        {TABS.map((t) => {
-          const on = t.id === tab;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                "-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 pb-2.5 pt-2 text-[13px] font-medium transition-colors",
-                on ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t.label}
-              {t.count > 0 && (
-                <span className="rounded-full bg-secondary px-1.5 py-px text-[11px] font-semibold text-muted-foreground">
-                  {t.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      {/* Sous-onglets — barre soulignée compacte (modèle Terex) */}
+      <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as SubTab)} />
 
       {/* Tableau */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -123,9 +102,9 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
             <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
               {tab === "queue" && (
                 <Button
-                  variant="appPrimary"
+                  variant="appSolid"
                   shape="rounded"
-                  className="h-auto gap-1.5 rounded-[10px] px-3 py-1.5 text-[12.5px]"
+                  className="h-auto gap-1.5 rounded-[9px] px-3 py-[7px] text-[12.5px] font-bold"
                   onClick={() => onPatch(o.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}
                 >
                   <Hand className="h-[13px] w-[13px]" /> Prendre
@@ -136,18 +115,18 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
                   <Button
                     variant="appOutline"
                     shape="rounded"
-                    className="hidden h-auto rounded-[10px] px-3 py-1.5 text-[12.5px] md:inline-flex"
+                    className="hidden h-auto rounded-[9px] px-3 py-[7px] text-[12.5px] md:inline-flex"
                     onClick={() => onPatch(o.id, { status: "recu", assignedTo: null })}
                   >
                     Libérer
                   </Button>
-                  <Button variant="appPrimary" shape="rounded" className="h-auto rounded-[10px] px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                  <Button variant="appSolid" shape="rounded" className="h-auto rounded-[9px] px-3 py-[7px] text-[12.5px] font-bold" onClick={() => onOpen(o)}>
                     Traiter
                   </Button>
                 </>
               )}
               {tab === "others" && (
-                <Button variant="appOutline" shape="rounded" className="h-auto rounded-[10px] px-3 py-1.5 text-[12.5px]" onClick={() => onOpen(o)}>
+                <Button variant="appOutline" shape="rounded" className="h-auto rounded-[9px] px-3 py-[7px] text-[12.5px]" onClick={() => onOpen(o)}>
                   Ouvrir
                 </Button>
               )}

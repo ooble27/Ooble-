@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Shield,
@@ -18,11 +18,11 @@ import TeamPanel from "@/components/admin/TeamPanel";
 type TabId = "queue" | "orders" | "kyc" | "accounting" | "team";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
-  { id: "queue",      label: "File d'attente", desc: "Commandes à traiter — prise en charge", icon: Inbox },
-  { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique", icon: ShoppingCart },
-  { id: "kyc",        label: "KYC",            desc: "Vérifications d'identité", icon: FileCheck },
-  { id: "accounting", label: "Comptabilité",   desc: "Revenus et marges", icon: Calculator },
-  { id: "team",       label: "Équipe",         desc: "Membres et rôles du back-office", icon: Users },
+  { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
+  { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique.", icon: ShoppingCart },
+  { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: FileCheck },
+  { id: "accounting", label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
+  { id: "team",       label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
 ];
 
 const AdminPortal = () => {
@@ -34,8 +34,6 @@ const AdminPortal = () => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
     setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
   };
-
-  const toTreat = useMemo(() => orders.filter((o) => o.status === "recu").length, [orders]);
 
   const active = NAV.find((n) => n.id === tab)!;
   const ActiveIcon = active.icon;
@@ -68,23 +66,17 @@ const AdminPortal = () => {
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
           {NAV.map(({ id, label, icon: Icon }) => {
             const on = id === tab;
-            const badge = id === "queue" && toTreat > 0 ? toTreat : null;
             return (
               <button
                 key={id}
                 onClick={() => { setTab(id); setSelected(null); }}
                 className={cn(
                   "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
-                  on ? "border-foreground bg-secondary text-foreground" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                  on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
                 )}
               >
                 <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
                 {label}
-                {badge && (
-                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                    {badge}
-                  </span>
-                )}
               </button>
             );
           })}

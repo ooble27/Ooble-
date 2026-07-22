@@ -18,6 +18,8 @@ const buttonVariants = cva(
         appPrimary: "border border-border bg-card text-foreground hover:bg-secondary active:bg-secondary",
         appOnDark: "bg-white text-deep hover:bg-white/90 active:bg-white/80",
         appOutline: "border border-border bg-card text-foreground hover:bg-secondary",
+        /* Action pleine (back-office) : contraste fort — blanc sur sombre, sombre sur clair. */
+        appSolid: "bg-foreground text-background hover:opacity-90 active:opacity-80",
       },
       size: {
         sm: "h-9 px-4 text-sm",
