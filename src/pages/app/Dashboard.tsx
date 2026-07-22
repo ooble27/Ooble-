@@ -15,16 +15,15 @@ const Dashboard = () => {
 
   return (
     <AppShell
-      wide
       header={
         <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
           Bonjour <span className="align-middle">👋</span>
         </h1>
       }
     >
-      <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0">
+      <div className="space-y-4">
         {/* Hero éditorial — taux en écriture fine sur blanc */}
-        <section className="rounded-2xl border border-border bg-card p-5 lg:p-6">
+        <section className="rounded-2xl border border-border bg-card p-5">
           <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Taux USDT / CAD
           </span>
@@ -36,7 +35,7 @@ const Dashboard = () => {
             <div className="pb-1">
               <span className="block text-base font-normal text-muted-foreground">$ CAD</span>
               {change !== null && (
-                <span className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${change >= 0 ? "text-primary" : "text-muted-foreground"}`}>
+                <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
                   <TrendingUp className={`h-3.5 w-3.5 ${change < 0 ? "rotate-180" : ""}`} />
                   {change >= 0 ? "+" : ""}{change.toFixed(2)} %
                 </span>
@@ -45,12 +44,7 @@ const Dashboard = () => {
           </div>
           <p className="mt-2 text-sm font-light text-muted-foreground">pour 1 USDT · marché + 2 %</p>
 
-          <RateChart
-            data={history.points}
-            className="mt-3 h-20 w-full"
-            stroke="#1f9c88"
-            fillFrom="rgba(38,161,123,0.14)"
-          />
+          <RateChart data={history.points} className="mt-3 h-20 w-full text-foreground/55" />
         </section>
 
         {/* Actions principales */}
@@ -112,7 +106,7 @@ const Dashboard = () => {
         </div>
 
         {/* Activité récente */}
-        <div className="rounded-2xl border border-border bg-card p-6 lg:col-span-2">
+        <div className="rounded-2xl border border-border bg-card p-6">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
             Activité récente
           </p>

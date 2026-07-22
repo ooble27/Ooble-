@@ -9,19 +9,21 @@ interface AppShellProps {
   header?: React.ReactNode;
   /** Affiche une flèche retour vers `backTo`. */
   backTo?: string;
-  /** Élargit la colonne sur desktop (tableau de bord). */
-  wide?: boolean;
-  /** Centre verticalement le contenu sur mobile (écrans courts de saisie). */
+  /** Centre verticalement le contenu (écrans courts de saisie). */
   center?: boolean;
   className?: string;
 }
 
-/** Coquille de l'app connectée : colonne centrée + barre de navigation du bas. */
-const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => (
+/**
+ * Coquille de l'app connectée : une seule colonne étroite, centrée et
+ * identique sur mobile comme sur desktop (esprit « application mobile »).
+ * L'avatar reste ainsi toujours au même endroit, en haut à droite.
+ */
+const AppShell = ({ children, header, backTo, center, className }: AppShellProps) => (
   <div className="app-type min-h-screen bg-background">
-    <div className="mx-auto flex min-h-screen max-w-[400px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] md:px-8 lg:max-w-[960px] lg:pt-10">
+    <div className="mx-auto flex min-h-screen max-w-[440px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))]">
       {/* Barre du haut */}
-      <div className="flex items-start justify-between gap-4 pb-6 pt-2 lg:pb-8">
+      <div className="flex items-start justify-between gap-4 pb-6 pt-2">
         <div className="flex min-w-0 items-start gap-3">
           {backTo && (
             <Link
@@ -43,16 +45,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
         </Link>
       </div>
 
-      <div
-        className={cn(
-          "flex-1",
-          !wide && "lg:max-w-[620px]",
-          center && "flex flex-col justify-center pb-[26vh] lg:justify-start lg:pb-0",
-          className,
-        )}
-      >
-        {children}
-      </div>
+      <div className={cn("flex-1", center && "flex flex-col justify-center pb-[26vh]", className)}>{children}</div>
     </div>
 
     <BottomNav />

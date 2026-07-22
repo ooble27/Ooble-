@@ -3,8 +3,6 @@ import { useId } from "react";
 interface RateChartProps {
   data: number[];
   className?: string;
-  stroke?: string;
-  fillFrom?: string;
   height?: number;
 }
 
@@ -26,14 +24,12 @@ function smoothPath(pts: [number, number][]): string {
   return d;
 }
 
-/** Mini-graphe d'aire lissé pour le taux (SVG pur, responsive). */
-const RateChart = ({
-  data,
-  className,
-  stroke = "#5FD4C2",
-  fillFrom = "rgba(95,212,194,0.35)",
-  height = 96,
-}: RateChartProps) => {
+/**
+ * Mini-graphe d'aire lissé pour le taux (SVG pur, responsive).
+ * Tout est tracé en `currentColor` : on reste neutre sur blanc et adaptatif
+ * en mode sombre en pilotant simplement la couleur du texte via `className`.
+ */
+const RateChart = ({ data, className, height = 96 }: RateChartProps) => {
   const id = useId();
   const W = 320;
   const H = height;
@@ -56,14 +52,14 @@ const RateChart = ({
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={className} role="img" aria-label="Tendance du taux">
       <defs>
         <linearGradient id={`fill-${id}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={fillFrom} />
-          <stop offset="1" stopColor="rgba(95,212,194,0)" />
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.12" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={area} fill={`url(#fill-${id})`} />
-      <path d={line} fill="none" stroke={stroke} strokeWidth="2.5" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      <circle cx={last[0]} cy={last[1]} r="3.5" fill={stroke} />
-      <circle cx={last[0]} cy={last[1]} r="7" fill={stroke} opacity="0.25" />
+      <path d={line} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      <circle cx={last[0]} cy={last[1]} r="3" fill="currentColor" />
+      <circle cx={last[0]} cy={last[1]} r="7" fill="currentColor" opacity="0.18" />
     </svg>
   );
 };
