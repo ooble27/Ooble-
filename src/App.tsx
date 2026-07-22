@@ -8,6 +8,7 @@ import Dashboard from "./pages/app/Dashboard";
 import AppAcheter from "./pages/app/AppAcheter";
 import AppVendre from "./pages/app/AppVendre";
 import Envoyer from "./pages/app/Envoyer";
+import AppOTC from "./pages/app/AppOTC";
 import Compte from "./pages/app/Compte";
 import RequireAuth from "./components/app/RequireAuth";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
         <Route path="/app/acheter" element={<RequireAuth><AppAcheter /></RequireAuth>} />
         <Route path="/app/vendre" element={<RequireAuth><AppVendre /></RequireAuth>} />
         <Route path="/app/envoyer" element={<RequireAuth><Envoyer /></RequireAuth>} />
+        <Route path="/app/otc" element={<RequireAuth><AppOTC /></RequireAuth>} />
         <Route path="/app/compte" element={<RequireAuth><Compte /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />

@@ -108,7 +108,7 @@ const Dashboard = () => {
             <p className="mt-3 text-sm font-medium">Envoyer</p>
             <p className="text-xs font-light text-muted-foreground">Vers un wallet</p>
           </Link>
-          <Link to="/app/envoyer" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
+          <Link to="/app/otc" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
               <Handshake className="h-5 w-5" strokeWidth={1.6} />
             </span>

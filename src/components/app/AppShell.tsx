@@ -11,11 +11,13 @@ interface AppShellProps {
   backTo?: string;
   /** Élargit la colonne sur desktop (tableau de bord). */
   wide?: boolean;
+  /** Centre verticalement le contenu (écrans courts, ex. saisie du montant). */
+  center?: boolean;
   className?: string;
 }
 
 /** Coquille de l'app connectée : fond neutre, colonne centrée, barre du bas. */
-const AppShell = ({ children, header, backTo, wide, className }: AppShellProps) => {
+const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => {
   return (
   <div className="app-type min-h-screen bg-background">
     <div
@@ -46,7 +48,7 @@ const AppShell = ({ children, header, backTo, wide, className }: AppShellProps) 
         </Link>
       </div>
 
-      <div className={cn("flex-1", className)}>{children}</div>
+      <div className={cn("flex-1", center && "flex flex-col justify-center pb-10", className)}>{children}</div>
     </div>
 
     <BottomNav />

@@ -50,8 +50,12 @@ const AppVendre = () => {
   /* ---------- Montant ---------- */
   if (step === "amount") {
     return (
-      <AppShell header={<div><h1 className="font-display text-[22px] font-semibold tracking-tight">Vendre USDT</h1><p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant à vendre</p></div>}>
-        <div className="rounded-[20px] border border-border bg-card p-4">
+      <AppShell center>
+        <div className="mb-5">
+          <h1 className="font-display text-[22px] font-semibold tracking-tight">Vendre USDT</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant que vous souhaitez vendre</p>
+        </div>
+        <div className="rounded-[20px] border border-border bg-card p-5">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
             <div className="inline-flex gap-0.5 rounded-[10px] bg-secondary/70 p-[3px]">
@@ -77,7 +81,7 @@ const AppVendre = () => {
               placeholder="0"
               value={amount}
               onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ""))}
-              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[13px] pl-5 pr-[84px] text-[30px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
+              className="w-full rounded-[14px] border border-border bg-secondary/40 py-[18px] pl-5 pr-[84px] text-[34px] font-bold tracking-[-1px] outline-none placeholder:text-muted-foreground/40"
             />
             <span className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-sm font-medium text-muted-foreground">
               {unit === "USDT" && <img src="/coins/usdt.svg" alt="" className="h-5 w-5" />}
@@ -88,7 +92,7 @@ const AppVendre = () => {
           <p className={cn("mt-2 text-xs", belowMin ? "text-destructive" : "text-muted-foreground")}>Minimum : {MIN_USDT} USDT</p>
         </div>
 
-        <div className="mt-3 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-3.5">
+        <div className="mt-3 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-4">
           <div className="flex items-center justify-between">
             <span className="text-[13px] text-muted-foreground">Vous recevez</span>
             <span className="text-sm font-semibold">{nfCad.format(cad)} CAD</span>
