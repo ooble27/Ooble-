@@ -60,8 +60,8 @@ export const SubTabs = ({ tabs, active, onChange }: { tabs: SubTabDef[]; active:
           )}
         >
           {t.label}
-          {t.count !== undefined && t.count > 0 && (
-            <span className="text-[11px] font-semibold text-muted-foreground">{t.count}</span>
+          {t.count !== undefined && (
+            <span className="rounded-full bg-secondary px-1.5 py-px text-[11px] font-semibold text-muted-foreground">{t.count}</span>
           )}
         </button>
       );

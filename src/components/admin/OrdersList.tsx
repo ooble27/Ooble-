@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Search, Coins, HandCoins, Inbox } from "lucide-react";
+import { Search, Coins, HandCoins, Inbox, Download, RefreshCw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
-  TYPE_META, nfCad, nfUsdt, timeAgo,
+  STATUS_META, TYPE_META, nfCad, nfUsdt, timeAgo,
   type AdminOrder, type OrderStatus, type OrderType,
 } from "@/lib/adminOrders";
-import { StatusBadge, ClientCell, SubTabs } from "./AdminBits";
+import { StatusBadge, SubTabs } from "./AdminBits";
 
 interface Props {
   orders: AdminOrder[];
@@ -16,13 +17,15 @@ type TypeTab = "all" | OrderType;
 type StatusFilter = "all" | OrderStatus;
 
 const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
-  { id: "all", label: "Tous" },
+  { id: "all", label: "Toutes" },
   { id: "recu", label: "À traiter" },
-  { id: "cours", label: "En cours" },
+  { id: "cours", label: "En traitement" },
   { id: "attente", label: "En attente" },
   { id: "termine", label: "Terminées" },
   { id: "annule", label: "Annulées" },
 ];
+
+const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
 const TypeCell = ({ type }: { type: OrderType }) => {
   const Icon = type === "buy" ? Coins : HandCoins;
@@ -68,11 +71,43 @@ const OrdersList = ({ orders, onOpen }: Props) => {
       .sort((a, b) => a.createdMinsAgo - b.createdMinsAgo);
   }, [base, q, status]);
 
-  const cols = "grid grid-cols-[1fr_auto] md:grid-cols-[1.7fr_0.8fr_1fr_0.8fr_0.7fr] items-center gap-3";
+  const clientCount = new Set(base.map((o) => o.clientEmail)).size;
+
+  const exportCSV = () => {
+    const head = ["Référence", "Client", "E-mail", "Type", "Montant CAD", "Montant USDT", "Statut"];
+    const body = rows.map((o) => [o.ref, o.clientName, o.clientEmail, TYPE_META[o.type].label, o.cad.toFixed(2), o.usdt.toFixed(2), STATUS_META[o.status].label]);
+    const csv = [head, ...body].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "commandes-ooble.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const cols = "grid grid-cols-[1fr_auto_auto] md:grid-cols-[1.7fr_0.8fr_1fr_0.7fr_auto] items-center gap-3";
 
   return (
     <div className="space-y-4">
-      {/* Achats / Ventes — onglets soulignés (comme la file) */}
+      {/* Résumé + exports */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-[13px] text-muted-foreground">
+          {base.length} commande{base.length > 1 ? "s" : ""} · {clientCount} client{clientCount > 1 ? "s" : ""}
+        </p>
+        <div className="flex gap-2">
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={exportCSV}>
+            <Download className="h-[14px] w-[14px]" /> CSV
+          </Button>
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={() => window.print()}>
+            <Download className="h-[14px] w-[14px]" /> PDF
+          </Button>
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-1.5 text-[12.5px]" onClick={() => { setQ(""); setStatus("all"); }}>
+            <RefreshCw className="h-[14px] w-[14px]" /> Actualiser
+          </Button>
+        </div>
+      </div>
+
+      {/* Achats / Ventes — onglets soulignés */}
       <SubTabs tabs={TABS} active={type} onChange={(id) => setType(id as TypeTab)} />
 
       {/* Recherche (police 16px pour éviter le zoom mobile) */}
@@ -81,12 +116,12 @@ const OrdersList = ({ orders, onOpen }: Props) => {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Rechercher une référence, un client, un e-mail…"
+          placeholder="Rechercher : client, référence, e-mail…"
           className="w-full bg-transparent text-base outline-none placeholder:text-muted-foreground/70 md:text-[13px]"
         />
       </div>
 
-      {/* Filtres de statut (petites pastilles) */}
+      {/* Filtres de statut */}
       <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-0.5 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
         {STATUS_FILTERS.map((f) => {
           const count = f.id === "all" ? base.length : base.filter((o) => o.status === f.id).length;
@@ -107,14 +142,14 @@ const OrdersList = ({ orders, onOpen }: Props) => {
         })}
       </div>
 
-      {/* Tableau compact (identique à la file d'attente) */}
+      {/* Tableau */}
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
           <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Client</span>
           <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Type</span>
           <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Montant</span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Statut</span>
           <span className="text-right text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">Date</span>
+          <span />
         </div>
 
         {rows.map((o, i) => (
@@ -123,14 +158,30 @@ const OrdersList = ({ orders, onOpen }: Props) => {
             onClick={() => onOpen(o)}
             className={cn(cols, "cursor-pointer px-4 py-3 transition-colors hover:bg-secondary/40", i < rows.length - 1 && "border-b border-border")}
           >
-            <ClientCell name={o.clientName} email={o.ref} />
+            {/* Client + statut dessous */}
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-foreground/70">
+                {initials(o.clientName)}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-medium leading-tight">{o.clientName}</p>
+                <StatusBadge status={o.status} className="text-[12px]" />
+              </div>
+            </div>
+
+            {/* Type (desktop) */}
             <div className="hidden md:block"><TypeCell type={o.type} /></div>
+
+            {/* Montant */}
             <div className="text-right">
               <p className="whitespace-nowrap text-[13px] font-semibold">{nfCad.format(o.cad)} CAD</p>
               <p className="text-[11px] text-muted-foreground">{nfUsdt.format(o.usdt)} USDT</p>
             </div>
-            <div className="hidden md:block"><StatusBadge status={o.status} /></div>
+
+            {/* Date (desktop) */}
             <span className="hidden text-right text-[12px] text-muted-foreground md:block">{timeAgo(o.createdMinsAgo)}</span>
+
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
           </div>
         ))}
 
