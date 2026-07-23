@@ -9,35 +9,33 @@ import { useUsdtHistory } from "@/hooks/useUsdtHistory";
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
 /**
- * Signe animé « Ooble » — une étincelle en dégradé teal qui tourne doucement
- * et respire, avec un petit scintillement satellite. SVG autonome (SMIL),
- * remplace l'emoji main.
+ * Signe animé du « Bonjour » — un petit personnage stylisé qui fait coucou
+ * de la main, aux couleurs Ooble. SVG autonome (animation SMIL).
  */
 const HeroMark = () => (
-  <svg viewBox="0 0 40 40" className="inline-block h-7 w-7 shrink-0 align-middle" aria-hidden="true">
-    <defs>
-      <linearGradient id="ooble-hm" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="hsl(var(--primary))" />
-        <stop offset="1" stopColor="hsl(var(--accent-ink))" />
-      </linearGradient>
-    </defs>
-    {/* Halo doux */}
-    <circle cx="20" cy="20" r="12" fill="hsl(var(--primary))" opacity="0.10">
-      <animate attributeName="opacity" values="0.06;0.16;0.06" dur="3.2s" repeatCount="indefinite" />
-    </circle>
-    {/* Étincelle 4 branches */}
-    <path
-      d="M20 4 C 20.9 13.9, 26.1 19.1, 36 20 C 26.1 20.9, 20.9 26.1, 20 36 C 19.1 26.1, 13.9 20.9, 4 20 C 13.9 19.1, 19.1 13.9, 20 4 Z"
-      fill="url(#ooble-hm)"
-    >
-      <animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="9s" repeatCount="indefinite" />
-      <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" />
-    </path>
-    {/* Petit scintillement satellite */}
-    <circle cx="32.5" cy="9" fill="hsl(var(--primary))">
-      <animate attributeName="r" values="0.6;2.1;0.6" dur="2.4s" repeatCount="indefinite" />
-      <animate attributeName="opacity" values="0;1;0" dur="2.4s" repeatCount="indefinite" />
-    </circle>
+  <svg viewBox="0 0 48 48" className="inline-block h-9 w-9 shrink-0" aria-hidden="true">
+    {/* Épaules / t-shirt teal */}
+    <path d="M8 47 C 8 35.5, 14.5 31, 24 31 C 33.5 31, 40 35.5, 40 47 Z" fill="hsl(var(--primary))" />
+    {/* Cou */}
+    <rect x="20.5" y="23" width="7" height="9" rx="3" fill="#E9C1A0" />
+    {/* Tête */}
+    <circle cx="24" cy="16.5" r="9" fill="#E9C1A0" />
+    {/* Cheveux */}
+    <path d="M15 16 C 15 10, 19 7, 24 7 C 29 7, 33 10, 33 16 C 31 13.5, 28.5 12.5, 24 12.5 C 19.5 12.5, 17 13.5, 15 16 Z" fill="hsl(var(--deep))" />
+    {/* Yeux */}
+    <circle cx="21" cy="17" r="1.05" fill="hsl(var(--deep))" />
+    <circle cx="27" cy="17" r="1.05" fill="hsl(var(--deep))" />
+    {/* Sourire */}
+    <path d="M21 20 Q 24 22.5, 27 20" fill="none" stroke="hsl(var(--deep))" strokeWidth="1.2" strokeLinecap="round" />
+    {/* Bras qui fait coucou (pivot à l'épaule) */}
+    <g>
+      <animateTransform attributeName="transform" type="rotate"
+        values="-16 35 33; 14 35 33; -16 35 33" keyTimes="0;0.5;1"
+        calcMode="spline" keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
+        dur="1.3s" repeatCount="indefinite" />
+      <path d="M34 33 L 40.5 15" stroke="hsl(var(--primary))" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="41" cy="13" r="4" fill="#E9C1A0" />
+    </g>
   </svg>
 );
 
