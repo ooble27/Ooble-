@@ -4,7 +4,7 @@ import { Plus, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { CoinsArt } from "@/components/illustrations";
+import { FaqArt } from "@/components/illustrations";
 import { cn } from "@/lib/utils";
 
 const FAQS: { q: string; a: string }[] = [
@@ -42,22 +42,22 @@ const FAQS: { q: string; a: string }[] = [
   },
 ];
 
-const FaqItem = ({ q, a, open, onToggle }: { q: string; a: string; open: boolean; onToggle: () => void }) => (
-  <div className="border-b border-border">
-    <button onClick={onToggle} className="flex w-full items-center justify-between gap-4 py-5 text-left">
-      <span className="text-[15px] font-medium">{q}</span>
-      <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-transform", open && "rotate-45 bg-secondary")}>
-        <Plus className="h-4 w-4" />
-      </span>
-    </button>
-    <div className={cn("grid transition-all duration-300", open ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]")}>
-      <p className="overflow-hidden text-[14px] font-light leading-relaxed text-muted-foreground">{a}</p>
-    </div>
-  </div>
-);
+const TOPICS: { label: string; idx: number }[] = [
+  { label: "Acheter", idx: 1 },
+  { label: "Vendre", idx: 2 },
+  { label: "Réseaux", idx: 3 },
+  { label: "Frais", idx: 4 },
+  { label: "Sécurité", idx: 5 },
+  { label: "KYC", idx: 6 },
+];
 
 const FAQ = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+
+  const jumpTo = (i: number) => {
+    setOpenIdx(i);
+    document.getElementById(`faq-${i}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   return (
     <div className="app-type min-h-screen bg-background">
@@ -65,40 +65,80 @@ const FAQ = () => {
 
       <main className="mx-auto max-w-[1120px] px-6 sm:px-8">
         {/* Hero */}
-        <section className="grid items-center gap-10 pb-8 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:pb-14 lg:pt-16">
+        <section className="grid items-center gap-8 pb-6 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:pb-12 lg:pt-16">
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Aide</span>
-            <h1 className="mt-3 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[3.2rem]">
-              Questions <span className="text-primary">fréquentes</span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Centre d'aide
+            </span>
+            <h1 className="mt-4 font-display text-[2.7rem] font-semibold leading-[1.03] tracking-[-0.03em] sm:text-[3.4rem]">
+              Comment pouvons-nous <span className="text-primary">aider ?</span>
             </h1>
             <p className="mt-4 max-w-md text-[16px] font-light leading-relaxed text-muted-foreground">
               Tout ce qu'il faut savoir pour acheter et vendre des USDT en dollars canadiens, en toute simplicité.
             </p>
+
+            {/* Sujets rapides */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              {TOPICS.map((t) => (
+                <button
+                  key={t.label}
+                  onClick={() => jumpTo(t.idx)}
+                  className="rounded-full border border-border bg-card px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
           </div>
+
           <div className="hidden lg:block">
-            <CoinsArt className="mx-auto w-full max-w-[380px]" />
+            <FaqArt className="mx-auto w-full max-w-[400px]" />
           </div>
         </section>
 
-        {/* Accordéon */}
-        <section className="mx-auto max-w-[760px] pb-16">
-          <div className="rounded-3xl border border-border bg-card px-6 sm:px-8">
-            {FAQS.map((f, i) => (
-              <FaqItem key={f.q} q={f.q} a={f.a} open={openIdx === i} onToggle={() => setOpenIdx(openIdx === i ? null : i)} />
-            ))}
+        {/* Accordéon — une carte par question */}
+        <section className="mx-auto max-w-[820px] pb-14">
+          <div className="space-y-2.5">
+            {FAQS.map((f, i) => {
+              const open = openIdx === i;
+              return (
+                <div
+                  key={f.q}
+                  id={`faq-${i}`}
+                  className={cn(
+                    "scroll-mt-24 rounded-2xl border bg-card px-5 transition-colors sm:px-6",
+                    open ? "border-foreground/25" : "border-border",
+                  )}
+                >
+                  <button onClick={() => setOpenIdx(open ? null : i)} className="flex w-full items-center justify-between gap-4 py-4 text-left sm:py-5">
+                    <span className="text-[15px] font-medium">{f.q}</span>
+                    <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-transform", open && "rotate-45 bg-secondary")}>
+                      <Plus className="h-4 w-4" />
+                    </span>
+                  </button>
+                  <div className={cn("grid transition-all duration-300", open ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]")}>
+                    <p className="overflow-hidden text-[14px] font-light leading-relaxed text-muted-foreground">{f.a}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        </section>
 
-          {/* CTA */}
-          <div className="mt-10 flex flex-col items-center gap-4 rounded-3xl border border-border bg-secondary/40 px-6 py-10 text-center">
-            <h2 className="font-display text-[22px] font-semibold tracking-tight">Encore une question ?</h2>
-            <p className="max-w-sm text-[14px] font-light text-muted-foreground">
+        {/* CTA — accent pétrole */}
+        <section className="pb-16">
+          <div className="relative overflow-hidden rounded-[28px] bg-deep px-6 py-12 text-center text-deep-foreground sm:py-14">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/20 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-16 -left-10 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+            <h2 className="relative font-display text-[26px] font-semibold tracking-tight sm:text-[30px]">Encore une question ?</h2>
+            <p className="relative mx-auto mt-2 max-w-sm text-[14px] font-light text-white/70">
               Notre équipe répond rapidement, en français comme en anglais.
             </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button asChild variant="primary" shape="rounded" size="lg">
+            <div className="relative mt-7 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="white" shape="rounded" size="lg">
                 <Link to="/contact">Nous contacter <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button asChild variant="secondary" shape="rounded" size="lg">
+              <Button asChild variant="outlineOnDark" shape="rounded" size="lg">
                 <Link to="/connexion">Commencer</Link>
               </Button>
             </div>

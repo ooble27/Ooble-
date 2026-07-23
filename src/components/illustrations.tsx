@@ -91,6 +91,71 @@ export const CoinsArt = ({ className }: ArtProps) => (
   </svg>
 );
 
+/** Étincelle 4 branches (accent jaune). */
+function Spark({ cx, cy, s = 14 }: { cx: number; cy: number; s?: number }) {
+  const d = s * 0.28;
+  return (
+    <path
+      d={`M${cx} ${cy - s} L${cx + d} ${cy - d} L${cx + s} ${cy} L${cx + d} ${cy + d} L${cx} ${cy + s} L${cx - d} ${cy + d} L${cx - s} ${cy} L${cx - d} ${cy - d} Z`}
+      fill="#F2C14E"
+      stroke={INK}
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  );
+}
+
+/** FAQ / aide — grande bulle avec « ? » + bulle « en train d'écrire ». */
+export const FaqArt = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 420 340" className={className} fill="none" role="img" aria-label="Aide et questions">
+    <circle cx="210" cy="170" r="150" fill={HALO} />
+
+    {/* Petite bulle blanche (points de saisie) */}
+    <g transform="rotate(-8 118 236)">
+      <rect x="66" y="206" width="104" height="62" rx="20" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <path d="M96 266 l-4 26 l30 -22 Z" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <circle cx="96" cy="237" r="5.5" fill="#2FA39B" />
+      <circle cx="118" cy="237" r="5.5" fill="#0F3A43" />
+      <circle cx="140" cy="237" r="5.5" fill="#F2C14E" />
+    </g>
+
+    {/* Grande bulle petrol avec ? */}
+    <rect x="132" y="66" width="196" height="150" rx="34" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
+    <path d="M182 216 l-8 38 l44 -30 Z" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
+    <text x="230" y="180" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="112" fill="#F2C14E">?</text>
+
+    <Spark cx={338} cy={82} s={16} />
+    <UsdtCoin cx={338} cy={252} r={24} rot={10} />
+  </svg>
+);
+
+/** Contact — enveloppe + avion en papier qui s'envole. */
+export const ContactArt = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 420 340" className={className} fill="none" role="img" aria-label="Nous écrire">
+    <circle cx="210" cy="170" r="150" fill={HALO} />
+
+    {/* Trajectoire pointillée */}
+    <path d="M150 236 C 190 150, 262 150, 300 96" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 12" opacity="0.5" />
+
+    {/* Enveloppe */}
+    <g transform="rotate(-6 156 214)">
+      <rect x="82" y="170" width="150" height="104" rx="16" fill="#fff" stroke={INK} strokeWidth="3.5" />
+      <path d="M82 184 l75 54 l75 -54" fill="none" stroke={INK} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="157" cy="216" r="19" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
+      <path d="M149 216 l6 6 l11 -13" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+
+    {/* Avion en papier */}
+    <g transform="rotate(10 320 96)">
+      <path d="M286 100 L360 70 L332 142 Z" fill="#2FA39B" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
+      <path d="M286 100 L332 142 L320 110 Z" fill="#1c8378" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+    </g>
+
+    <Spark cx={112} cy={112} s={15} />
+    <UsdtCoin cx={330} cy={256} r={22} rot={-8} />
+  </svg>
+);
+
 /** e-Transfer Interac : carte Interac + flux vers USDT. */
 export const InteracArt = ({ className }: ArtProps) => (
   <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Payé par Interac e-Transfer">

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { InteracArt } from "@/components/illustrations";
+import { ContactArt } from "@/components/illustrations";
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <label className="block">
@@ -27,9 +27,11 @@ const Contact = () => {
         <section className="grid items-start gap-10 pb-16 pt-10 lg:grid-cols-[0.9fr_1.1fr] lg:pt-16">
           {/* Colonne info + illustration */}
           <div>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Contact</span>
-            <h1 className="mt-3 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[3.2rem]">
-              Parlons-en.
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Contact
+            </span>
+            <h1 className="mt-4 font-display text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-[3.2rem]">
+              Parlons-<span className="text-primary">en.</span>
             </h1>
             <p className="mt-4 max-w-md text-[16px] font-light leading-relaxed text-muted-foreground">
               Une question sur un ordre, un gros volume, la conformité ? Écrivez-nous — on répond vite.
@@ -53,7 +55,7 @@ const Contact = () => {
               ))}
             </div>
 
-            <InteracArt className="mt-8 hidden w-full max-w-[360px] lg:block" />
+            <ContactArt className="mt-6 hidden w-full max-w-[380px] lg:block" />
           </div>
 
           {/* Formulaire */}
