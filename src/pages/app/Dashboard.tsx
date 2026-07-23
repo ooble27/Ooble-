@@ -9,21 +9,34 @@ import { useUsdtHistory } from "@/hooks/useUsdtHistory";
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
 /**
- * Signe animé « Ooble » — deux anneaux qui respirent + un point en orbite,
- * en teal de la charte. SVG autonome (animation SMIL), remplace l'emoji main.
+ * Signe animé « Ooble » — une étincelle en dégradé teal qui tourne doucement
+ * et respire, avec un petit scintillement satellite. SVG autonome (SMIL),
+ * remplace l'emoji main.
  */
 const HeroMark = () => (
-  <svg viewBox="0 0 46 40" className="inline-block h-7 w-8 shrink-0 align-middle text-primary" aria-hidden="true">
-    <g fill="none" strokeWidth="3.2" strokeLinecap="round">
-      <circle cx="18" cy="20" r="8.5" stroke="currentColor">
-        <animate attributeName="stroke-opacity" values="1;0.35;1" dur="2.8s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="28" cy="20" r="8.5" stroke="currentColor">
-        <animate attributeName="stroke-opacity" values="0.35;1;0.35" dur="2.8s" repeatCount="indefinite" />
-      </circle>
-    </g>
-    <circle cx="23" cy="6" r="2.3" fill="currentColor">
-      <animateTransform attributeName="transform" type="rotate" from="0 23 20" to="360 23 20" dur="6s" repeatCount="indefinite" />
+  <svg viewBox="0 0 40 40" className="inline-block h-7 w-7 shrink-0 align-middle" aria-hidden="true">
+    <defs>
+      <linearGradient id="ooble-hm" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stopColor="hsl(var(--primary))" />
+        <stop offset="1" stopColor="hsl(var(--accent-ink))" />
+      </linearGradient>
+    </defs>
+    {/* Halo doux */}
+    <circle cx="20" cy="20" r="12" fill="hsl(var(--primary))" opacity="0.10">
+      <animate attributeName="opacity" values="0.06;0.16;0.06" dur="3.2s" repeatCount="indefinite" />
+    </circle>
+    {/* Étincelle 4 branches */}
+    <path
+      d="M20 4 C 20.9 13.9, 26.1 19.1, 36 20 C 26.1 20.9, 20.9 26.1, 20 36 C 19.1 26.1, 13.9 20.9, 4 20 C 13.9 19.1, 19.1 13.9, 20 4 Z"
+      fill="url(#ooble-hm)"
+    >
+      <animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="9s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" />
+    </path>
+    {/* Petit scintillement satellite */}
+    <circle cx="32.5" cy="9" fill="hsl(var(--primary))">
+      <animate attributeName="r" values="0.6;2.1;0.6" dur="2.4s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0;1;0" dur="2.4s" repeatCount="indefinite" />
     </circle>
   </svg>
 );
@@ -57,7 +70,7 @@ const Dashboard = () => {
                 Taux USDT / CAD
               </span>
               {change !== null && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                <span className="hidden items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground md:inline-flex">
                   <TrendingUp className={`h-3 w-3 ${change < 0 ? "rotate-180" : ""}`} />
                   {change >= 0 ? "+" : ""}{change.toFixed(2)} % · 7 j
                 </span>
@@ -72,7 +85,7 @@ const Dashboard = () => {
             </div>
             <p className="mt-2 text-sm font-light text-muted-foreground">1 USDT en dollars canadiens · marché + 2 %</p>
 
-            <RateChart data={history.points} className="mt-4 h-20 w-full text-foreground/55 md:mt-auto md:h-auto md:min-h-[5rem] md:flex-1" />
+            <RateChart data={history.points} className="hidden w-full text-foreground/55 md:mt-4 md:block md:min-h-[6rem] md:flex-1" />
           </section>
 
           {/* Colonne droite (empilée) : actions, réseaux, envoyer/otc */}
