@@ -147,12 +147,12 @@ const Index = () => {
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild variant="primary" shape="rounded" size="lg">
-                  <Link to="/acheter">
+                  <Link to="/connexion">
                     Acheter des USDT <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="secondary" shape="rounded" size="lg">
-                  <Link to="/vendre">Vendre des USDT</Link>
+                  <Link to="/connexion">Vendre des USDT</Link>
                 </Button>
               </div>
               <div className="mt-8 inline-flex items-center gap-2.5 rounded-full border bg-card px-4 py-2 text-sm shadow-soft">
@@ -251,7 +251,7 @@ const Index = () => {
               </p>
               <div className="mt-8">
                 <Button asChild variant="primary" shape="rounded" size="lg">
-                  <Link to="/acheter">
+                  <Link to="/connexion">
                     Acheter des USDT <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -335,12 +335,12 @@ const Index = () => {
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild variant="primary" shape="rounded" size="lg">
-                  <Link to="/acheter">
+                  <Link to="/connexion">
                     Acheter des USDT <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="secondary" shape="rounded" size="lg">
-                  <Link to="/vendre">Vendre des USDT</Link>
+                  <Link to="/connexion">Vendre des USDT</Link>
                 </Button>
               </div>
             </div>
@@ -399,12 +399,12 @@ const Index = () => {
             </div>
             <div className="flex flex-wrap gap-3 lg:justify-end">
               <Button asChild variant="primary" shape="rounded" size="lg">
-                <Link to="/acheter">
+                <Link to="/connexion">
                   Commencer <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outlineOnDark" shape="rounded" size="lg">
-                <Link to="/vendre">Vendre des USDT</Link>
+                <Link to="/connexion">Vendre des USDT</Link>
               </Button>
             </div>
           </Wrap>

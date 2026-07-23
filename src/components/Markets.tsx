@@ -76,7 +76,7 @@ const Markets = () => (
             <td className="py-[18px] text-right">
               {r.tradable ? (
                 <Link
-                  to="/acheter"
+                  to="/connexion"
                   className="inline-flex items-center gap-1 rounded-[var(--radius)] bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-[hsl(174_58%_33%)]"
                 >
                   Acheter <ArrowUpRight className="h-3.5 w-3.5" />

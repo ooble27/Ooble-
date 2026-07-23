@@ -8,18 +8,18 @@ const columns = [
   {
     title: "Produit",
     links: [
-      { label: "Acheter des USDT", to: "/acheter" },
-      { label: "Vendre des USDT", to: "/vendre" },
+      { label: "Commencer", to: "/connexion" },
       { label: "Comment ça marche", to: "/#comment" },
-      { label: "FAQ", to: "/#faq" },
+      { label: "FAQ", to: "/faq" },
+      { label: "Contact", to: "/contact" },
     ],
   },
   {
-    title: "Conformité",
+    title: "Ooble",
     links: [
-      { label: "Vérification d'identité", to: "/#faq" },
-      { label: "Lutte anti-blanchiment", to: "/#faq" },
-      { label: "Conservation des dossiers", to: "/#faq" },
+      { label: "Sécurité", to: "/faq" },
+      { label: "Conditions d'utilisation", to: "/faq" },
+      { label: "Confidentialité", to: "/faq" },
     ],
   },
 ];
@@ -36,7 +36,7 @@ const Footer = () => (
             votre wallet ou votre compte — aucun solde conservé.
           </p>
           <Button asChild variant="primary" shape="pill" className="mt-6">
-            <Link to="/acheter">
+            <Link to="/connexion">
               Commencer <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
