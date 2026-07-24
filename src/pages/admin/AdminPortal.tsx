@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  SEED_ORDERS,
-  type AdminOrder,
-} from "@/lib/adminOrders";
+import { type AdminOrder } from "@/lib/adminOrders";
+import { fetchAdminOrders, persistOrderPatch } from "@/lib/adminOrdersLive";
+import { supabase } from "@/integrations/supabase/client";
 import OrdersQueue from "@/components/admin/OrdersQueue";
 import OrdersList from "@/components/admin/OrdersList";
 import OrderDetail from "@/components/admin/OrderDetail";
@@ -26,13 +25,28 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
 ];
 
 const AdminPortal = () => {
-  const [orders, setOrders] = useState<AdminOrder[]>(SEED_ORDERS);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabId>("queue");
   const [selected, setSelected] = useState<AdminOrder | null>(null);
 
+  const refresh = () => fetchAdminOrders().then((rows) => { setOrders(rows); setLoading(false); });
+
+  useEffect(() => {
+    refresh();
+    // Temps réel : toute écriture sur `orders` déclenche un rechargement.
+    const channel = supabase
+      .channel("admin-orders")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => refresh())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   const patch = (id: string, changes: Partial<AdminOrder>) => {
+    // Optimiste : on met à jour l'écran tout de suite, puis on écrit en base.
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
     setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
+    persistOrderPatch(id, changes).then((res) => { if (res.error) refresh(); });
   };
 
   const active = NAV.find((n) => n.id === tab)!;
@@ -101,11 +115,19 @@ const AdminPortal = () => {
 
             {/* Vue active */}
             <div className="mt-5">
-              {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
-              {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
-              {tab === "kyc" && <KycPanel />}
-              {tab === "accounting" && <AccountingPanel orders={orders} />}
-              {tab === "team" && <TeamPanel />}
+              {loading && (tab === "queue" || tab === "orders" || tab === "accounting") ? (
+                <div className="rounded-2xl border border-border bg-card py-16 text-center text-[13px] text-muted-foreground">
+                  Chargement des commandes…
+                </div>
+              ) : (
+                <>
+                  {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
+                  {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
+                  {tab === "kyc" && <KycPanel />}
+                  {tab === "accounting" && <AccountingPanel orders={orders} />}
+                  {tab === "team" && <TeamPanel />}
+                </>
+              )}
             </div>
           </>
         )}

@@ -227,6 +227,8 @@ create policy "Admin/opérateur mettent à jour les ordres" on public.orders for
 create policy "Voir les événements de ses ordres" on public.order_events for select
   using (exists (select 1 from public.orders o where o.id = order_id and o.user_id = auth.uid()));
 create policy "Le staff voit tous les événements" on public.order_events for select using (public.is_staff(auth.uid()));
+create policy "Admin/opérateur journalisent" on public.order_events for insert to authenticated
+  with check (public.has_role(auth.uid(), 'admin') or public.has_role(auth.uid(), 'operator'));
 
 -- Paiements
 create policy "Voir les paiements de ses ordres" on public.payment_confirmations for select

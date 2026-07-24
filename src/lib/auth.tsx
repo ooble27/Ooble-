@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+export type AppRole = Database["public"]["Enums"]["app_role"];
 
 export interface AuthUser {
   id: string;
@@ -11,6 +14,14 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  /** Rôles d'équipe de l'utilisateur (vide pour un client). */
+  roles: AppRole[];
+  /** A un rôle admin. */
+  isAdmin: boolean;
+  /** Fait partie de l'équipe (au moins un rôle) → accès back-office. */
+  isStaff: boolean;
+  /** Les rôles sont encore en cours de chargement. */
+  rolesLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: string; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
@@ -36,6 +47,8 @@ function toUser(session: Session | null): AuthUser | null {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [roles, setRoles] = useState<AppRole[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
 
   useEffect(() => {
     // Session initiale + abonnement aux changements (connexion, déconnexion,
@@ -51,10 +64,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Charge les rôles d'équipe de l'utilisateur connecté (RLS : chacun voit les
+  // siens). Un client sans rôle obtient un tableau vide → pas de back-office.
+  useEffect(() => {
+    const uid = user?.id;
+    if (!uid) {
+      setRoles([]);
+      setRolesLoading(false);
+      return;
+    }
+    let active = true;
+    setRolesLoading(true);
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", uid)
+      .then(({ data }) => {
+        if (!active) return;
+        setRoles((data ?? []).map((r) => r.role));
+        setRolesLoading(false);
+      });
+    return () => { active = false; };
+  }, [user?.id]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       loading,
+      roles,
+      isAdmin: roles.includes("admin"),
+      isStaff: roles.length > 0,
+      rolesLoading,
       signIn: async (email, password) => {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         return error ? { error: error.message } : {};
@@ -76,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await supabase.auth.signOut();
       },
     }),
-    [user, loading],
+    [user, loading, roles, rolesLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

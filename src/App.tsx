@@ -12,6 +12,7 @@ import AppOTC from "./pages/app/AppOTC";
 import Compte from "./pages/app/Compte";
 import AdminPortal from "./pages/admin/AdminPortal";
 import RequireAuth from "./components/app/RequireAuth";
+import RequireStaff from "./components/app/RequireStaff";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./lib/auth";
 
@@ -36,8 +37,8 @@ const App = () => (
         <Route path="/app/otc" element={<RequireAuth><AppOTC /></RequireAuth>} />
         <Route path="/app/compte" element={<RequireAuth><Compte /></RequireAuth>} />
 
-        {/* Back-office (accès équipe — rôles à brancher plus tard) */}
-        <Route path="/admin" element={<RequireAuth><AdminPortal /></RequireAuth>} />
+        {/* Back-office — réservé à l'équipe (rôles dans user_roles) */}
+        <Route path="/admin" element={<RequireStaff><AdminPortal /></RequireStaff>} />
 
         <Route path="*" element={<NotFound />} />
         </Routes>

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 const Compte = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isStaff } = useAuth();
   const [theme, setThemeState] = useState<Theme>(getTheme);
 
   const chooseTheme = (t: Theme) => {
@@ -77,11 +77,13 @@ const Compte = () => {
           <KeyRound className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Non-custodial — vos clés, vos USDT</span>
         </div>
-        <Link to="/admin" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">
-          <LayoutGrid className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
-          <span className="flex-1 text-sm font-medium">Back-office</span>
-          <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
-        </Link>
+        {isStaff && (
+          <Link to="/admin" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">
+            <LayoutGrid className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
+            <span className="flex-1 text-sm font-medium">Back-office</span>
+            <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
+          </Link>
+        )}
       </div>
 
       <Button variant="appOutline" shape="soft" size="lg" className="mt-6 w-full" onClick={logout}>
