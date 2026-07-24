@@ -7,6 +7,8 @@ import { NETWORKS, type NetId } from "@/components/app/networks";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
+import { sendEmail } from "@/lib/email";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type Unit = "CAD" | "USDT";
@@ -39,6 +41,7 @@ const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack
 
 const AppAcheter = () => {
   const rate = useUsdtRate();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("amount");
   const [unit, setUnit] = useState<Unit>("CAD");
   const [amount, setAmount] = useState("");
@@ -76,8 +79,26 @@ const AppAcheter = () => {
       setErr(res.error);
       return;
     }
-    setSavedRef(orderRef(res.id));
+    const ref = orderRef(res.id);
+    setSavedRef(ref);
     setStep("done");
+
+    // E-mail de confirmation (best-effort : sans effet tant que Resend n'est
+    // pas configuré / le domaine vérifié).
+    if (user?.email) {
+      void sendEmail({
+        to: user.email,
+        template: "order-buy",
+        vars: {
+          ref,
+          cadAmount: nfCad.format(cad),
+          usdtAmount: nfUsdt.format(usdt),
+          network: network ? `${network.name} · ${network.tag}` : "—",
+          interacRecipient: OOBLE_INTERAC,
+          orderUrl: `${window.location.origin}/app`,
+        },
+      });
+    }
   };
 
   /* ---------- Montant ---------- */

@@ -6,6 +6,8 @@ import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
+import { sendEmail } from "@/lib/email";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type Unit = "USDT" | "CAD";
@@ -36,6 +38,7 @@ const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack
 
 const AppVendre = () => {
   const rate = useUsdtRate();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("amount");
   const [unit, setUnit] = useState<Unit>("USDT");
   const [amount, setAmount] = useState("");
@@ -66,8 +69,28 @@ const AppVendre = () => {
       setErr(res.error);
       return;
     }
-    setSavedRef(orderRef(res.id));
+    const ref = orderRef(res.id);
+    setSavedRef(ref);
     setStep("done");
+
+    // E-mail de confirmation (best-effort, sans effet tant que Resend n'est
+    // pas configuré). On écrit au client à son adresse de connexion et, à
+    // défaut, à l'e-mail Interac fourni.
+    const to = user?.email || email;
+    if (to) {
+      void sendEmail({
+        to,
+        template: "order-sell",
+        vars: {
+          ref,
+          usdtAmount: nfUsdt.format(usdt),
+          cadAmount: nfCad.format(cad),
+          network: "Tron · TRC-20",
+          depositAddress: "Communiquée après confirmation",
+          orderUrl: `${window.location.origin}/app`,
+        },
+      });
+    }
   };
 
   /* ---------- Montant ---------- */
