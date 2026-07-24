@@ -1,22 +1,20 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Client Supabase, piloté par les variables d'environnement.
+ * Client Supabase du projet Ooble.
  *
- * Tant que `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` ne sont pas
- * renseignées (voir `.env.example`), `isSupabaseConfigured` vaut `false` et
- * `supabase` reste `null` : l'app continue de tourner sur les données de
- * démonstration. Aucune bascule brutale — on branchera chaque écran un par un.
+ * L'URL et la clé *publishable* (publique par nature — elle vit dans l'app
+ * côté navigateur) sont inscrites ici, surchargées si besoin par les variables
+ * d'environnement `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`.
  */
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+const DEFAULT_URL = "https://uukxacjjviiktmbikdwp.supabase.co";
+const DEFAULT_KEY = "sb_publishable_BMJbWAvc4W77-fwZhRvn9g_F165LGPA";
 
-export const isSupabaseConfigured = Boolean(
-  url && anonKey && !url.includes("VOTRE-PROJET"),
-);
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || DEFAULT_URL;
+const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || DEFAULT_KEY;
 
-export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(url as string, anonKey as string, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    })
-  : null;
+export const isSupabaseConfigured = Boolean(url && anonKey && !url.includes("VOTRE-PROJET"));
+
+export const supabase: SupabaseClient = createClient(url, anonKey, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+});

@@ -4,13 +4,13 @@ import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight } fr
 import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
 import { Button } from "@/components/ui/button";
-import { getUser, clearUser } from "@/lib/session";
+import { useAuth } from "@/lib/auth";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const Compte = () => {
   const navigate = useNavigate();
-  const user = getUser();
+  const { user, signOut } = useAuth();
   const [theme, setThemeState] = useState<Theme>(getTheme);
 
   const chooseTheme = (t: Theme) => {
@@ -18,8 +18,8 @@ const Compte = () => {
     setThemeState(t);
   };
 
-  const logout = () => {
-    clearUser();
+  const logout = async () => {
+    await signOut();
     navigate("/", { replace: true });
   };
 

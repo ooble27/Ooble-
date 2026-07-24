@@ -4,16 +4,20 @@ import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
 import { Button } from "@/components/ui/button";
-import { setUser } from "@/lib/session";
+import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type Mode = "login" | "register";
 
-/** Dérive un nom d'affichage depuis l'adresse e-mail (mode connexion). */
-function nameFromEmail(email: string): string {
-  const local = email.split("@")[0] || "Ami";
-  const clean = local.replace(/[._-]+/g, " ").trim();
-  return clean.charAt(0).toUpperCase() + clean.slice(1);
+/** Traduit les messages d'erreur Supabase les plus fréquents. */
+function traduireErreur(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
+  if (m.includes("already registered") || m.includes("already been registered")) return "Un compte existe déjà avec cet e-mail.";
+  if (m.includes("password should be at least")) return "Le mot de passe doit contenir au moins 6 caractères.";
+  if (m.includes("email not confirmed")) return "Adresse e-mail non confirmée — vérifiez votre boîte mail.";
+  if (m.includes("unable to validate email")) return "Adresse e-mail invalide.";
+  return message;
 }
 
 const Field = ({
@@ -31,19 +35,46 @@ const Field = ({
 
 const Connexion = () => {
   const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const isRegister = mode === "register";
 
-  const submit = (e: React.FormEvent) => {
+  const switchMode = (m: Mode) => {
+    setMode(m);
+    setError(null);
+    setNotice(null);
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const display = isRegister && name.trim() ? name.trim() : nameFromEmail(email);
-    // Démo front-end : aucune vérification, on mémorise juste la session.
-    setUser({ name: display, email: email.trim() });
-    navigate("/app", { replace: true });
+    setError(null);
+    setNotice(null);
+    setBusy(true);
+    try {
+      if (isRegister) {
+        const res = await signUp(email, password, name);
+        if (res.error) return setError(traduireErreur(res.error));
+        if (res.needsConfirmation) {
+          setNotice("Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.");
+          setMode("login");
+          return;
+        }
+        navigate("/app", { replace: true });
+      } else {
+        const res = await signIn(email, password);
+        if (res.error) return setError(traduireErreur(res.error));
+        navigate("/app", { replace: true });
+      }
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -70,7 +101,7 @@ const Connexion = () => {
               <button
                 key={m}
                 type="button"
-                onClick={() => setMode(m)}
+                onClick={() => switchMode(m)}
                 className={cn(
                   "rounded-md py-2.5 text-sm font-semibold transition-colors",
                   mode === m ? "bg-card text-foreground dark:bg-neutral-600" : "text-muted-foreground hover:text-foreground",
@@ -120,9 +151,20 @@ const Connexion = () => {
               </div>
             )}
 
-            <Button type="submit" variant="appPrimary" shape="soft" size="lg" className="mt-2 w-full">
-              {isRegister ? "Créer mon compte" : "Se connecter"}
-              <ArrowRight className="h-4 w-4" />
+            {error && (
+              <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] font-medium text-destructive">
+                {error}
+              </p>
+            )}
+            {notice && (
+              <p className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-[13px] font-medium text-foreground">
+                {notice}
+              </p>
+            )}
+
+            <Button type="submit" variant="appPrimary" shape="soft" size="lg" disabled={busy} className="mt-2 w-full">
+              {busy ? "Un instant…" : isRegister ? "Créer mon compte" : "Se connecter"}
+              {!busy && <ArrowRight className="h-4 w-4" />}
             </Button>
           </form>
 
@@ -130,7 +172,7 @@ const Connexion = () => {
             {isRegister ? "Vous avez déjà un compte ? " : "Nouveau sur Ooble ? "}
             <button
               type="button"
-              onClick={() => setMode(isRegister ? "login" : "register")}
+              onClick={() => switchMode(isRegister ? "login" : "register")}
               className="font-semibold text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
             >
               {isRegister ? "Se connecter" : "Créer un compte"}

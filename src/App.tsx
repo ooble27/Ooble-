@@ -13,13 +13,15 @@ import Compte from "./pages/app/Compte";
 import AdminPortal from "./pages/admin/AdminPortal";
 import RequireAuth from "./components/app/RequireAuth";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./lib/auth";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
         {/* Site public */}
         <Route path="/" element={<Index />} />
         <Route path="/faq" element={<FAQ />} />
@@ -38,8 +40,9 @@ const App = () => (
         <Route path="/admin" element={<RequireAuth><AdminPortal /></RequireAuth>} />
 
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
