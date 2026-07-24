@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, HandCoins, Check, Mail } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
+import { createOrder, orderRef } from "@/lib/orders";
 import { cn } from "@/lib/utils";
 
 type Unit = "USDT" | "CAD";
@@ -13,7 +14,6 @@ type Step = "amount" | "reception" | "done";
 const MIN_USDT = 50;
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
-const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack?: () => void }) => (
   <div className="mb-4 flex items-start gap-3">
@@ -40,12 +40,35 @@ const AppVendre = () => {
   const [unit, setUnit] = useState<Unit>("USDT");
   const [amount, setAmount] = useState("");
   const [email, setEmail] = useState("");
-  const orderRef = useMemo(() => newRef(), []);
+  const [savedRef, setSavedRef] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "USDT" ? value : value / rate.sell;
   const cad = unit === "USDT" ? value * rate.sell : value;
   const belowMin = usdt > 0 && usdt < MIN_USDT;
+
+  /** Crée l'ordre de vente côté Supabase puis passe à la confirmation. */
+  const submit = async () => {
+    if (saving) return;
+    setSaving(true);
+    setErr(null);
+    const res = await createOrder({
+      side: "sell",
+      cad,
+      usdt,
+      rate: rate.sell,
+      interacEmail: email,
+    });
+    setSaving(false);
+    if ("error" in res) {
+      setErr(res.error);
+      return;
+    }
+    setSavedRef(orderRef(res.id));
+    setStep("done");
+  };
 
   /* ---------- Montant ---------- */
   if (step === "amount") {
@@ -139,9 +162,11 @@ const AppVendre = () => {
           Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par e-Transfer à cette adresse dès réception de vos USDT.
         </p>
 
+        {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
+
         <div className="mt-6 flex justify-start">
-          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("done")}>
-            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email) || saving} onClick={submit}>
+            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Création…" : "Continuer"}
           </Button>
         </div>
       </AppShell>
@@ -168,14 +193,14 @@ const AppVendre = () => {
       <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Détail de l'ordre</p>
       <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
         <CopyRow label="Montant à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
-        <CopyRow label="Référence de l'ordre" value={orderRef} mono />
+        <CopyRow label="Référence de l'ordre" value={savedRef} mono />
       </div>
 
       <div className="mt-6 flex justify-start gap-2.5">
         <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" asChild>
           <Link to="/app"><Check className="h-[17px] w-[17px]" strokeWidth={2} /> Terminé</Link>
         </Button>
-        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setEmail(""); }}>
+        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setEmail(""); setSavedRef(""); setErr(null); }}>
           Nouvel ordre
         </Button>
       </div>

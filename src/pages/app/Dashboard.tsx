@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Send, Handshake, Coins, HandCoins, TrendingUp, Inbox } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
@@ -5,8 +6,11 @@ import RateChart from "@/components/app/RateChart";
 import { NETWORKS } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { useUsdtHistory } from "@/hooks/useUsdtHistory";
+import { listMyOrders, orderRef, ORDER_STATUS_FR, isOrderOpen, type OrderRow } from "@/lib/orders";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
+const dateFr = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /**
  * Signe animé du « Bonjour » — un petit personnage stylisé qui fait coucou
@@ -38,6 +42,70 @@ const HeroMark = () => (
     </g>
   </svg>
 );
+
+/** Une ligne d'ordre dans l'activité récente. */
+const ActivityRow = ({ o }: { o: OrderRow }) => {
+  const buy = o.side === "buy";
+  return (
+    <div className="flex items-center gap-3 py-3.5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+        {buy ? <Coins className="h-5 w-5" strokeWidth={1.6} /> : <HandCoins className="h-5 w-5" strokeWidth={1.6} />}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">
+          {buy ? "Achat" : "Vente"} · {nfUsdt.format(Number(o.usdt_amount))} USDT
+        </p>
+        <p className="truncate text-xs font-light text-muted-foreground">
+          {orderRef(o.id)} · {dateFr.format(new Date(o.created_at))}
+        </p>
+      </div>
+      <div className="shrink-0 text-right">
+        <p className="text-sm font-medium">{nf.format(Number(o.cad_amount))} CAD</p>
+        <p className={`text-xs font-medium ${isOrderOpen(o.status) ? "text-primary" : "text-muted-foreground"}`}>
+          {ORDER_STATUS_FR[o.status]}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+/** Activité récente — ordres réels de l'utilisateur (Supabase). */
+const RecentActivity = () => {
+  const [orders, setOrders] = useState<OrderRow[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    listMyOrders(8).then((rows) => {
+      if (active) setOrders(rows);
+    });
+    return () => { active = false; };
+  }, []);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+        Activité récente
+      </p>
+      {orders === null ? (
+        <div className="py-8 text-center text-sm font-light text-muted-foreground">Chargement…</div>
+      ) : orders.length === 0 ? (
+        <div className="flex flex-col items-center py-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+            <Inbox className="h-6 w-6" strokeWidth={1.6} />
+          </span>
+          <p className="mt-4 text-[15px] font-medium text-foreground">Aucune transaction</p>
+          <p className="mt-1 text-sm font-light text-muted-foreground">
+            Votre premier achat ou vente apparaîtra ici.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-1 divide-y divide-border">
+          {orders.map((o) => <ActivityRow key={o.id} o={o} />)}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const rate = useUsdtRate();
@@ -149,20 +217,7 @@ const Dashboard = () => {
         </div>
 
         {/* Activité récente — pleine largeur */}
-        <div className="rounded-2xl border border-border bg-card p-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            Activité récente
-          </p>
-          <div className="flex flex-col items-center py-8 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-              <Inbox className="h-6 w-6" strokeWidth={1.6} />
-            </span>
-            <p className="mt-4 text-[15px] font-medium text-foreground">Aucune transaction</p>
-            <p className="mt-1 text-sm font-light text-muted-foreground">
-              Votre premier achat ou vente apparaîtra ici.
-            </p>
-          </div>
-        </div>
+        <RecentActivity />
       </div>
     </AppShell>
   );

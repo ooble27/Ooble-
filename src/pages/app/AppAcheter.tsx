@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Coins, Check } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
@@ -6,6 +6,7 @@ import CopyRow from "@/components/app/CopyRow";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
+import { createOrder, orderRef } from "@/lib/orders";
 import { cn } from "@/lib/utils";
 
 type Unit = "CAD" | "USDT";
@@ -15,7 +16,6 @@ const OOBLE_INTERAC = "paiement@ooble.ca";
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 const short = (a: string) => (a.length > 16 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
-const newRef = () => `OOB-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
 /** En-tête d'étape (structure Terex : rond retour + titre + description). */
 const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack?: () => void }) => (
@@ -44,7 +44,9 @@ const AppAcheter = () => {
   const [amount, setAmount] = useState("");
   const [net, setNet] = useState<NetId | null>(null);
   const [address, setAddress] = useState("");
-  const orderRef = useMemo(() => newRef(), []);
+  const [savedRef, setSavedRef] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "CAD" ? value / rate.buy : value;
@@ -54,6 +56,28 @@ const AppAcheter = () => {
   const setPreset = (kind: "min" | "max") => {
     if (unit === "CAD") setAmount(kind === "min" ? "20" : "10000");
     else setAmount(kind === "min" ? "15" : "7000");
+  };
+
+  /** Crée l'ordre côté Supabase puis passe à la confirmation. */
+  const submit = async () => {
+    if (saving) return;
+    setSaving(true);
+    setErr(null);
+    const res = await createOrder({
+      side: "buy",
+      cad,
+      usdt,
+      rate: rate.buy,
+      network: net ?? undefined,
+      address,
+    });
+    setSaving(false);
+    if ("error" in res) {
+      setErr(res.error);
+      return;
+    }
+    setSavedRef(orderRef(res.id));
+    setStep("done");
   };
 
   /* ---------- Montant ---------- */
@@ -189,9 +213,11 @@ const AppAcheter = () => {
           />
         </div>
 
+        {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
+
         <div className="mt-6 flex justify-end">
-          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={address.length < 12} onClick={() => setStep("done")}>
-            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={address.length < 12 || saving} onClick={submit}>
+            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Création…" : "Continuer"}
           </Button>
         </div>
       </AppShell>
@@ -221,11 +247,11 @@ const AppAcheter = () => {
       <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
         <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC} mono />
         <CopyRow label="Montant exact" value={`${nfCad.format(cad)} CAD`} />
-        <CopyRow label="Message / référence" value={orderRef} mono />
+        <CopyRow label="Message / référence" value={savedRef} mono />
       </div>
 
       <div className="mt-6 flex justify-end gap-2.5">
-        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setNet(null); setAddress(""); }}>
+        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setNet(null); setAddress(""); setSavedRef(""); setErr(null); }}>
           Nouvel ordre
         </Button>
         <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" asChild>

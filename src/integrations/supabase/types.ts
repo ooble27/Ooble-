@@ -1,0 +1,525 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  public: {
+    Tables: {
+      blockchain_transactions: {
+        Row: {
+          confirmations: number
+          confirmed: boolean
+          created_at: string
+          direction: string
+          id: string
+          network: Database["public"]["Enums"]["usdt_network"]
+          order_id: string
+          tx_hash: string
+          updated_at: string
+          usdt_amount: number
+        }
+        Insert: {
+          confirmations?: number
+          confirmed?: boolean
+          created_at?: string
+          direction: string
+          id?: string
+          network: Database["public"]["Enums"]["usdt_network"]
+          order_id: string
+          tx_hash: string
+          updated_at?: string
+          usdt_amount: number
+        }
+        Update: {
+          confirmations?: number
+          confirmed?: boolean
+          created_at?: string
+          direction?: string
+          id?: string
+          network?: Database["public"]["Enums"]["usdt_network"]
+          order_id?: string
+          tx_hash?: string
+          updated_at?: string
+          usdt_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blockchain_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_flags: {
+        Row: {
+          created_at: string
+          details: Json | null
+          flag_type: string
+          id: string
+          order_id: string | null
+          resolved: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          flag_type: string
+          id?: string
+          order_id?: string | null
+          resolved?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          flag_type?: string
+          id?: string
+          order_id?: string | null
+          resolved?: boolean
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_flags_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_flags_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchange_rates: {
+        Row: {
+          buy_rate: number
+          fetched_at: string
+          id: number
+          sell_rate: number
+          source: string
+        }
+        Insert: {
+          buy_rate: number
+          fetched_at?: string
+          id?: never
+          sell_rate: number
+          source: string
+        }
+        Update: {
+          buy_rate?: number
+          fetched_at?: string
+          id?: never
+          sell_rate?: number
+          source?: string
+        }
+        Relationships: []
+      }
+      kyc_verifications: {
+        Row: {
+          created_at: string
+          external_reference: string | null
+          id: string
+          provider: string
+          result_payload: Json | null
+          status: Database["public"]["Enums"]["kyc_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_reference?: string | null
+          id?: string
+          provider?: string
+          result_payload?: Json | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          external_reference?: string | null
+          id?: string
+          provider?: string
+          result_payload?: Json | null
+          status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_events: {
+        Row: {
+          actor: string
+          created_at: string
+          id: number
+          new_status: Database["public"]["Enums"]["order_status"]
+          note: string | null
+          order_id: string
+          previous_status: Database["public"]["Enums"]["order_status"] | null
+        }
+        Insert: {
+          actor: string
+          created_at?: string
+          id?: never
+          new_status: Database["public"]["Enums"]["order_status"]
+          note?: string | null
+          order_id: string
+          previous_status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          id?: never
+          new_status?: Database["public"]["Enums"]["order_status"]
+          note?: string | null
+          order_id?: string
+          previous_status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          assigned_at: string | null
+          assigned_to: string | null
+          cad_amount: number
+          created_at: string
+          fee_cad: number
+          id: string
+          interac_email: string | null
+          locked_rate: number
+          network: Database["public"]["Enums"]["usdt_network"]
+          rate_locked_until: string
+          side: Database["public"]["Enums"]["order_side"]
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+          usdt_amount: number
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          cad_amount: number
+          created_at?: string
+          fee_cad?: number
+          id?: string
+          interac_email?: string | null
+          locked_rate: number
+          network?: Database["public"]["Enums"]["usdt_network"]
+          rate_locked_until: string
+          side: Database["public"]["Enums"]["order_side"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          usdt_amount: number
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          cad_amount?: number
+          created_at?: string
+          fee_cad?: number
+          id?: string
+          interac_email?: string | null
+          locked_rate?: number
+          network?: Database["public"]["Enums"]["usdt_network"]
+          rate_locked_until?: string
+          side?: Database["public"]["Enums"]["order_side"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          usdt_amount?: number
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_confirmations: {
+        Row: {
+          amount_cad: number
+          confirmed_at: string
+          confirmed_by: string | null
+          direction: string
+          id: string
+          method: string
+          order_id: string
+          reference: string | null
+        }
+        Insert: {
+          amount_cad: number
+          confirmed_at?: string
+          confirmed_by?: string | null
+          direction: string
+          id?: string
+          method?: string
+          order_id: string
+          reference?: string | null
+        }
+        Update: {
+          amount_cad?: number
+          confirmed_at?: string
+          confirmed_by?: string | null
+          direction?: string
+          id?: string
+          method?: string
+          order_id?: string
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_confirmations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          daily_limit_cad: number
+          full_name: string | null
+          id: string
+          kyc_status: Database["public"]["Enums"]["kyc_status"]
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit_cad?: number
+          full_name?: string | null
+          id: string
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit_cad?: number
+          full_name?: string | null
+          id?: string
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+    }
+    Enums: {
+      app_role: "admin" | "operator" | "kyc_reviewer" | "support" | "marketing"
+      kyc_status: "not_started" | "pending" | "approved" | "rejected"
+      order_side: "buy" | "sell"
+      order_status:
+        | "created"
+        | "awaiting_payment"
+        | "payment_received"
+        | "settling"
+        | "completed"
+        | "cancelled"
+        | "expired"
+      usdt_network:
+        | "trc20"
+        | "bep20"
+        | "erc20"
+        | "polygon"
+        | "spl"
+        | "avalanche"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      app_role: ["admin", "operator", "kyc_reviewer", "support", "marketing"],
+      kyc_status: ["not_started", "pending", "approved", "rejected"],
+      order_side: ["buy", "sell"],
+      order_status: [
+        "created",
+        "awaiting_payment",
+        "payment_received",
+        "settling",
+        "completed",
+        "cancelled",
+        "expired",
+      ],
+      usdt_network: ["trc20", "bep20", "erc20", "polygon", "spl", "avalanche"],
+    },
+  },
+} as const

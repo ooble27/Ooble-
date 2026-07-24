@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./types";
 
 /**
  * Client Supabase du projet Ooble.
@@ -15,6 +16,6 @@ const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) |
 
 export const isSupabaseConfigured = Boolean(url && anonKey && !url.includes("VOTRE-PROJET"));
 
-export const supabase: SupabaseClient = createClient(url, anonKey, {
+export const supabase: SupabaseClient<Database> = createClient<Database>(url, anonKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });

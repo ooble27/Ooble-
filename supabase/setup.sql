@@ -59,6 +59,8 @@ end;
 $$;
 create trigger on_auth_user_created
   after insert on auth.users for each row execute function public.handle_new_user();
+-- Trigger interne : jamais appelable directement par les clients.
+revoke execute on function public.handle_new_user() from anon, authenticated;
 
 -- ===================== Rôles d'équipe =====================
 create table public.user_roles (
@@ -184,7 +186,7 @@ alter table public.compliance_flags enable row level security;
 
 -- ===================== updated_at automatique =====================
 create or replace function public.touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = '' as $$
 begin new.updated_at = now(); return new; end;
 $$;
 create trigger profiles_touch before update on public.profiles
@@ -215,6 +217,8 @@ create policy "Le staff KYC met à jour" on public.kyc_verifications for update
 
 -- Ordres
 create policy "Voir ses ordres" on public.orders for select using (auth.uid() = user_id);
+create policy "Créer ses ordres" on public.orders for insert to authenticated
+  with check (auth.uid() = user_id);
 create policy "Le staff voit tous les ordres" on public.orders for select using (public.is_staff(auth.uid()));
 create policy "Admin/opérateur mettent à jour les ordres" on public.orders for update
   using (public.has_role(auth.uid(), 'admin') or public.has_role(auth.uid(), 'operator'));
