@@ -6,7 +6,7 @@ import {
   CURRENT_OPERATOR, TYPE_META, nfCad, nfUsdt,
   type AdminOrder,
 } from "@/lib/adminOrders";
-import { ClientCell, SubTabs } from "./AdminBits";
+import { ClientCell, StatusBadge, SubTabs } from "./AdminBits";
 
 interface Props {
   orders: AdminOrder[];
@@ -36,16 +36,19 @@ const TypeCell = ({ order }: { order: AdminOrder }) => {
 const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
   const [tab, setTab] = useState<SubTab>("queue");
 
+  // Commandes actives = en attente de paiement, reçues, ou en cours de
+  // traitement. Les nouvelles commandes (statut « attente ») apparaissent donc
+  // tout de suite dans la file, avant même le paiement.
   const active = orders
-    .filter((o) => o.status === "recu" || o.status === "cours")
+    .filter((o) => o.status === "attente" || o.status === "recu" || o.status === "cours")
     .sort((a, b) => b.createdMinsAgo - a.createdMinsAgo);
 
-  const unassigned = active.filter((o) => o.status === "recu");
+  const unassigned = active.filter((o) => o.status === "attente" || o.status === "recu");
   const mine = active.filter((o) => o.status === "cours" && o.assignedTo === CURRENT_OPERATOR);
   const others = active.filter((o) => o.status === "cours" && o.assignedTo !== CURRENT_OPERATOR);
 
   const TABS: { id: SubTab; label: string; count: number; empty: string }[] = [
-    { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — toutes les commandes actives sont prises en charge." },
+    { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — aucune commande à traiter pour le moment." },
     { id: "mine",   label: "Mes commandes",  count: mine.length,       empty: "Aucune commande en charge — prenez-en une dans la file d'attente." },
     { id: "others", label: "Par l'équipe",   count: others.length,     empty: "Aucune commande traitée par un autre membre." },
   ];
@@ -80,8 +83,11 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
               <ClientCell name={o.clientName} email={o.ref} />
             </div>
 
-            {/* Type (desktop) */}
-            <div className="hidden md:block"><TypeCell order={o} /></div>
+            {/* Type + statut (desktop) */}
+            <div className="hidden md:flex md:flex-col md:gap-0.5">
+              <TypeCell order={o} />
+              <StatusBadge status={o.status} className="text-[11.5px]" />
+            </div>
 
             {/* Montant */}
             <div className="text-right">
