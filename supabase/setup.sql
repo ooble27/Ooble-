@@ -1,7 +1,26 @@
 -- Ooble — installation complète en un seul script.
--- À coller dans Supabase → SQL Editor → Run (base vide).
--- Miroir des migrations de supabase/migrations/ (schéma initial + rôles/staff),
--- avec l'enum réseau complet dès le départ. À n'exécuter qu'une seule fois.
+-- À coller dans Supabase → SQL Editor → Run. Ré-exécutable : nettoie d'abord
+-- (base sans données), puis (re)crée tout. Miroir des migrations.
+
+-- ===================== Remise à zéro (idempotent) =====================
+drop table if exists public.compliance_flags cascade;
+drop table if exists public.blockchain_transactions cascade;
+drop table if exists public.payment_confirmations cascade;
+drop table if exists public.order_events cascade;
+drop table if exists public.orders cascade;
+drop table if exists public.kyc_verifications cascade;
+drop table if exists public.user_roles cascade;
+drop table if exists public.exchange_rates cascade;
+drop table if exists public.profiles cascade;
+drop function if exists public.handle_new_user cascade;
+drop function if exists public.has_role cascade;
+drop function if exists public.is_staff cascade;
+drop function if exists public.touch_updated_at cascade;
+drop type if exists public.order_side cascade;
+drop type if exists public.order_status cascade;
+drop type if exists public.usdt_network cascade;
+drop type if exists public.kyc_status cascade;
+drop type if exists public.app_role cascade;
 
 -- ===================== Types =====================
 create type public.order_side as enum ('buy', 'sell');
