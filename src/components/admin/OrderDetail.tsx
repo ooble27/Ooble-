@@ -52,23 +52,23 @@ const Timeline = ({ order, events }: { order: AdminOrder; events: OrderEvent[] |
   ];
 
   return (
-    <div className="px-5 py-4">
+    <div className="px-4 py-3">
       {events === null ? (
-        <p className="text-[13px] text-muted-foreground">Chargement de l'historique…</p>
+        <p className="text-[12px] text-muted-foreground">Chargement de l'historique…</p>
       ) : (
         <ol>
           {steps.map((st, i) => (
-            <li key={i} className="flex gap-3">
+            <li key={i} className="flex gap-2.5">
               <div className="flex flex-col items-center">
-                <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-foreground" />
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-foreground" />
                 {i < steps.length - 1 && <span className="w-px flex-1 bg-foreground/30" />}
               </div>
-              <div className={cn(i < steps.length - 1 ? "pb-5" : "pb-0")}>
-                <p className="text-[13px] font-medium text-foreground">
+              <div className={cn(i < steps.length - 1 ? "pb-4" : "pb-0")}>
+                <p className="text-[12px] font-medium text-foreground">
                   {st.label}
                   {st.actor && <span className="font-normal text-muted-foreground"> — {st.actor}</span>}
                 </p>
-                {st.hint && <p className="mt-0.5 text-[12px] text-muted-foreground">{st.hint}</p>}
+                {st.hint && <p className="mt-0.5 text-[11px] text-muted-foreground">{st.hint}</p>}
               </div>
             </li>
           ))}
@@ -97,10 +97,10 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
   useEffect(() => { requestAnimationFrame(measure); }, [measure]);
 
   return (
-    <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl border border-border bg-secondary/40 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div ref={containerRef} className="relative flex gap-0.5 overflow-x-auto rounded-lg border border-border bg-secondary/40 p-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {pill.ready && (
         <div
-          className="absolute top-1 h-[calc(100%-8px)] rounded-lg bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="absolute top-0.5 h-[calc(100%-4px)] rounded-md bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{ left: pill.left, width: pill.width }}
         />
       )}
@@ -110,7 +110,7 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
           ref={(el) => { btnRefs.current[i] = el; }}
           onClick={() => onSelect(s.id)}
           className={cn(
-            "relative z-10 flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200",
+            "relative z-10 flex-1 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-200",
             s.id === active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >
@@ -144,13 +144,13 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
   };
 
   const Row = ({ label, value, mono, copyKey }: { label: string; value?: string | null; mono?: boolean; copyKey?: string }) => (
-    <div className="flex items-start justify-between gap-4 px-5 py-3.5">
-      <span className="shrink-0 text-[13px] text-muted-foreground">{label}</span>
-      <span className="flex min-w-0 items-center gap-2">
-        <span className={cn("break-all text-right text-[13px] font-medium", mono && "font-mono text-[12px]")}>{value || "—"}</span>
+    <div className="flex items-start justify-between gap-3 px-4 py-2.5">
+      <span className="shrink-0 text-[12px] text-muted-foreground">{label}</span>
+      <span className="flex min-w-0 items-center gap-1.5">
+        <span className={cn("break-all text-right text-[12px] font-medium", mono && "font-mono text-[11px]")}>{value || "—"}</span>
         {copyKey && value && (
           <button onClick={() => copy(value, copyKey)} className="shrink-0 text-muted-foreground transition-colors hover:text-foreground" aria-label="Copier">
-            {copied === copyKey ? <Check className="h-[13px] w-[13px] text-primary" /> : <Copy className="h-[13px] w-[13px]" />}
+            {copied === copyKey ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
           </button>
         )}
       </span>
@@ -174,47 +174,47 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
   const createdAt = dateFmt.format(new Date(Date.now() - order.createdMinsAgo * 60000));
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-3">
       {/* En-tête */}
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2.5">
         <button
           onClick={onBack}
           aria-label="Retour"
-          className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
+          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
         >
-          <ArrowLeft className="h-[18px] w-[18px]" />
+          <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="min-w-0">
-          <p className="text-[15px] font-semibold">
+          <p className="text-[13px] font-semibold">
             {TYPE_META[order.type].label} USDT <span className="text-muted-foreground">·</span> <StatusBadge status={order.status} className="align-baseline" />
           </p>
-          <button onClick={() => copy(order.ref, "ref")} className="mt-0.5 inline-flex items-center gap-1.5 font-mono text-[12px] text-muted-foreground transition-colors hover:text-foreground">
-            {order.ref} {copied === "ref" ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+          <button onClick={() => copy(order.ref, "ref")} className="mt-0.5 inline-flex items-center gap-1 font-mono text-[11px] text-muted-foreground transition-colors hover:text-foreground">
+            {order.ref} {copied === "ref" ? <Check className="h-2.5 w-2.5 text-primary" /> : <Copy className="h-2.5 w-2.5" />}
           </button>
         </div>
       </div>
 
       {/* Carte client + montants */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-[14px] font-semibold text-foreground/70">
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-[12px] font-semibold text-foreground/70">
             {initials(order.clientName)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold">{order.clientName}</p>
-            <p className="text-[12px] text-muted-foreground">{createdAt}</p>
+            <p className="truncate text-[13px] font-semibold">{order.clientName}</p>
+            <p className="text-[11px] text-muted-foreground">{createdAt}</p>
           </div>
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-4">
+        <div className="mt-3.5 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Le client envoie</p>
-            <p className="mt-1 truncate font-display text-[22px] font-semibold tracking-tight">{sends}</p>
+            <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Le client envoie</p>
+            <p className="mt-0.5 truncate font-display text-[18px] font-semibold tracking-tight">{sends}</p>
           </div>
-          <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 text-right">
-            <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">Le client reçoit</p>
-            <p className="mt-1 truncate font-display text-[22px] font-semibold tracking-tight">{receives}</p>
+            <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground">Le client reçoit</p>
+            <p className="mt-0.5 truncate font-display text-[18px] font-semibold tracking-tight">{receives}</p>
           </div>
         </div>
       </div>
@@ -223,7 +223,7 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
       <SegmentedTabs sections={SECTIONS} active={active} onSelect={(id) => setSection(id)} />
 
       {/* Contenu de section */}
-      <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         {active === "client" && (
           <>
             <Row label="Nom complet" value={order.clientName} />
@@ -238,10 +238,10 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
             )}
             <button
               onClick={() => setShowFiche((v) => !v)}
-              className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/40"
+              className="flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-secondary/40"
             >
-              <span className="text-[13px] font-medium">{showFiche ? "Masquer la fiche client" : "Voir la fiche complète du client"}</span>
-              <ChevronRight className={cn("h-[18px] w-[18px] text-muted-foreground transition-transform", showFiche && "rotate-90")} />
+              <span className="text-[12px] font-medium">{showFiche ? "Masquer la fiche client" : "Voir la fiche complète du client"}</span>
+              <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-transform", showFiche && "rotate-90")} />
             </button>
           </>
         )}
@@ -280,57 +280,57 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
       </div>
 
       {/* Barre d'actions */}
-      <div className="flex flex-wrap gap-2.5">
+      <div className="flex flex-wrap gap-2">
         {order.status === "attente" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
-            <Check className="h-[17px] w-[17px]" /> Marquer reçu
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
+            <Check className="h-4 w-4" /> Marquer reçu
           </Button>
         )}
         {order.status === "recu" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
-            <Hand className="h-[17px] w-[17px]" /> Prendre en charge
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold" onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
+            <Hand className="h-4 w-4" /> Prendre en charge
           </Button>
         )}
         {order.status === "cours" && (
           <>
-            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
-              <Check className="h-[17px] w-[17px]" /> Marquer terminé
+            <Button variant="appSolid" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
+              <Check className="h-4 w-4" /> Marquer terminé
             </Button>
-            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
+            <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px]" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
               Libérer
             </Button>
           </>
         )}
         {order.status !== "termine" && order.status !== "annule" && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
-            <Ban className="h-[17px] w-[17px]" /> Annuler
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px]" onClick={() => onPatch(order.id, { status: "annule" })}>
+            <Ban className="h-4 w-4" /> Annuler
           </Button>
         )}
         {(order.status === "termine" || order.status === "annule") && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
-            <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-lg px-3.5 py-2 text-[13px]" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
+            <RotateCcw className="h-4 w-4" /> Rouvrir
           </Button>
         )}
       </div>
 
-      <p className="pt-1 text-center text-[12px] text-muted-foreground">
+      <p className="text-center text-[11px] text-muted-foreground">
         Cette commande est <span className="text-foreground">{STATUS_META[order.status].label.toLowerCase()}</span>.
       </p>
 
       {/* Zone admin : suppression définitive */}
       {isAdmin && (
-        <div className="mt-2 flex items-center justify-center gap-2.5 border-t border-border pt-4">
+        <div className="flex items-center justify-center gap-2 border-t border-border pt-3">
           {confirmDel ? (
             <>
-              <span className="text-[12.5px] text-muted-foreground">Supprimer définitivement ?</span>
+              <span className="text-[11px] text-muted-foreground">Supprimer définitivement ?</span>
               <Button
                 shape="rounded"
-                className="h-auto gap-1.5 rounded-[10px] border border-destructive bg-destructive px-3.5 py-2 text-[12.5px] font-bold text-destructive-foreground hover:opacity-90"
+                className="h-auto gap-1.5 rounded-lg border border-destructive bg-destructive px-3 py-1.5 text-[11px] font-bold text-destructive-foreground hover:opacity-90"
                 onClick={() => onDelete(order.id)}
               >
-                <Trash2 className="h-[14px] w-[14px]" /> Confirmer
+                <Trash2 className="h-3 w-3" /> Confirmer
               </Button>
-              <Button variant="ghost" shape="rounded" className="h-auto rounded-[10px] px-3.5 py-2 text-[12.5px]" onClick={() => setConfirmDel(false)}>
+              <Button variant="ghost" shape="rounded" className="h-auto rounded-lg px-3 py-1.5 text-[11px]" onClick={() => setConfirmDel(false)}>
                 Annuler
               </Button>
             </>
@@ -338,10 +338,10 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
             <Button
               variant="ghost"
               shape="rounded"
-              className="h-auto gap-1.5 rounded-[10px] px-3.5 py-2 text-[12.5px] text-destructive hover:bg-destructive/10"
+              className="h-auto gap-1.5 rounded-lg px-3 py-1.5 text-[11px] text-destructive hover:bg-destructive/10"
               onClick={() => setConfirmDel(true)}
             >
-              <Trash2 className="h-[14px] w-[14px]" /> Supprimer la commande
+              <Trash2 className="h-3 w-3" /> Supprimer la commande
             </Button>
           )}
         </div>
