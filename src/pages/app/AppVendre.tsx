@@ -17,14 +17,13 @@ type Step = "amount" | "reception" | "network" | "deposit" | "done";
 
 const MIN_USDT = 50;
 
-/** Adresses de dépôt Ooble par réseau. À remplacer par les vraies adresses. */
 const OOBLE_DEPOSIT: Record<NetId, string> = {
-  trx: "TQoobLEdEmoDEP0s1tAddr3ssTRC20xY7k",
-  bnb: "0xOobleBEP20DepositAddr3ssPlaceholder",
-  eth: "0xOobleERC20DepositAddr3ssPlaceholder",
-  matic: "0xOoblePolygonDepositAddrPlaceholder",
-  sol: "OobleSOLDepositAddr3ssPlaceholderXYZ123",
-  avax: "0xOobleAvalancheDepositAddrPlaceholder",
+  trx: "TSPUk2W5bcGGNPpKzx1xTDc2NuxpRJRCBb",
+  bnb: "0xe1d04ef9b4c199ba6a59460ed8bd0a486dc4fc84",
+  eth: "0xe1d04ef9b4c199ba6a59460ed8bd0a486dc4fc84",
+  matic: "0xe1d04ef9b4c199ba6a59460ed8bd0a486dc4fc84",
+  sol: "8ES2hxsfqZVX3cjxWLBJ8jCdzSu9hTBYELSkX82UdnhN",
+  avax: "0xe1d04ef9b4c199ba6a59460ed8bd0a486dc4fc84",
 };
 
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
