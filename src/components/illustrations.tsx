@@ -24,8 +24,9 @@ interface ArtProps {
 
 /** Portefeuille + pièces USDT. */
 export const WalletArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Portefeuille et USDT">
-    <circle cx="210" cy="185" r="165" fill={HALO} />
+  /* viewBox recadrée sur le dessin : sans le halo d'origine, la marge vide
+     désalignait l'illustration de ce qui l'entoure. */
+  <svg viewBox="64 90 296 234" className={className} fill="none" role="img" aria-label="Portefeuille et USDT">
     {/* corps du portefeuille */}
     <rect x="96" y="150" width="248" height="158" rx="22" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
     {/* poche avant */}
@@ -74,8 +75,7 @@ export const PhoneArt = ({ className }: ArtProps) => (
 
 /** Grande pièce USDT + échange. */
 export const CoinsArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 320" className={className} fill="none" role="img" aria-label="USDT en dollars canadiens">
-    <circle cx="210" cy="160" r="150" fill={HALO} />
+  <svg viewBox="78 62 272 186" className={className} fill="none" role="img" aria-label="USDT en dollars canadiens">
     <path
       d="M120 160 a 90 90 0 1 1 26 60"
       fill="none"
@@ -107,9 +107,7 @@ function Spark({ cx, cy, s = 14 }: { cx: number; cy: number; s?: number }) {
 
 /** FAQ / aide — grande bulle avec « ? » + bulle « en train d'écrire ». */
 export const FaqArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 340" className={className} fill="none" role="img" aria-label="Aide et questions">
-    <circle cx="210" cy="170" r="150" fill={HALO} />
-
+  <svg viewBox="50 54 322 254" className={className} fill="none" role="img" aria-label="Aide et questions">
     {/* Petite bulle blanche (points de saisie) */}
     <g transform="rotate(-8 118 236)">
       <rect x="66" y="206" width="104" height="62" rx="20" fill="#fff" stroke={INK} strokeWidth="3.5" />
@@ -124,16 +122,13 @@ export const FaqArt = ({ className }: ArtProps) => (
     <path d="M182 216 l-8 38 l44 -30 Z" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
     <text x="230" y="180" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="112" fill="#F2C14E">?</text>
 
-    <Spark cx={338} cy={82} s={16} />
     <UsdtCoin cx={338} cy={252} r={24} rot={10} />
   </svg>
 );
 
 /** Contact — enveloppe + avion en papier qui s'envole. */
 export const ContactArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 340" className={className} fill="none" role="img" aria-label="Nous écrire">
-    <circle cx="210" cy="170" r="150" fill={HALO} />
-
+  <svg viewBox="68 58 302 240" className={className} fill="none" role="img" aria-label="Nous écrire">
     {/* Trajectoire pointillée */}
     <path d="M150 236 C 190 150, 262 150, 300 96" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 12" opacity="0.5" />
 
@@ -151,7 +146,6 @@ export const ContactArt = ({ className }: ArtProps) => (
       <path d="M286 100 L332 142 L320 110 Z" fill="#1c8378" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
     </g>
 
-    <Spark cx={112} cy={112} s={15} />
     <UsdtCoin cx={330} cy={256} r={22} rot={-8} />
   </svg>
 );

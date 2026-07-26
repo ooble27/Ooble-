@@ -139,25 +139,13 @@ const FAQ = () => {
           <p className="mx-auto mt-5 max-w-[380px] text-[15px] leading-[1.6] text-muted-foreground">
             Notre équipe répond en français comme en anglais.
           </p>
-          <div className="mx-auto mt-9 grid w-full max-w-[400px] grid-cols-1 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
-            <Button
-              asChild
-              variant="appSolid"
-              shape="rounded"
-              size="lg"
-              className="w-full text-[16px] sm:w-auto sm:px-9"
-            >
+          <div className="mt-9 flex flex-wrap justify-center gap-2.5">
+            <Button asChild variant="appSolid" shape="rounded" size="default" className="px-6">
               <Link to="/contact">
                 Nous écrire <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button
-              asChild
-              variant="secondary"
-              shape="rounded"
-              size="lg"
-              className="w-full text-[16px] sm:w-auto sm:px-9"
-            >
+            <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
               <Link to="/connexion">Ouvrir un compte</Link>
             </Button>
           </div>

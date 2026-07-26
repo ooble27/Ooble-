@@ -41,18 +41,23 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
       <div className="mx-auto flex h-[76px] max-w-[1200px] items-center justify-between gap-8 px-6 sm:px-10">
         <Logo inverted={inverted} />
 
-        <nav className="hidden items-center gap-9 lg:flex">
+        {/* Navigation groupée dans une pastille */}
+        <nav
+          className={cn(
+            "hidden items-center gap-0.5 rounded-xl p-1 lg:flex",
+            inverted ? "bg-background/10" : "bg-secondary",
+          )}
+        >
           {links.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               className={cn(
-                "relative py-1 text-[15px] transition-colors",
-                "after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:transition-transform hover:after:scale-x-100",
+                "rounded-[9px] px-3.5 py-2 text-[13.5px] transition-colors",
                 inverted
-                  ? "text-background/60 after:bg-background hover:text-background"
-                  : "text-muted-foreground after:bg-foreground hover:text-foreground",
-                current === link.to && (inverted ? "text-background" : "text-foreground"),
+                  ? "text-background/60 hover:bg-background/15 hover:text-background"
+                  : "text-muted-foreground hover:bg-card hover:text-foreground",
+                current === link.to && (inverted ? "text-background" : "bg-card text-foreground"),
               )}
             >
               {link.label}
@@ -60,12 +65,12 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2.5 md:flex">
-          <ThemeToggle className={cn("h-10 w-10", toggleOnDark)} />
+        <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
           <Link
             to="/connexion"
             className={cn(
-              "px-2 text-[15px] transition-colors",
+              "px-2 text-[13.5px] transition-colors",
               inverted
                 ? "text-background/60 hover:text-background"
                 : "text-muted-foreground hover:text-foreground",
@@ -77,18 +82,18 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
             asChild
             variant="appSolid"
             shape="rounded"
-            size="default"
-            className={cn("h-11 px-5 text-[15px]", inverted && "bg-background text-foreground")}
+            size="sm"
+            className={cn("h-9 rounded-[10px] text-[13.5px]", inverted && "bg-background text-foreground")}
           >
             <Link to="/connexion">Ouvrir un compte</Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle className={cn("h-10 w-10", toggleOnDark)} />
+          <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
           <button
             className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors active:scale-95",
+              "flex h-9 w-9 items-center justify-center rounded-[10px] border transition-colors active:scale-95",
               inverted
                 ? "border-background/20 text-background hover:bg-background/10"
                 : "border-border bg-card text-foreground hover:bg-secondary",
@@ -110,9 +115,9 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
               <button
                 onClick={close}
                 aria-label="Fermer le menu"
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
+                className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
               >
-                <X className="h-5 w-5" />
+                <X className="h-[18px] w-[18px]" />
               </button>
             </div>
 
@@ -130,12 +135,12 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
               ))}
             </nav>
 
-            <div className="shrink-0 space-y-2.5 px-6 pb-10 pt-6">
-              <Button asChild variant="appSolid" shape="rounded" size="lg" className="w-full text-[16px]">
-                <Link to="/connexion" onClick={close}>Ouvrir un compte</Link>
-              </Button>
-              <Button asChild variant="secondary" shape="rounded" size="lg" className="w-full text-[16px]">
+            <div className="flex shrink-0 gap-2.5 px-6 pb-10 pt-6">
+              <Button asChild variant="secondary" shape="rounded" size="default" className="flex-1">
                 <Link to="/connexion" onClick={close}>Connexion</Link>
+              </Button>
+              <Button asChild variant="appSolid" shape="rounded" size="default" className="flex-1">
+                <Link to="/connexion" onClick={close}>Ouvrir un compte</Link>
               </Button>
             </div>
           </div>

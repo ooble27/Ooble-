@@ -106,8 +106,8 @@ const Contact = () => {
                   <Button
                     variant="secondary"
                     shape="rounded"
-                    size="lg"
-                    className="mt-8 text-[16px]"
+                    size="default"
+                    className="mt-8"
                     onClick={() => setSent(false)}
                   >
                     Envoyer un autre message
@@ -151,8 +151,8 @@ const Contact = () => {
                     type="submit"
                     variant="appSolid"
                     shape="rounded"
-                    size="lg"
-                    className="w-full text-[16px]"
+                    size="default"
+                    className="w-full"
                   >
                     Envoyer le message <ArrowRight className="h-4 w-4" />
                   </Button>

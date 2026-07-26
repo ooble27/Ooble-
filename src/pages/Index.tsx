@@ -157,83 +157,78 @@ const Index = () => {
       <main>
         {/* ===================== HÉROS ===================== */}
         <section>
-          <Wrap className="relative pt-14 text-center lg:pt-20">
-            {/* Illustrations latérales — masquées sous grand écran */}
-            <WalletArt
-              className="pointer-events-none absolute left-0 top-1/2 hidden w-[240px] -translate-y-1/2 xl:block"
-              aria-hidden
-            />
-            <CoinsArt
-              className="pointer-events-none absolute right-0 top-1/2 hidden w-[250px] -translate-y-1/2 xl:block"
-              aria-hidden
-            />
-
+          <Wrap className="pb-10 pt-20 text-center lg:pb-14 lg:pt-28">
             {/* Pas de `text-balance` ici : il entre en conflit avec les <br>
                 explicites et casse le titre en quatre lignes. */}
-            <h1 className="relative mx-auto max-w-[760px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4rem] lg:text-[4.75rem]">
+            <h1 className="mx-auto max-w-[1040px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4.2rem] lg:text-[6.25rem]">
               Achetez et vendez
               <br />
               des USDT<Soft> en dollars</Soft>
             </h1>
 
-            <div className="relative mx-auto mt-10 grid w-full max-w-[400px] grid-cols-2 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
-              <Button
-                asChild
-                variant="appSolid"
-                shape="rounded"
-                size="lg"
-                className="w-full text-[16px] sm:w-auto sm:px-9"
-              >
-                <Link to="/connexion">
-                  <Coins className="h-[18px] w-[18px]" strokeWidth={1.7} />
-                  Acheter
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="secondary"
-                shape="rounded"
-                size="lg"
-                className="w-full text-[16px] sm:w-auto sm:px-9"
-              >
-                <Link to="/connexion">
-                  <HandCoins className="h-[18px] w-[18px]" strokeWidth={1.7} />
-                  Vendre
-                </Link>
-              </Button>
+            {/*
+              Sur grand écran les illustrations encadrent les actions — la place
+              est libre sous le titre, qui occupe lui toute la largeur. Sur
+              mobile elles ne tiennent pas de part et d'autre : elles passent
+              côte à côte en dessous.
+            */}
+            <div className="mt-12 flex items-center justify-center gap-10 lg:mt-14 lg:gap-20">
+              <WalletArt className="hidden w-[190px] shrink-0 lg:block xl:w-[220px]" aria-hidden />
+
+              <div className="shrink-0">
+                <div className="flex flex-wrap justify-center gap-2.5">
+                  <Button asChild variant="appSolid" shape="rounded" size="default" className="px-6">
+                    <Link to="/connexion">
+                      <Coins className="h-4 w-4" strokeWidth={1.7} />
+                      Acheter
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
+                    <Link to="/connexion">
+                      <HandCoins className="h-4 w-4" strokeWidth={1.7} />
+                      Vendre
+                    </Link>
+                  </Button>
+                </div>
+                <p className="mt-6 text-[13.5px] text-muted-foreground">
+                  Taux verrouillé {RATE_LOCK_MINUTES} minutes
+                </p>
+              </div>
+
+              <CoinsArt className="hidden w-[200px] shrink-0 lg:block xl:w-[230px]" aria-hidden />
             </div>
 
-            <p className="relative mt-7 text-[14px] text-muted-foreground">
-              Taux verrouillé {RATE_LOCK_MINUTES} minutes
-            </p>
+            <div className="mt-12 flex items-center justify-center gap-8 lg:hidden">
+              <WalletArt className="w-[130px]" aria-hidden />
+              <CoinsArt className="w-[135px]" aria-hidden />
+            </div>
           </Wrap>
-
-          {/* La marge, seule donnée chiffrée de la page */}
-          <div className="mt-20 bg-secondary py-16 text-center lg:mt-24">
-            <Wrap>
-              <Kicker>Marge Ooble</Kicker>
-              <p className="mt-4 font-display text-[3.4rem] leading-none tracking-[-0.05em] sm:text-[4.5rem]">
-                + 2 %
-              </p>
-              <p className="mx-auto mt-5 max-w-[420px] text-[14px] leading-[1.6] text-muted-foreground">
-                Déjà comprise dans le prix affiché. Aucun autre frais, aucun
-                abonnement.
-              </p>
-            </Wrap>
-          </div>
         </section>
 
         {/* ===================== L'ESSENTIEL ===================== */}
         <section>
           <Wrap className="pt-24 lg:pt-28">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-20">
-              <H2>
-                Un service
-                <br />
-                volontairement
-                <br />
-                <Soft>réduit à l'essentiel</Soft>
-              </H2>
+              <div>
+                <H2>
+                  Un service
+                  <br />
+                  volontairement
+                  <br />
+                  <Soft>réduit à l'essentiel</Soft>
+                </H2>
+
+                {/* La seule donnée chiffrée de la page, à sa place logique */}
+                <div className="mt-12 border-t pt-7">
+                  <Kicker>Marge Ooble</Kicker>
+                  <p className="mt-3 font-display text-[3rem] leading-none tracking-[-0.05em] sm:text-[3.6rem]">
+                    + 2 %
+                  </p>
+                  <p className="mt-4 max-w-[320px] text-[14px] leading-[1.6] text-muted-foreground">
+                    Déjà comprise dans le prix affiché. Aucun autre frais.
+                  </p>
+                </div>
+              </div>
 
               <div>
                 {essentials.map((e, i) => (
@@ -360,27 +355,31 @@ const Index = () => {
         {/* ===================== INTERAC ===================== */}
         <section>
           <Wrap className="pt-24 lg:pt-28">
-            <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-20">
-              <div>
+            {/*
+              L'ordre du DOM est celui du mobile — titre, logo, texte. Sur grand
+              écran le logo repasse à droite via les placements de grille.
+            */}
+            <div className="grid gap-7 lg:grid-cols-2 lg:items-start lg:gap-20">
+              <div className="lg:col-start-1 lg:row-start-1">
                 <Kicker>Paiement</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
                   Interac e-Transfer,
                   <br />
                   dans les deux sens
                 </h2>
-                <p className="mt-6 max-w-[400px] text-[16px] leading-[1.7] text-muted-foreground">
+              </div>
+
+              <div className="lg:col-start-2 lg:row-start-1 lg:pt-1.5">
+                <InteracLogo className="h-11" />
+              </div>
+
+              <div className="lg:col-start-1 lg:row-start-2">
+                <p className="max-w-[400px] text-[16px] leading-[1.7] text-muted-foreground">
                   Payez vos achats et recevez vos ventes depuis votre compte
                   bancaire canadien, sans solde intermédiaire.
                 </p>
-              </div>
-
-              <div className="lg:pt-1.5">
-                <InteracLogo className="h-12" />
-                <p className="mt-6 max-w-[440px] text-[12px] leading-[1.7] text-muted-foreground">
-                  Ooble accepte Interac e-Transfer comme moyen de paiement. Ooble
-                  n'est pas affilié à Interac Corp. et ne fournit pas de services
-                  Interac. «&nbsp;Interac&nbsp;» est une marque de commerce
-                  d'Interac Corp.
+                <p className="mt-6 max-w-[400px] text-[12px] leading-[1.7] text-muted-foreground">
+                  Ooble accepte Interac e-Transfer comme moyen de paiement.
                 </p>
               </div>
             </div>
@@ -407,8 +406,8 @@ const Index = () => {
                   asChild
                   variant="secondary"
                   shape="rounded"
-                  size="lg"
-                  className="mt-6 text-[16px]"
+                  size="default"
+                  className="mt-6 px-6"
                 >
                   <Link to="/contact">Écrire au desk</Link>
                 </Button>
@@ -465,26 +464,14 @@ const Index = () => {
               <br />
               <Soft>en cinq minutes</Soft>
             </h2>
-            <div className="mx-auto mt-10 grid w-full max-w-[400px] grid-cols-1 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
-              <Button
-                asChild
-                variant="appSolid"
-                shape="rounded"
-                size="lg"
-                className="w-full text-[16px] sm:w-auto sm:px-9"
-              >
+            <div className="mt-10 flex flex-wrap justify-center gap-2.5">
+              <Button asChild variant="appSolid" shape="rounded" size="default" className="px-6">
                 <Link to="/connexion">
-                  <Coins className="h-[18px] w-[18px]" strokeWidth={1.7} />
+                  <Coins className="h-4 w-4" strokeWidth={1.7} />
                   Ouvrir un compte
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="secondary"
-                shape="rounded"
-                size="lg"
-                className="w-full text-[16px] sm:w-auto sm:px-9"
-              >
+              <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
                 <Link to="/faq">Consulter la FAQ</Link>
               </Button>
             </div>
