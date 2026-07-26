@@ -28,11 +28,11 @@ const BottomNav = () => {
     <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
       <div
         ref={navRef}
-        className="relative flex w-auto items-center gap-1 rounded-[20px] border border-border bg-card/95 p-1.5 backdrop-blur-xl"
+        className="relative flex w-full max-w-[320px] items-center justify-around gap-1.5 rounded-[22px] border border-border bg-card/95 p-2 backdrop-blur-xl"
       >
         {/* Sliding indicator */}
         <div
-          className="absolute top-1.5 h-[calc(100%-12px)] rounded-2xl bg-secondary transition-all duration-300 ease-out"
+          className="absolute top-2 h-[calc(100%-16px)] rounded-2xl bg-secondary transition-all duration-300 ease-out"
           style={{ left: indicator.left, width: indicator.width }}
         />
 
@@ -47,8 +47,8 @@ const BottomNav = () => {
               end={end}
               data-active={isActive}
               className={cn(
-                "relative z-10 flex items-center justify-center rounded-2xl py-[10px] transition-all duration-300",
-                isActive ? "gap-2 px-[16px]" : "gap-0 px-[14px]",
+                "relative z-10 flex items-center justify-center rounded-2xl py-[12px] transition-all duration-300",
+                isActive ? "gap-2 px-[18px]" : "gap-0 px-[15px]",
               )}
             >
               <Icon
