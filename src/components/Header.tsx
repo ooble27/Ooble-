@@ -12,14 +12,23 @@ const links = [
   { to: "/contact", label: "Contact" },
 ];
 
-const Header = () => {
+/**
+ * En-tête public. `inverted` l'adapte à un panneau `bg-foreground` (sombre en
+ * mode clair, clair en mode sombre) — tout reste piloté par les jetons, donc
+ * la bascule de thème continue de fonctionner.
+ */
+const Header = ({ inverted }: { inverted?: boolean }) => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
 
+  const toggleOnDark = inverted
+    ? "border-background/20 bg-transparent text-background hover:bg-background/10"
+    : undefined;
+
   return (
-    <header className="pt-safe relative z-40 bg-transparent">
+    <header className={cn("pt-safe relative z-40 bg-transparent", inverted && "text-background")}>
       <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8">
-        <Logo />
+        <Logo inverted={inverted} />
 
         <nav className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
@@ -27,8 +36,11 @@ const Header = () => {
               key={link.to}
               to={link.to}
               className={cn(
-                "text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                pathname === link.to && "text-foreground",
+                "text-sm font-medium transition-colors",
+                inverted
+                  ? "text-background/60 hover:text-background"
+                  : "text-muted-foreground hover:text-foreground",
+                pathname === link.to && (inverted ? "text-background" : "text-foreground"),
               )}
             >
               {link.label}
@@ -37,19 +49,36 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <ThemeToggle />
-          <Button asChild variant="ghost" shape="rounded" size="default">
+          <ThemeToggle className={toggleOnDark} />
+          <Button
+            asChild
+            variant="ghost"
+            shape="rounded"
+            size="default"
+            className={cn(inverted && "text-background hover:bg-background/10")}
+          >
             <Link to="/connexion">Se connecter</Link>
           </Button>
-          <Button asChild variant="appSolid" shape="rounded" size="default">
+          <Button
+            asChild
+            variant="appSolid"
+            shape="rounded"
+            size="default"
+            className={cn(inverted && "bg-background text-foreground")}
+          >
             <Link to="/connexion">Commencer</Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
+          <ThemeToggle className={toggleOnDark} />
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-secondary active:scale-95"
+            className={cn(
+              "flex h-10 w-10 items-center justify-center rounded-xl border transition-colors active:scale-95",
+              inverted
+                ? "border-background/20 text-background hover:bg-background/10"
+                : "border-border bg-card text-foreground hover:bg-secondary",
+            )}
             onClick={() => setOpen((o) => !o)}
             aria-label="Menu"
           >
@@ -62,7 +91,7 @@ const Header = () => {
       {open && (
         <>
           <div className="fixed inset-0 z-40 md:hidden" onClick={() => setOpen(false)} />
-          <div className="absolute right-5 top-[58px] z-50 w-56 rounded-2xl border border-border bg-background p-2 shadow-[0_18px_44px_-16px_rgba(15,58,67,0.35)] md:hidden">
+          <div className="absolute right-5 top-[58px] z-50 w-56 rounded-2xl border border-border bg-background p-2 text-foreground shadow-[0_18px_44px_-16px_rgba(15,58,67,0.35)] md:hidden">
             {links.map((link) => (
               <Link
                 key={link.to}

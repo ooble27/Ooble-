@@ -157,6 +157,20 @@
     background-size: 24px 24px;
   }
 
+  /* Points sur panneau inversé (bg-foreground). */
+  .deco-dots-inv {
+    background-image: radial-gradient(hsl(var(--background) / 0.08) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  /* Quadrillage fin, façon plan technique. */
+  .deco-grid {
+    background-image:
+      linear-gradient(hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
