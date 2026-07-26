@@ -24,6 +24,10 @@ interface AuthContextValue {
   rolesLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: string; needsConfirmation?: boolean }>;
+  /** Envoie le courriel de réinitialisation de mot de passe. */
+  sendPasswordReset: (email: string) => Promise<{ error?: string }>;
+  /** Définit un nouveau mot de passe (après clic sur le lien de réinitialisation). */
+  updatePassword: (password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -111,6 +115,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (error) return { error: error.message };
         // Si la confirmation d'e-mail est activée, aucune session n'est ouverte.
         return { needsConfirmation: !data.session };
+      },
+      sendPasswordReset: async (email) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/reinitialiser`,
+        });
+        return error ? { error: error.message } : {};
+      },
+      updatePassword: async (password) => {
+        const { error } = await supabase.auth.updateUser({ password });
+        return error ? { error: error.message } : {};
       },
       signOut: async () => {
         await supabase.auth.signOut();

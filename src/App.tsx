@@ -4,6 +4,7 @@ import Index from "./pages/Index";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Connexion from "./pages/Connexion";
+import Reinitialiser from "./pages/Reinitialiser";
 import Dashboard from "./pages/app/Dashboard";
 import AppAcheter from "./pages/app/AppAcheter";
 import AppVendre from "./pages/app/AppVendre";
@@ -30,6 +31,7 @@ const App = () => (
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/connexion" element={<Connexion />} />
+        <Route path="/reinitialiser" element={<Reinitialiser />} />
 
         {/* App connectée */}
         <Route path="/app" element={<RequireAuth><Dashboard /></RequireAuth>} />

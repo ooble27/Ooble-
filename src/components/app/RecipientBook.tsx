@@ -147,7 +147,8 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
             onChange={(e) => setLabel(e.target.value)}
             placeholder={isWallet ? "Nom (ex. Mon Ledger)" : "Nom (ex. Compte principal)"}
             maxLength={60}
-            className="w-full rounded-[10px] border border-border bg-secondary/40 px-3 py-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60"
+            /* 16 px minimum : en dessous, iOS zoome automatiquement sur le champ. */
+            className="w-full rounded-[10px] border border-border bg-secondary/40 px-3 py-2.5 text-[16px] outline-none placeholder:text-muted-foreground/60"
           />
           {err && <p className="mt-2 text-[12px] text-destructive">{err}</p>}
           <div className="mt-2.5 flex justify-end gap-2">

@@ -8,6 +8,7 @@ import RotatingWord from "@/components/RotatingWord";
 import CoinStrip from "@/components/CoinStrip";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
+import { ETransferArt } from "@/components/illustrations";
 import { RATE_LOCK_MINUTES } from "@/lib/rates";
 import { cn } from "@/lib/utils";
 
@@ -190,19 +191,7 @@ const Index = () => {
                   Acheter
                 </Link>
               </Button>
-              {/*
-                `bg-secondary` remplace le blanc pur de la variante par défaut :
-                le mode de fusion `overlay` de `.btn-depth` n'a mathématiquement
-                aucun effet sur du blanc pur (base = 1.0 → résultat toujours 1.0),
-                il lui faut une surface légèrement grisée pour être visible.
-              */}
-              <Button
-                asChild
-                variant="secondary"
-                shape="rounded"
-                size="lg"
-                className="btn-depth bg-secondary px-7 hover:bg-secondary/70"
-              >
+              <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
                 <Link to="/connexion">
                   <HandCoins className="h-4 w-4" strokeWidth={1.8} />
                   Vendre
@@ -369,33 +358,29 @@ const Index = () => {
         {/* ===================== INTERAC ===================== */}
         <section>
           <Wrap className="pt-24 lg:pt-28">
-            {/*
-              L'ordre du DOM est celui du mobile — titre, logo, texte. Sur grand
-              écran le logo repasse à droite via les placements de grille.
-            */}
-            <Reveal className="grid gap-7 lg:grid-cols-2 lg:items-start lg:gap-20">
-              <div className="lg:col-start-1 lg:row-start-1">
+            <Reveal className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+              <div>
                 <Kicker>Paiement</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
-                  Interac e-Transfer,
+                  Payez et soyez payé
                   <br />
-                  dans les deux sens
+                  <span className="text-foreground/35">par votre banque</span>
                 </h2>
-              </div>
-
-              <div className="lg:col-start-2 lg:row-start-1 lg:pt-1.5">
-                <InteracLogo className="h-11" />
-              </div>
-
-              <div className="lg:col-start-1 lg:row-start-2">
-                <p className="max-w-[400px] text-[16px] leading-[1.7] text-muted-foreground">
-                  Payez vos achats et recevez vos ventes depuis votre compte
-                  bancaire canadien, sans solde intermédiaire.
+                <p className="mt-6 max-w-[420px] text-[16px] leading-[1.7] text-muted-foreground">
+                  À l'achat vous envoyez un Interac e-Transfer, à la vente vous en
+                  recevez un — depuis et vers votre compte bancaire canadien, sans
+                  solde intermédiaire.
                 </p>
-                <p className="mt-6 max-w-[400px] text-[12px] leading-[1.7] text-muted-foreground">
+                <div className="mt-7 inline-flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5">
+                  <InteracLogo className="h-6" />
+                  <span className="text-[13px] text-muted-foreground">Moyen de paiement accepté</span>
+                </div>
+                <p className="mt-5 max-w-[420px] text-[12px] leading-[1.7] text-muted-foreground">
                   Ooble accepte Interac e-Transfer comme moyen de paiement.
                 </p>
               </div>
+
+              <ETransferArt className="mx-auto w-full max-w-[420px]" aria-hidden />
             </Reveal>
           </Wrap>
         </section>

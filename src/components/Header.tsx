@@ -7,7 +7,7 @@ import Logo from "./Logo";
 import ThemeToggle from "./app/ThemeToggle";
 
 const links = [
-  { to: "/#comment", label: "Comment ça marche" },
+  { to: "/", label: "Accueil" },
   { to: "/#reseaux", label: "Réseaux" },
   { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact" },

@@ -190,6 +190,40 @@ export const InteracArt = ({ className }: ArtProps) => (
   </svg>
 );
 
+/**
+ * e-Transfer entre une banque et un wallet — deux cartes reliées par un flux
+ * bidirectionnel. Sans halo : posée directement sur le fond.
+ */
+export const ETransferArt = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 360 300" className={className} fill="none" role="img" aria-label="Interac e-Transfer dans les deux sens">
+    {/* Carte « banque » (gauche) */}
+    <g transform="rotate(-6 96 150)">
+      <rect x="26" y="96" width="150" height="104" rx="16" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
+      <rect x="42" y="116" width="52" height="9" rx="4.5" fill="#fff" opacity="0.9" />
+      <rect x="42" y="134" width="86" height="7" rx="3.5" fill="#fff" opacity="0.35" />
+      <rect x="42" y="170" width="40" height="16" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
+      <text x="150" y="150" textAnchor="end" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="20" fill="#fff">$</text>
+    </g>
+
+    {/* Carte « wallet USDT » (droite) */}
+    <g transform="rotate(6 268 150)">
+      <rect x="192" y="96" width="150" height="104" rx="16" fill="#2FA39B" stroke={INK} strokeWidth="3.5" />
+      <rect x="208" y="116" width="52" height="9" rx="4.5" fill="#fff" opacity="0.9" />
+      <rect x="208" y="134" width="86" height="7" rx="3.5" fill="#fff" opacity="0.35" />
+      <rect x="208" y="168" width="46" height="20" rx="6" fill="#fff" stroke={INK} strokeWidth="2.5" />
+      <text x="231" y="183" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="12" fill={INK}>USDT</text>
+    </g>
+
+    {/* Flux bidirectionnel au centre */}
+    <path d="M150 128 h60" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
+    <path d="M204 119 l12 9 l-12 9" fill="none" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M210 172 h-60" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
+    <path d="M156 163 l-12 9 l12 9" fill="none" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+
+    <UsdtCoin cx={300} cy={250} r={24} rot={10} />
+  </svg>
+);
+
 /* ===== Illustrations d'étapes (Comment ça marche) ===== */
 
 /** Étape 1 — Compte vérifié (carte d'identité + coche). */
