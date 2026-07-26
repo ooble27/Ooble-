@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import RotatingWord from "@/components/RotatingWord";
+import CoinStrip from "@/components/CoinStrip";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
 import { RATE_LOCK_MINUTES } from "@/lib/rates";
@@ -183,19 +184,33 @@ const Index = () => {
             </p>
 
             <div className="animate-up mt-10 flex flex-wrap justify-center gap-3 [animation-delay:260ms]">
-              <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
+              <Button asChild variant="appSolid" shape="rounded" size="lg" className="btn-depth px-7">
                 <Link to="/connexion">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
                   Acheter
                 </Link>
               </Button>
-              <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
+              {/*
+                `bg-secondary` remplace le blanc pur de la variante par défaut :
+                le mode de fusion `overlay` de `.btn-depth` n'a mathématiquement
+                aucun effet sur du blanc pur (base = 1.0 → résultat toujours 1.0),
+                il lui faut une surface légèrement grisée pour être visible.
+              */}
+              <Button
+                asChild
+                variant="secondary"
+                shape="rounded"
+                size="lg"
+                className="btn-depth bg-secondary px-7 hover:bg-secondary/70"
+              >
                 <Link to="/connexion">
                   <HandCoins className="h-4 w-4" strokeWidth={1.8} />
                   Vendre
                 </Link>
               </Button>
             </div>
+
+            <CoinStrip className="animate-up mx-auto mt-16 [animation-delay:380ms]" />
           </Wrap>
         </section>
 
