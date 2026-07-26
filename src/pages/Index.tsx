@@ -362,14 +362,13 @@ const Index = () => {
               <div>
                 <Kicker>Paiement</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
-                  Payez et soyez payé
+                  Payez par
                   <br />
-                  <span className="text-foreground/35">par votre banque</span>
+                  <span className="text-foreground/35">virement Interac</span>
                 </h2>
                 <p className="mt-6 max-w-[420px] text-[16px] leading-[1.7] text-muted-foreground">
-                  À l'achat vous envoyez un Interac e-Transfer, à la vente vous en
-                  recevez un — depuis et vers votre compte bancaire canadien, sans
-                  solde intermédiaire.
+                  À l'achat comme à la vente, tout passe par Interac e-Transfer,
+                  depuis votre compte bancaire canadien.
                 </p>
                 <div className="mt-7 inline-flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5">
                   <InteracLogo className="h-6" />

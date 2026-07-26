@@ -209,8 +209,11 @@ const Connexion = () => {
               </p>
             )}
 
-            <div className="pt-1">
-              <Button type="submit" variant="appSolid" shape="rounded" size="lg" className="w-full" disabled={busy}>
+            {/* Bouton d'action aligné à droite, à taille par défaut — pas
+                pleine largeur : l'accent visuel est sur le champ, pas sur le
+                bouton, comme sur le dashboard. */}
+            <div className="flex justify-end pt-1">
+              <Button type="submit" variant="appSolid" shape="rounded" size="default" className="px-6" disabled={busy}>
                 {busy
                   ? "Un instant…"
                   : isForgot

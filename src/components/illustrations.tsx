@@ -191,36 +191,46 @@ export const InteracArt = ({ className }: ArtProps) => (
 );
 
 /**
- * e-Transfer entre une banque et un wallet — deux cartes reliées par un flux
- * bidirectionnel. Sans halo : posée directement sur le fond.
+ * Notification de virement Interac sur un téléphone — la scène la plus lisible
+ * pour dire « on paie par Interac » : un écran de banque affichant un montant
+ * reçu et un bouton d'action, avec deux pièces USDT posées à côté pour la paire.
  */
 export const ETransferArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 360 300" className={className} fill="none" role="img" aria-label="Interac e-Transfer dans les deux sens">
-    {/* Carte « banque » (gauche) */}
-    <g transform="rotate(-6 96 150)">
-      <rect x="26" y="96" width="150" height="104" rx="16" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
-      <rect x="42" y="116" width="52" height="9" rx="4.5" fill="#fff" opacity="0.9" />
-      <rect x="42" y="134" width="86" height="7" rx="3.5" fill="#fff" opacity="0.35" />
-      <rect x="42" y="170" width="40" height="16" rx="4" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
-      <text x="150" y="150" textAnchor="end" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="20" fill="#fff">$</text>
+  <svg viewBox="0 0 360 340" className={className} fill="none" role="img" aria-label="Virement Interac reçu">
+    {/* Ombre douce sous le téléphone (subtile, pas de halo) */}
+    <ellipse cx="176" cy="316" rx="120" ry="10" fill={INK} opacity="0.06" />
+
+    {/* Téléphone */}
+    <g>
+      <rect x="82" y="30" width="188" height="286" rx="30" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
+      <rect x="94" y="42" width="164" height="262" rx="20" fill="#fff" />
+      {/* encoche */}
+      <rect x="152" y="46" width="48" height="8" rx="4" fill={INK} />
+
+      {/* En-tête (nom de banque stylisé) */}
+      <rect x="108" y="70" width="70" height="8" rx="4" fill={INK} opacity="0.75" />
+      <rect x="108" y="83" width="46" height="6" rx="3" fill={INK} opacity="0.3" />
+
+      {/* Notification e-Transfer */}
+      <rect x="108" y="108" width="136" height="82" rx="14" fill="#EEF2F2" stroke={INK} strokeWidth="2" />
+      <circle cx="125" cy="126" r="9" fill="#F2C14E" stroke={INK} strokeWidth="2" />
+      <text x="125" y="130" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="10" fill={INK}>i</text>
+      <rect x="140" y="120" width="80" height="6" rx="3" fill={INK} opacity="0.75" />
+      <rect x="140" y="131" width="52" height="5" rx="2.5" fill={INK} opacity="0.35" />
+      <text x="176" y="170" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="26" fill={INK}>500 $</text>
+
+      {/* Bouton « Accepter » */}
+      <rect x="112" y="204" width="128" height="34" rx="17" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
+      <text x="176" y="226" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill="#fff">Accepter</text>
+
+      {/* Bouton secondaire « Refuser » */}
+      <rect x="112" y="248" width="128" height="34" rx="17" fill="#fff" stroke={INK} strokeWidth="2" />
+      <text x="176" y="270" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill={INK}>Détails</text>
     </g>
 
-    {/* Carte « wallet USDT » (droite) */}
-    <g transform="rotate(6 268 150)">
-      <rect x="192" y="96" width="150" height="104" rx="16" fill="#2FA39B" stroke={INK} strokeWidth="3.5" />
-      <rect x="208" y="116" width="52" height="9" rx="4.5" fill="#fff" opacity="0.9" />
-      <rect x="208" y="134" width="86" height="7" rx="3.5" fill="#fff" opacity="0.35" />
-      <rect x="208" y="168" width="46" height="20" rx="6" fill="#fff" stroke={INK} strokeWidth="2.5" />
-      <text x="231" y="183" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="12" fill={INK}>USDT</text>
-    </g>
-
-    {/* Flux bidirectionnel au centre */}
-    <path d="M150 128 h60" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
-    <path d="M204 119 l12 9 l-12 9" fill="none" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M210 172 h-60" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 11" />
-    <path d="M156 163 l-12 9 l12 9" fill="none" stroke={INK} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-
-    <UsdtCoin cx={300} cy={250} r={24} rot={10} />
+    {/* Deux pièces USDT à droite du téléphone, en léger décalage */}
+    <UsdtCoin cx={306} cy={128} r={30} rot={-8} />
+    <UsdtCoin cx={318} cy={192} r={22} rot={12} />
   </svg>
 );
 
