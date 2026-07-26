@@ -140,21 +140,28 @@ const Index = () => {
       <Header />
 
       <main>
-        {/* ===== HERO ===== */}
+        {/* ===== HERO — centré ===== */}
         <section>
-          <Wrap className="grid items-center gap-10 pb-16 pt-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8 lg:pb-24 lg:pt-20">
+          <Wrap className="pb-16 pt-16 text-center lg:pb-24 lg:pt-24">
             <div className="animate-up">
-              <h1 className="text-balance font-display text-[3rem] font-semibold leading-[1] tracking-[-0.035em] sm:text-[4rem]">
-                Achetez des USDT,
-                <br />
-                gardez vos clés.
+              {/* Pastille taux en direct */}
+              <div className="inline-flex items-center gap-2.5 rounded-full border bg-card px-4 py-2 text-sm shadow-soft">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-foreground" />
+                <span className="font-semibold">1 USDT = {formatCad(buy)}</span>
+                <span className="font-light text-muted-foreground">· taux du marché + 2 %</span>
+              </div>
+
+              <h1 className="mx-auto mt-8 max-w-3xl text-balance font-display text-[2.9rem] font-semibold leading-[1.02] tracking-[-0.035em] sm:text-[4.2rem]">
+                Achetez des USDT, gardez vos clés.
               </h1>
-              <p className="mt-6 max-w-md text-[17px] font-light leading-relaxed text-muted-foreground">
+
+              <p className="mx-auto mt-6 max-w-xl text-[17px] font-light leading-relaxed text-muted-foreground">
                 Ooble fait une seule chose, et la fait bien : acheter et vendre
                 des USDT en dollars canadiens par Interac. Non-custodial — vos
                 fonds vont directement dans votre wallet.
               </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
                 <Button asChild variant="appSolid" shape="pill" size="lg">
                   <Link to="/connexion">
                     Acheter des USDT <ArrowRight className="h-4 w-4" />
@@ -164,15 +171,10 @@ const Index = () => {
                   <Link to="/connexion">Vendre des USDT</Link>
                 </Button>
               </div>
-              <div className="mt-8 inline-flex items-center gap-2.5 rounded-full border bg-card px-4 py-2 text-sm shadow-soft">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-foreground" />
-                <span className="font-semibold">1 USDT = {formatCad(buy)}</span>
-                <span className="font-light text-muted-foreground">· taux du marché + 2 %</span>
-              </div>
             </div>
 
-            <div className="animate-up">
-              <WalletArt className="mx-auto w-full max-w-[460px]" />
+            <div className="animate-up mt-14">
+              <WalletArt className="mx-auto w-full max-w-[440px]" />
             </div>
           </Wrap>
         </section>
