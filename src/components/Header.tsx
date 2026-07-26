@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
@@ -14,14 +14,23 @@ const links = [
 ];
 
 /**
- * En-tête public : navigation groupée en pastille au centre, actions à droite.
- * `inverted` l'adapte à un panneau `bg-foreground` en restant piloté par les
- * jetons, donc la bascule clair / sombre continue de fonctionner.
+ * En-tête public. `inverted` l'adapte à un panneau `bg-foreground` en restant
+ * piloté par les jetons, donc la bascule clair / sombre continue de marcher.
  */
 const Header = ({ inverted }: { inverted?: boolean }) => {
   const [open, setOpen] = useState(false);
   const { pathname, hash } = useLocation();
   const current = `${pathname}${hash}`;
+
+  /* Le panneau mobile occupe tout l'écran : on gèle le défilement dessous. */
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
+  const close = () => setOpen(false);
 
   const toggleOnDark = inverted
     ? "border-background/20 bg-transparent text-background hover:bg-background/10"
@@ -29,26 +38,21 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
 
   return (
     <header className={cn("pt-safe relative z-40 bg-transparent", inverted && "text-background")}>
-      <div className="mx-auto flex h-[76px] max-w-[1200px] items-center justify-between gap-6 px-6 sm:px-10">
+      <div className="mx-auto flex h-[76px] max-w-[1200px] items-center justify-between gap-8 px-6 sm:px-10">
         <Logo inverted={inverted} />
 
-        {/* Navigation groupée */}
-        <nav
-          className={cn(
-            "hidden items-center gap-0.5 rounded-xl p-1 lg:flex",
-            inverted ? "bg-background/10" : "bg-secondary",
-          )}
-        >
+        <nav className="hidden items-center gap-9 lg:flex">
           {links.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               className={cn(
-                "rounded-[9px] px-3.5 py-2.5 text-sm transition-colors",
+                "relative py-1 text-[15px] transition-colors",
+                "after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:transition-transform hover:after:scale-x-100",
                 inverted
-                  ? "text-background/60 hover:bg-background/15 hover:text-background"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground",
-                current === link.to && (inverted ? "text-background" : "bg-card text-foreground"),
+                  ? "text-background/60 after:bg-background hover:text-background"
+                  : "text-muted-foreground after:bg-foreground hover:text-foreground",
+                current === link.to && (inverted ? "text-background" : "text-foreground"),
               )}
             >
               {link.label}
@@ -56,12 +60,12 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2.5 md:flex">
           <ThemeToggle className={cn("h-10 w-10", toggleOnDark)} />
           <Link
             to="/connexion"
             className={cn(
-              "rounded-xl px-3.5 py-2.5 text-sm transition-colors",
+              "px-2 text-[15px] transition-colors",
               inverted
                 ? "text-background/60 hover:text-background"
                 : "text-muted-foreground hover:text-foreground",
@@ -74,7 +78,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
             variant="appSolid"
             shape="rounded"
             size="default"
-            className={cn("h-10", inverted && "bg-background text-foreground")}
+            className={cn("h-11 px-5 text-[15px]", inverted && "bg-background text-foreground")}
           >
             <Link to="/connexion">Ouvrir un compte</Link>
           </Button>
@@ -89,42 +93,53 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
                 ? "border-background/20 text-background hover:bg-background/10"
                 : "border-border bg-card text-foreground hover:bg-secondary",
             )}
-            onClick={() => setOpen((o) => !o)}
-            aria-label="Menu"
+            onClick={() => setOpen(true)}
+            aria-label="Ouvrir le menu"
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      {/* Menu mobile */}
+      {/* Panneau mobile plein écran */}
       {open && (
-        <>
-          <div className="fixed inset-0 z-40 md:hidden" onClick={() => setOpen(false)} />
-          <div className="absolute right-5 top-[68px] z-50 w-60 rounded-2xl border border-border bg-background p-2 text-foreground shadow-[0_18px_44px_-16px_rgba(15,58,67,0.35)] md:hidden">
-            {links.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setOpen(false)}
-                className="block rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        <div className="fixed inset-0 z-50 bg-background text-foreground md:hidden">
+          <div className="pt-safe flex h-full flex-col">
+            <div className="flex h-[76px] shrink-0 items-center justify-between px-6">
+              <Logo />
+              <button
+                onClick={close}
+                aria-label="Fermer le menu"
+                className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
               >
-                {link.label}
-              </Link>
-            ))}
-            <div className="my-1.5 h-px bg-border" />
-            <Link
-              to="/connexion"
-              onClick={() => setOpen(false)}
-              className="block rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              Connexion
-            </Link>
-            <Button asChild variant="appSolid" shape="rounded" className="mt-1 w-full">
-              <Link to="/connexion" onClick={() => setOpen(false)}>Ouvrir un compte</Link>
-            </Button>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto px-6 pt-4">
+              {links.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={close}
+                  className="flex items-center justify-between gap-4 border-b py-5 font-display text-[1.7rem] tracking-[-0.035em] transition-opacity active:opacity-60"
+                >
+                  {link.label}
+                  <ArrowUpRight className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.6} />
+                </Link>
+              ))}
+            </nav>
+
+            <div className="shrink-0 space-y-2.5 px-6 pb-10 pt-6">
+              <Button asChild variant="appSolid" shape="rounded" size="lg" className="w-full text-[16px]">
+                <Link to="/connexion" onClick={close}>Ouvrir un compte</Link>
+              </Button>
+              <Button asChild variant="secondary" shape="rounded" size="lg" className="w-full text-[16px]">
+                <Link to="/connexion" onClick={close}>Connexion</Link>
+              </Button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </header>
   );

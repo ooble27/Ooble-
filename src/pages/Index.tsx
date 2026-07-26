@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Coins, HandCoins } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
-import { useUsdtRate } from "@/hooks/useUsdtRate";
-import { formatRate, RATE_LOCK_MINUTES } from "@/lib/rates";
+import { CoinsArt, WalletArt } from "@/components/illustrations";
+import { RATE_LOCK_MINUTES } from "@/lib/rates";
 import { cn } from "@/lib/utils";
 
 const networks = [
@@ -40,17 +41,17 @@ const steps = [
   {
     n: "01",
     t: "Vérifiez votre compte",
-    d: "Courriel, pièce d'identité, selfie. Une seule fois — exigence réglementaire canadienne. Aucune vérification à refaire ensuite.",
+    d: "Courriel, pièce d'identité, selfie. Une seule fois, jamais à refaire.",
   },
   {
     n: "02",
     t: "Créez votre ordre",
-    d: `Montant, réseau de réception, adresse. Le taux se verrouille ${RATE_LOCK_MINUTES} minutes : le prix que vous voyez est celui que vous payez.`,
+    d: `Montant, réseau, adresse. Le taux se verrouille ${RATE_LOCK_MINUTES} minutes.`,
   },
   {
     n: "03",
     t: "Règlement direct",
-    d: "Vos USDT partent vers votre wallet, ou vos dollars vers votre compte Interac. L'ordre se termine, rien ne reste chez nous.",
+    d: "Vos USDT vers votre wallet, ou vos dollars vers votre compte Interac.",
   },
 ];
 
@@ -124,7 +125,6 @@ const Soft = ({ children }: { children: React.ReactNode }) => (
 
 const Index = () => {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
-  const { base, buy, sell } = useUsdtRate();
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
@@ -151,78 +151,73 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="app-type min-h-screen bg-background tracking-[-0.015em]">
+    <div className="ink-neutral app-type min-h-screen bg-background tracking-[-0.015em]">
       <Header />
 
       <main>
         {/* ===================== HÉROS ===================== */}
         <section>
-          <Wrap className="pt-20 text-center lg:pt-28">
-            <Kicker>Non-custodial · Interac e-Transfer · Canada</Kicker>
+          <Wrap className="relative pt-14 text-center lg:pt-20">
+            {/* Illustrations latérales — masquées sous grand écran */}
+            <WalletArt
+              className="pointer-events-none absolute left-0 top-1/2 hidden w-[240px] -translate-y-1/2 xl:block"
+              aria-hidden
+            />
+            <CoinsArt
+              className="pointer-events-none absolute right-0 top-1/2 hidden w-[250px] -translate-y-1/2 xl:block"
+              aria-hidden
+            />
 
             {/* Pas de `text-balance` ici : il entre en conflit avec les <br>
                 explicites et casse le titre en quatre lignes. */}
-            <h1 className="mx-auto mt-7 max-w-[1040px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4.2rem] lg:text-[6.25rem]">
+            <h1 className="relative mx-auto max-w-[760px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4rem] lg:text-[4.75rem]">
               Achetez et vendez
               <br />
               des USDT<Soft> en dollars</Soft>
             </h1>
 
-            <p className="mx-auto mt-8 max-w-[490px] text-[17px] leading-[1.6] text-muted-foreground">
-              Chaque ordre est réglé directement vers votre wallet ou votre compte
-              bancaire canadien. Ooble ne conserve aucun solde.
-            </p>
-
-            <div className="mt-9 flex flex-wrap justify-center gap-2.5">
-              <Button asChild variant="appSolid" shape="rounded" size="lg" className="text-[16px]">
-                <Link to="/connexion">Acheter des USDT</Link>
+            <div className="relative mx-auto mt-10 grid w-full max-w-[400px] grid-cols-2 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
+              <Button
+                asChild
+                variant="appSolid"
+                shape="rounded"
+                size="lg"
+                className="w-full text-[16px] sm:w-auto sm:px-9"
+              >
+                <Link to="/connexion">
+                  <Coins className="h-[18px] w-[18px]" strokeWidth={1.7} />
+                  Acheter
+                </Link>
               </Button>
-              <Button asChild variant="secondary" shape="rounded" size="lg" className="text-[16px]">
-                <Link to="/connexion">Vendre des USDT</Link>
+              <Button
+                asChild
+                variant="secondary"
+                shape="rounded"
+                size="lg"
+                className="w-full text-[16px] sm:w-auto sm:px-9"
+              >
+                <Link to="/connexion">
+                  <HandCoins className="h-[18px] w-[18px]" strokeWidth={1.7} />
+                  Vendre
+                </Link>
               </Button>
             </div>
 
-            <p className="mt-8 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[14px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground" aria-hidden />
-              1 USDT = {formatRate(buy)} à l'achat · {formatRate(sell)} à la vente ·
-              taux verrouillé {RATE_LOCK_MINUTES} min
+            <p className="relative mt-7 text-[14px] text-muted-foreground">
+              Taux verrouillé {RATE_LOCK_MINUTES} minutes
             </p>
           </Wrap>
 
-          {/* Décomposition du prix */}
-          <div className="mt-24 bg-secondary py-14 lg:mt-28">
+          {/* La marge, seule donnée chiffrée de la page */}
+          <div className="mt-20 bg-secondary py-16 text-center lg:mt-24">
             <Wrap>
-              <div className="grid grid-cols-2 gap-y-10 sm:gap-y-12 lg:grid-cols-4 lg:gap-y-0">
-                {[
-                  { k: "Cours du marché", v: formatRate(base) },
-                  { k: "Marge Ooble", v: "+ 2 %", soft: true },
-                  { k: "Vous payez", v: formatRate(buy) },
-                  { k: "Vous recevez", v: formatRate(sell) },
-                ].map((c, i) => (
-                  <div
-                    key={c.k}
-                    className={cn(
-                      "flex flex-col justify-end",
-                      i === 0 ? "lg:pr-8" : "px-0 lg:border-l lg:px-8",
-                      i % 2 === 1 && "border-l pl-6 lg:pl-8",
-                      i === 3 && "lg:pr-0",
-                    )}
-                  >
-                    <Kicker>{c.k}</Kicker>
-                    <p
-                      className={cn(
-                        "mt-3.5 font-display text-[2rem] leading-none tracking-[-0.045em] sm:text-[2.6rem] lg:text-[2.875rem]",
-                        c.soft && "text-muted-foreground",
-                      )}
-                    >
-                      {c.v}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-8 text-[14px] text-muted-foreground">
-                La marge de 2 % est déjà comprise dans le prix affiché. Aucun autre
-                frais, aucun abonnement.
+              <Kicker>Marge Ooble</Kicker>
+              <p className="mt-4 font-display text-[3.4rem] leading-none tracking-[-0.05em] sm:text-[4.5rem]">
+                + 2 %
+              </p>
+              <p className="mx-auto mt-5 max-w-[420px] text-[14px] leading-[1.6] text-muted-foreground">
+                Déjà comprise dans le prix affiché. Aucun autre frais, aucun
+                abonnement.
               </p>
             </Wrap>
           </div>
@@ -339,10 +334,9 @@ const Index = () => {
                 <br />
                 <span className="text-background/50">rien à geler</span>
               </h2>
-              <p className="mt-7 max-w-[420px] text-[16px] leading-[1.7] text-background/65">
-                Aucun solde client, aucun portefeuille interne. Chaque ordre est
-                réglé individuellement vers votre adresse ou votre compte Interac,
-                et vos clés restent les vôtres.
+              <p className="mt-7 max-w-[400px] text-[16px] leading-[1.7] text-background/65">
+                Aucun solde client, aucun portefeuille interne. Vos clés restent
+                les vôtres.
               </p>
             </div>
 
@@ -374,19 +368,14 @@ const Index = () => {
                   <br />
                   dans les deux sens
                 </h2>
-                <p className="mt-6 max-w-[420px] text-[16px] leading-[1.7] text-muted-foreground">
+                <p className="mt-6 max-w-[400px] text-[16px] leading-[1.7] text-muted-foreground">
                   Payez vos achats et recevez vos ventes depuis votre compte
-                  bancaire canadien. Les fonds circulent entre votre banque et le
-                  règlement de l'ordre, sans passer par un solde intermédiaire.
+                  bancaire canadien, sans solde intermédiaire.
                 </p>
               </div>
 
               <div className="lg:pt-1.5">
-                {/* Fond clair fixe : l'artwork Interac est sombre et
-                    disparaîtrait sur `bg-secondary` en mode sombre. */}
-                <span className="inline-flex items-center rounded-xl border border-border bg-white px-7 py-3">
-                  <InteracLogo className="h-11" />
-                </span>
+                <InteracLogo className="h-12" />
                 <p className="mt-6 max-w-[440px] text-[12px] leading-[1.7] text-muted-foreground">
                   Ooble accepte Interac e-Transfer comme moyen de paiement. Ooble
                   n'est pas affilié à Interac Corp. et ne fournit pas de services
@@ -476,11 +465,26 @@ const Index = () => {
               <br />
               <Soft>en cinq minutes</Soft>
             </h2>
-            <div className="mt-9 flex flex-wrap justify-center gap-2.5">
-              <Button asChild variant="appSolid" shape="rounded" size="lg" className="text-[16px]">
-                <Link to="/connexion">Ouvrir un compte</Link>
+            <div className="mx-auto mt-10 grid w-full max-w-[400px] grid-cols-1 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
+              <Button
+                asChild
+                variant="appSolid"
+                shape="rounded"
+                size="lg"
+                className="w-full text-[16px] sm:w-auto sm:px-9"
+              >
+                <Link to="/connexion">
+                  <Coins className="h-[18px] w-[18px]" strokeWidth={1.7} />
+                  Ouvrir un compte
+                </Link>
               </Button>
-              <Button asChild variant="secondary" shape="rounded" size="lg" className="text-[16px]">
+              <Button
+                asChild
+                variant="secondary"
+                shape="rounded"
+                size="lg"
+                className="w-full text-[16px] sm:w-auto sm:px-9"
+              >
                 <Link to="/faq">Consulter la FAQ</Link>
               </Button>
             </div>

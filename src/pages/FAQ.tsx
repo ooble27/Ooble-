@@ -1,147 +1,165 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { FaqArt } from "@/components/illustrations";
 import { cn } from "@/lib/utils";
 
-const FAQS: { q: string; a: string }[] = [
+const GROUPS: { topic: string; items: { q: string; a: string }[] }[] = [
   {
-    q: "Qu'est-ce qu'Ooble ?",
-    a: "Ooble est une plateforme non-custodial pour acheter et vendre des USDT en dollars canadiens, réglés par Interac e-Transfer. Nous ne conservons jamais vos fonds : chaque ordre part directement vers votre wallet (achat) ou votre compte (vente).",
+    topic: "Le service",
+    items: [
+      {
+        q: "Qu'est-ce qu'Ooble ?",
+        a: "Une plateforme non-custodial pour acheter et vendre des USDT en dollars canadiens, réglés par Interac e-Transfer. Chaque ordre part directement vers votre wallet ou votre compte.",
+      },
+      {
+        q: "Quels sont les frais ?",
+        a: "Le cours du marché plus une marge de 2 %, déjà comprise dans le prix affiché. Aucun frais caché, aucun abonnement.",
+      },
+      {
+        q: "Combien de temps le taux est-il garanti ?",
+        a: "Quinze minutes à partir de la création de l'ordre — le temps d'effectuer votre virement sans subir les variations du marché.",
+      },
+    ],
   },
   {
-    q: "Comment acheter des USDT ?",
-    a: "Indiquez le montant en CAD ou en USDT, choisissez le réseau de réception et collez votre adresse. Vous recevez une référence et un e-mail Interac : envoyez votre e-Transfer, et vos USDT partent vers votre adresse dès réception du paiement.",
+    topic: "Acheter et vendre",
+    items: [
+      {
+        q: "Comment acheter des USDT ?",
+        a: "Indiquez le montant, choisissez le réseau de réception et collez votre adresse. Envoyez votre e-Transfer : vos USDT partent dès réception du paiement.",
+      },
+      {
+        q: "Comment vendre des USDT ?",
+        a: "Entrez le montant et le courriel Interac sur lequel recevoir vos dollars. Vous envoyez vos USDT à l'adresse indiquée ; dès confirmation, nous vous versons le montant en CAD.",
+      },
+      {
+        q: "Quels réseaux sont pris en charge ?",
+        a: "Tron (TRC20), Ethereum (ERC20), BNB Chain (BEP20), Polygon, Solana et Avalanche (C-Chain). Vérifiez toujours que l'adresse correspond au réseau choisi.",
+      },
+      {
+        q: "Combien de temps pour recevoir ?",
+        a: "Quelques minutes après réception du paiement, aux heures d'ouverture. Les très gros volumes passent par notre desk OTC.",
+      },
+    ],
   },
   {
-    q: "Comment vendre des USDT ?",
-    a: "Entrez le montant à vendre et l'e-mail Interac sur lequel recevoir vos dollars. Vous envoyez vos USDT à l'adresse indiquée ; dès confirmation, nous vous versons le montant en CAD par Interac e-Transfer.",
+    topic: "Sécurité et conformité",
+    items: [
+      {
+        q: "Ooble conserve-t-il mes fonds ?",
+        a: "Non. Aucun solde client, aucun portefeuille interne. Chaque ordre est réglé individuellement, puis clos.",
+      },
+      {
+        q: "Pourquoi une vérification d'identité ?",
+        a: "C'est une exigence réglementaire canadienne. Elle se fait une seule fois : courriel, pièce d'identité, selfie. Vos documents servent uniquement à la conformité.",
+      },
+    ],
   },
-  {
-    q: "Quels réseaux sont pris en charge ?",
-    a: "Tron (TRC20), BNB Chain (BEP20), Ethereum (ERC20), Polygon, Solana (SPL) et Avalanche (C-Chain). Vérifiez toujours que l'adresse correspond au bon réseau avant de valider.",
-  },
-  {
-    q: "Quels sont les frais ?",
-    a: "Un seul taux, transparent : le prix du marché en direct + une marge de 2 %. Aucun frais caché, aucun abonnement.",
-  },
-  {
-    q: "Ooble conserve-t-il mes fonds ?",
-    a: "Non. Ooble est non-custodial : nous ne détenons aucun solde client. Chaque ordre est réglé individuellement vers votre wallet ou votre compte bancaire.",
-  },
-  {
-    q: "Y a-t-il une vérification d'identité ?",
-    a: "Une vérification d'identité (KYC) peut être demandée pour respecter la réglementation canadienne, notamment sur les montants élevés. Vos documents restent confidentiels et servent uniquement à la conformité.",
-  },
-  {
-    q: "Combien de temps pour recevoir ?",
-    a: "La plupart des ordres sont traités en quelques minutes après réception du paiement, aux heures d'ouverture. Les très gros volumes peuvent passer par notre desk OTC.",
-  },
-];
-
-const TOPICS: { label: string; idx: number }[] = [
-  { label: "Acheter", idx: 1 },
-  { label: "Vendre", idx: 2 },
-  { label: "Réseaux", idx: 3 },
-  { label: "Frais", idx: 4 },
-  { label: "Sécurité", idx: 5 },
-  { label: "KYC", idx: 6 },
 ];
 
 const FAQ = () => {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
-
-  const jumpTo = (i: number) => {
-    setOpenIdx(i);
-    document.getElementById(`faq-${i}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
+  const [open, setOpen] = useState<string | null>(GROUPS[0].items[0].q);
 
   return (
-    <div className="app-type min-h-screen bg-background">
+    <div className="ink-neutral app-type min-h-screen bg-background tracking-[-0.015em]">
       <Header />
 
-      <main className="mx-auto max-w-[1120px] px-6 sm:px-8">
-        {/* Hero */}
-        <section className="grid items-center gap-8 pb-6 pt-10 lg:grid-cols-[1.1fr_0.9fr] lg:pb-12 lg:pt-16">
+      <main className="mx-auto max-w-[1200px] px-6 sm:px-10">
+        {/* Titre */}
+        <section className="grid items-center gap-10 pt-14 lg:grid-cols-[1.1fr_0.9fr] lg:pt-20">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <p className="text-[12px] uppercase tracking-[0.16em] text-muted-foreground">
               Centre d'aide
-            </span>
-            <h1 className="mt-4 font-display text-[2.7rem] font-semibold leading-[1.03] tracking-[-0.03em] sm:text-[3.4rem]">
-              Comment pouvons-nous <span className="text-primary">aider ?</span>
+            </p>
+            <h1 className="mt-5 font-display text-[2.7rem] leading-[0.98] tracking-[-0.05em] sm:text-[3.8rem] lg:text-[4.5rem]">
+              Questions
+              <br />
+              <span className="text-foreground/35">fréquentes</span>
             </h1>
-            <p className="mt-4 max-w-md text-[16px] font-light leading-relaxed text-muted-foreground">
-              Tout ce qu'il faut savoir pour acheter et vendre des USDT en dollars canadiens, en toute simplicité.
-            </p>
-
-            {/* Sujets rapides */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              {TOPICS.map((t) => (
-                <button
-                  key={t.label}
-                  onClick={() => jumpTo(t.idx)}
-                  className="rounded-full border border-border bg-card px-3.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
           </div>
-
-          <div className="hidden lg:block">
-            <FaqArt className="mx-auto w-full max-w-[400px]" />
-          </div>
+          <FaqArt className="mx-auto hidden w-full max-w-[360px] lg:block" aria-hidden />
         </section>
 
-        {/* Accordéon — une carte par question */}
-        <section className="mx-auto max-w-[820px] pb-14">
-          <div className="space-y-2.5">
-            {FAQS.map((f, i) => {
-              const open = openIdx === i;
-              return (
-                <div
-                  key={f.q}
-                  id={`faq-${i}`}
-                  className={cn(
-                    "scroll-mt-24 rounded-2xl border bg-card px-5 transition-colors sm:px-6",
-                    open ? "border-foreground/25" : "border-border",
-                  )}
-                >
-                  <button onClick={() => setOpenIdx(open ? null : i)} className="flex w-full items-center justify-between gap-4 py-4 text-left sm:py-5">
-                    <span className="text-[15px] font-medium">{f.q}</span>
-                    <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-transform", open && "rotate-45 bg-secondary")}>
-                      <Plus className="h-4 w-4" />
-                    </span>
-                  </button>
-                  <div className={cn("grid transition-all duration-300", open ? "grid-rows-[1fr] pb-5" : "grid-rows-[0fr]")}>
-                    <p className="overflow-hidden text-[14px] font-light leading-relaxed text-muted-foreground">{f.a}</p>
-                  </div>
+        {/* Questions groupées par sujet */}
+        <section className="pt-16 lg:pt-20">
+          {GROUPS.map((group) => (
+            <div key={group.topic} className="pb-14 lg:pb-16">
+              <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+                <p className="font-display text-[1.4rem] tracking-[-0.03em] lg:sticky lg:top-8 lg:self-start">
+                  {group.topic}
+                </p>
+
+                <div>
+                  {group.items.map((item) => {
+                    const isOpen = open === item.q;
+                    return (
+                      <div key={item.q} className="border-t">
+                        <button
+                          onClick={() => setOpen(isOpen ? null : item.q)}
+                          aria-expanded={isOpen}
+                          className="flex w-full items-center justify-between gap-6 py-5 text-left"
+                        >
+                          <span className="font-display text-[17px] tracking-[-0.02em]">
+                            {item.q}
+                          </span>
+                          <span
+                            className={cn(
+                              "shrink-0 text-[22px] leading-none text-foreground/35 transition-transform",
+                              isOpen && "rotate-45",
+                            )}
+                            aria-hidden
+                          >
+                            +
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <p className="mb-6 max-w-[620px] text-[15px] leading-[1.7] text-muted-foreground">
+                            {item.a}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div className="border-t" />
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            </div>
+          ))}
         </section>
 
-        {/* CTA — accent pétrole */}
-        <section className="pb-16">
-          <div className="relative overflow-hidden rounded-[28px] bg-deep px-6 py-12 text-center text-deep-foreground sm:py-14">
-            <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-primary/20 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-10 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-            <h2 className="relative font-display text-[26px] font-semibold tracking-tight sm:text-[30px]">Encore une question ?</h2>
-            <p className="relative mx-auto mt-2 max-w-sm text-[14px] font-light text-white/70">
-              Notre équipe répond rapidement, en français comme en anglais.
-            </p>
-            <div className="relative mt-7 flex flex-wrap justify-center gap-3">
-              <Button asChild variant="white" shape="rounded" size="lg">
-                <Link to="/contact">Nous contacter <ArrowRight className="h-4 w-4" /></Link>
-              </Button>
-              <Button asChild variant="outlineOnDark" shape="rounded" size="lg">
-                <Link to="/connexion">Commencer</Link>
-              </Button>
-            </div>
+        {/* Contact */}
+        <section className="border-t py-16 text-center lg:py-20">
+          <h2 className="mx-auto max-w-[560px] font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.6rem]">
+            Vous ne trouvez pas votre réponse ?
+          </h2>
+          <p className="mx-auto mt-5 max-w-[380px] text-[15px] leading-[1.6] text-muted-foreground">
+            Notre équipe répond en français comme en anglais.
+          </p>
+          <div className="mx-auto mt-9 grid w-full max-w-[400px] grid-cols-1 gap-2.5 sm:flex sm:w-auto sm:max-w-none sm:justify-center">
+            <Button
+              asChild
+              variant="appSolid"
+              shape="rounded"
+              size="lg"
+              className="w-full text-[16px] sm:w-auto sm:px-9"
+            >
+              <Link to="/contact">
+                Nous écrire <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="secondary"
+              shape="rounded"
+              size="lg"
+              className="w-full text-[16px] sm:w-auto sm:px-9"
+            >
+              <Link to="/connexion">Ouvrir un compte</Link>
+            </Button>
           </div>
         </section>
       </main>
