@@ -4,12 +4,14 @@ import { ArrowLeft, Inbox, Coins, HandCoins, Filter } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import { ActivityRow, OrderDetailSheet } from "@/components/app/ActivityList";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 
 type TabFilter = "all" | "buy" | "sell";
 
 const Activite = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const [tab, setTab] = useState<TabFilter>("all");
   const [selected, setSelected] = useState<OrderRow | null>(null);
@@ -21,6 +23,14 @@ const Activite = () => {
   }, []);
 
   const filtered = orders?.filter((o) => tab === "all" || o.side === tab) ?? null;
+
+  const handleClick = (o: OrderRow) => {
+    if (isMobile) {
+      navigate(`/app/activite/${o.id}`, { state: { order: o } });
+    } else {
+      setSelected(o);
+    }
+  };
 
   return (
     <AppShell
@@ -83,7 +93,7 @@ const Activite = () => {
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card px-5">
           {filtered.map((o) => (
-            <ActivityRow key={o.id} o={o} onClick={() => setSelected(o)} />
+            <ActivityRow key={o.id} o={o} onClick={() => handleClick(o)} />
           ))}
         </div>
       )}
@@ -94,7 +104,7 @@ const Activite = () => {
         </p>
       )}
 
-      {/* Bottom sheet détail */}
+      {/* Desktop popup */}
       <OrderDetailSheet o={selected} open={!!selected} onClose={() => setSelected(null)} />
     </AppShell>
   );

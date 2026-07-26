@@ -10,10 +10,8 @@ const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 const dateShort = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short" });
 const dateLong = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
-/**
- * Ligne d'activité épurée — icône, type, statut, montant CAD, date courte.
- * Le détail USDT, réseau, adresse etc. est réservé au sheet.
- */
+export { nf, nfUsdt, dateLong };
+
 export const ActivityRow = ({ o, onClick }: { o: OrderRow; onClick?: () => void }) => {
   const buy = o.side === "buy";
   return (
@@ -47,15 +45,12 @@ export const ActivityRow = ({ o, onClick }: { o: OrderRow; onClick?: () => void 
   );
 };
 
-/** Bottom sheet avec le détail complet d'une commande. */
-export const OrderDetailSheet = ({ o, open, onClose }: { o: OrderRow | null; open: boolean; onClose: () => void }) => {
-  if (!o) return null;
+export const OrderDetailContent = ({ o }: { o: OrderRow }) => {
   const buy = o.side === "buy";
   const netId = DB_TO_NET[o.network];
   const network = NETWORKS.find((n) => n.id === netId);
   return (
-    <BottomSheet open={open} onClose={onClose} title={buy ? "Détail de l'achat" : "Détail de la vente"}>
-      {/* Montant principal — pas d'icône, design neutre */}
+    <>
       <div className="mb-5 flex flex-col items-center text-center">
         <p className="font-display text-[28px] font-light tracking-tight">
           {nfUsdt.format(Number(o.usdt_amount))} <span className="text-[18px] text-muted-foreground">USDT</span>
@@ -65,8 +60,6 @@ export const OrderDetailSheet = ({ o, open, onClose }: { o: OrderRow | null; ope
           {ORDER_STATUS_FR[o.status]}
         </span>
       </div>
-
-      {/* Détails */}
       <div className="overflow-hidden rounded-[14px] border border-border">
         {[
           { label: "Référence", value: orderRef(o.id), copy: true },
@@ -97,6 +90,16 @@ export const OrderDetailSheet = ({ o, open, onClose }: { o: OrderRow | null; ope
           )
         ))}
       </div>
+    </>
+  );
+};
+
+export const OrderDetailSheet = ({ o, open, onClose }: { o: OrderRow | null; open: boolean; onClose: () => void }) => {
+  if (!o) return null;
+  const buy = o.side === "buy";
+  return (
+    <BottomSheet open={open} onClose={onClose} title={buy ? "Détail de l'achat" : "Détail de la vente"}>
+      <OrderDetailContent o={o} />
     </BottomSheet>
   );
 };

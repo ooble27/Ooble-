@@ -53,7 +53,7 @@ const Compte = () => {
       {profile?.interacQuestion && (
         <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-center gap-2.5 px-5 pb-1 pt-4">
-            <MessageSquare className="h-4 w-4 text-primary" strokeWidth={1.9} />
+            <MessageSquare className="h-4 w-4 text-foreground/70" strokeWidth={1.9} />
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Interac e-Transfer</p>
           </div>
           <p className="px-5 pb-2 text-[12.5px] text-muted-foreground">
@@ -91,19 +91,19 @@ const Compte = () => {
 
       <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
         <div className="flex items-center gap-3 px-5 py-4">
-          <ShieldCheck className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
+          <ShieldCheck className="h-5 w-5 text-foreground/70" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Vérification d'identité</span>
           <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">
             Bientôt
           </span>
         </div>
         <div className="flex items-center gap-3 px-5 py-4">
-          <KeyRound className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
+          <KeyRound className="h-5 w-5 text-foreground/70" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Non-custodial — vos clés, vos USDT</span>
         </div>
         {isStaff && (
           <Link to="/admin" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">
-            <LayoutGrid className="h-5 w-5 text-accent-ink" strokeWidth={1.9} />
+            <LayoutGrid className="h-5 w-5 text-foreground/70" strokeWidth={1.9} />
             <span className="flex-1 text-sm font-medium">Back-office</span>
             <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
           </Link>
@@ -111,14 +111,10 @@ const Compte = () => {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Button variant="appOutline" shape="soft" className="h-auto gap-2 px-[18px] py-[10px] text-sm" onClick={logout}>
+        <Button variant="appOutline" shape="rounded" className="h-auto gap-2 px-[18px] py-[10px] text-sm" onClick={logout}>
           <LogOut className="h-4 w-4" /> Se déconnecter
         </Button>
       </div>
-
-      <p className="mt-6 text-center text-xs leading-relaxed text-muted-foreground">
-        Démo front-end — l'authentification sécurisée sera bientôt disponible.
-      </p>
     </AppShell>
   );
 };

@@ -162,10 +162,12 @@ const Connexion = () => {
               </p>
             )}
 
-            <Button type="submit" variant="appPrimary" shape="soft" size="lg" disabled={busy} className="mt-2 w-full">
-              {busy ? "Un instant…" : isRegister ? "Créer mon compte" : "Se connecter"}
-              {!busy && <ArrowRight className="h-4 w-4" />}
-            </Button>
+            <div className="mt-2 flex justify-end">
+              <Button type="submit" variant="appPrimary" shape="rounded" size="default" disabled={busy}>
+                {busy ? "Un instant…" : isRegister ? "Créer mon compte" : "Se connecter"}
+                {!busy && <ArrowRight className="h-4 w-4" />}
+              </Button>
+            </div>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">

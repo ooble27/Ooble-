@@ -61,7 +61,7 @@ const RecentActivity = () => {
           Activité récente
         </p>
         {orders && orders.length > 0 && (
-          <Link to="/app/activite" className="inline-flex items-center gap-0.5 text-[12px] font-medium text-primary transition-opacity hover:opacity-80">
+          <Link to="/app/activite" className="inline-flex items-center gap-0.5 text-[12px] font-medium text-foreground transition-opacity hover:opacity-70">
             Voir tout <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         )}

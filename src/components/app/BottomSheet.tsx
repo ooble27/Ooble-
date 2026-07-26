@@ -27,8 +27,8 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" onClick={onClose}>
-      {/* Backdrop — subtle blur, no dark box frame */}
-      <div className="absolute inset-0 backdrop-blur-[6px]" />
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/20" />
 
       {/* Sheet */}
       <div
