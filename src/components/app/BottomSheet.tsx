@@ -27,8 +27,8 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" onClick={onClose}>
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+      {/* Backdrop — subtle blur, no dark box frame */}
+      <div className="absolute inset-0 backdrop-blur-[6px]" />
 
       {/* Sheet */}
       <div
@@ -38,7 +38,9 @@ const BottomSheet = ({ open, onClose, title, children }: BottomSheetProps) => {
           "relative z-10 w-full max-w-lg overflow-hidden bg-card shadow-2xl",
           "animate-in slide-in-from-bottom duration-300 ease-out",
           "rounded-t-[20px] sm:mb-0 sm:rounded-[20px]",
-          "max-h-[85vh] overflow-y-auto overscroll-contain",
+          "max-h-[92vh] pb-[env(safe-area-inset-bottom,20px)] sm:max-h-[85vh] sm:pb-0",
+          "overflow-y-auto overscroll-contain",
+          "mb-16 sm:mb-0",
         )}
       >
         {/* Handle bar (mobile) */}

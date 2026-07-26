@@ -1,5 +1,5 @@
 import { Coins, HandCoins, ChevronRight } from "lucide-react";
-import { orderRef, ORDER_STATUS_FR, isOrderOpen, DB_TO_NET, type OrderRow } from "@/lib/orders";
+import { orderRef, ORDER_STATUS_FR, DB_TO_NET, type OrderRow } from "@/lib/orders";
 import { NETWORKS } from "@/components/app/networks";
 import BottomSheet from "@/components/app/BottomSheet";
 import CopyRow from "@/components/app/CopyRow";
@@ -16,7 +16,6 @@ const dateLong = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "long
  */
 export const ActivityRow = ({ o, onClick }: { o: OrderRow; onClick?: () => void }) => {
   const buy = o.side === "buy";
-  const open = isOrderOpen(o.status);
   return (
     <button
       type="button"
@@ -26,17 +25,14 @@ export const ActivityRow = ({ o, onClick }: { o: OrderRow; onClick?: () => void 
         onClick && "hover:bg-secondary/30 active:bg-secondary/50",
       )}
     >
-      <span className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-        buy ? "bg-primary/10 text-primary" : "bg-secondary text-foreground/70",
-      )}>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
         {buy ? <Coins className="h-[18px] w-[18px]" strokeWidth={1.7} /> : <HandCoins className="h-[18px] w-[18px]" strokeWidth={1.7} />}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[14px] font-medium">
           {buy ? "Achat" : "Vente"} USDT
         </p>
-        <p className={cn("truncate text-[12px]", open ? "text-primary" : "text-muted-foreground")}>
+        <p className="truncate text-[12px] text-muted-foreground">
           {ORDER_STATUS_FR[o.status]}
         </p>
       </div>
@@ -57,26 +53,15 @@ export const OrderDetailSheet = ({ o, open, onClose }: { o: OrderRow | null; ope
   const buy = o.side === "buy";
   const netId = DB_TO_NET[o.network];
   const network = NETWORKS.find((n) => n.id === netId);
-  const statusOpen = isOrderOpen(o.status);
-
   return (
     <BottomSheet open={open} onClose={onClose} title={buy ? "Détail de l'achat" : "Détail de la vente"}>
-      {/* Montant principal */}
+      {/* Montant principal — pas d'icône, design neutre */}
       <div className="mb-5 flex flex-col items-center text-center">
-        <span className={cn(
-          "mb-3 flex h-12 w-12 items-center justify-center rounded-2xl",
-          buy ? "bg-primary/10 text-primary" : "bg-secondary text-foreground/70",
-        )}>
-          {buy ? <Coins className="h-6 w-6" strokeWidth={1.5} /> : <HandCoins className="h-6 w-6" strokeWidth={1.5} />}
-        </span>
         <p className="font-display text-[28px] font-light tracking-tight">
           {nfUsdt.format(Number(o.usdt_amount))} <span className="text-[18px] text-muted-foreground">USDT</span>
         </p>
         <p className="mt-1 text-[14px] text-muted-foreground">{nf.format(Number(o.cad_amount))} CAD</p>
-        <span className={cn(
-          "mt-3 inline-flex rounded-full px-3 py-1 text-[12px] font-semibold",
-          statusOpen ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground",
-        )}>
+        <span className="mt-3 inline-flex rounded-full bg-secondary px-3 py-1 text-[12px] font-semibold text-muted-foreground">
           {ORDER_STATUS_FR[o.status]}
         </span>
       </div>
