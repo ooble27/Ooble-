@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { Coins, HandCoins } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Reveal from "@/components/Reveal";
+import RotatingWord from "@/components/RotatingWord";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
 import { RATE_LOCK_MINUTES } from "@/lib/rates";
@@ -160,13 +162,27 @@ const Index = () => {
           <Wrap className="flex min-h-[78svh] flex-col justify-center pb-20 pt-24 text-center lg:min-h-[82svh] lg:pb-28 lg:pt-28">
             {/* Pas de `text-balance` ici : il entre en conflit avec les <br>
                 explicites et casse le titre en quatre lignes. */}
-            <h1 className="mx-auto max-w-[1040px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4.2rem] lg:text-[6.25rem]">
+            {/*
+              La boîte du mot défilant prend la largeur de sa variante la plus
+              longue : le corps du titre et la largeur maximale sont calibrés
+              pour que la deuxième ligne tienne, sinon elle se scinde.
+            */}
+            <h1 className="animate-up mx-auto max-w-[1120px] font-display text-[2.6rem] leading-[0.98] tracking-[-0.05em] sm:text-[4rem] lg:text-[5.75rem]">
               Achetez et vendez
               <br />
-              des USDT<Soft> en dollars</Soft>
+              des USDT{" "}
+              <RotatingWord
+                words={["en dollars", "par Interac", "sans dépôt", "en sécurité"]}
+                className="text-foreground/35"
+              />
             </h1>
 
-            <div className="mt-12 flex flex-wrap justify-center gap-3">
+            <p className="animate-up mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.6] text-muted-foreground [animation-delay:140ms] sm:text-[17px]">
+              Réglé directement vers votre wallet ou votre compte Interac.
+              Ooble ne conserve aucun solde.
+            </p>
+
+            <div className="animate-up mt-10 flex flex-wrap justify-center gap-3 [animation-delay:260ms]">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/connexion">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
@@ -180,10 +196,6 @@ const Index = () => {
                 </Link>
               </Button>
             </div>
-
-            <p className="mt-7 text-[14px] text-muted-foreground">
-              Taux verrouillé {RATE_LOCK_MINUTES} minutes
-            </p>
           </Wrap>
         </section>
 
@@ -191,7 +203,7 @@ const Index = () => {
         <section>
           <Wrap className="pt-24 lg:pt-28">
             <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-20">
-              <div>
+              <Reveal>
                 <H2>
                   Un service
                   <br />
@@ -210,17 +222,16 @@ const Index = () => {
                     Déjà comprise dans le prix affiché. Aucun autre frais.
                   </p>
                 </div>
-              </div>
+              </Reveal>
 
               <div>
                 {essentials.map((e, i) => (
-                  <div
-                    key={e.t}
-                    className={cn("border-t py-6", i === essentials.length - 1 && "border-b")}
-                  >
-                    <p className="font-display text-[20px] tracking-[-0.02em]">{e.t}</p>
-                    <p className="mt-2 text-[15px] leading-[1.6] text-muted-foreground">{e.d}</p>
-                  </div>
+                  <Reveal key={e.t} delay={i * 90}>
+                    <div className={cn("border-t py-6", i === essentials.length - 1 && "border-b")}>
+                      <p className="font-display text-[20px] tracking-[-0.02em]">{e.t}</p>
+                      <p className="mt-2 text-[15px] leading-[1.6] text-muted-foreground">{e.d}</p>
+                    </div>
+                  </Reveal>
                 ))}
               </div>
             </div>
@@ -230,35 +241,38 @@ const Index = () => {
         {/* ===================== COMMENT ÇA MARCHE ===================== */}
         <section id="comment" className="scroll-mt-24">
           <Wrap className="pt-24 lg:pt-28">
-            <div className="mb-4 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
-              <div>
-                <Kicker>Comment ça marche</Kicker>
-                <H2 className="mt-4">Trois étapes, aucun dépôt</H2>
+            <Reveal>
+              <div className="mb-4 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
+                <div>
+                  <Kicker>Comment ça marche</Kicker>
+                  <H2 className="mt-4">Trois étapes, aucun dépôt</H2>
+                </div>
+                <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
+                  Vous gardez le contrôle de vos fonds du début à la fin de chaque
+                  ordre.
+                </p>
               </div>
-              <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
-                Vous gardez le contrôle de vos fonds du début à la fin de chaque
-                ordre.
-              </p>
-            </div>
+            </Reveal>
 
             {steps.map((s, i) => (
-              <div
-                key={s.n}
-                className={cn(
-                  "grid items-baseline gap-x-12 gap-y-3 border-t py-8 sm:grid-cols-[96px_1fr] lg:grid-cols-[96px_1fr_1fr]",
-                  i === steps.length - 1 && "border-b",
-                )}
-              >
-                <p className="font-display text-[2rem] leading-none tracking-[-0.045em] text-foreground/25 lg:text-[2.875rem]">
-                  {s.n}
-                </p>
-                <h3 className="font-display text-[1.35rem] tracking-[-0.03em] sm:text-[1.625rem]">
-                  {s.t}
-                </h3>
-                <p className="text-[15px] leading-[1.7] text-muted-foreground sm:col-start-2 lg:col-start-3 lg:row-start-1">
-                  {s.d}
-                </p>
-              </div>
+              <Reveal key={s.n} delay={i * 110}>
+                <div
+                  className={cn(
+                    "grid items-baseline gap-x-12 gap-y-3 border-t py-8 sm:grid-cols-[96px_1fr] lg:grid-cols-[96px_1fr_1fr]",
+                    i === steps.length - 1 && "border-b",
+                  )}
+                >
+                  <p className="font-display text-[2rem] leading-none tracking-[-0.045em] text-foreground/25 lg:text-[2.875rem]">
+                    {s.n}
+                  </p>
+                  <h3 className="font-display text-[1.35rem] tracking-[-0.03em] sm:text-[1.625rem]">
+                    {s.t}
+                  </h3>
+                  <p className="text-[15px] leading-[1.7] text-muted-foreground sm:col-start-2 lg:col-start-3 lg:row-start-1">
+                    {s.d}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </Wrap>
         </section>
@@ -266,20 +280,22 @@ const Index = () => {
         {/* ===================== RÉSEAUX ===================== */}
         <section id="reseaux" className="scroll-mt-24">
           <Wrap className="pt-24 lg:pt-28">
-            <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
-              <div>
-                <Kicker>Recevez sur 6 réseaux</Kicker>
-                <H2 className="mt-4">La chaîne de votre choix</H2>
+            <Reveal>
+              <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
+                <div>
+                  <Kicker>Recevez sur 6 réseaux</Kicker>
+                  <H2 className="mt-4">La chaîne de votre choix</H2>
+                </div>
+                <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
+                  Le réseau se choisit à la création de l'ordre. Les frais de réseau
+                  varient, le taux ne change pas.
+                </p>
               </div>
-              <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
-                Le réseau se choisit à la création de l'ordre. Les frais de réseau
-                varient, le taux ne change pas.
-              </p>
-            </div>
+            </Reveal>
 
             <div className="grid lg:grid-cols-2 lg:gap-x-16">
-              {networks.map((n) => (
-                <div key={n.id} className="flex items-center gap-5 border-t py-5">
+              {networks.map((n, i) => (
+                <Reveal key={n.id} delay={i * 70} className="flex items-center gap-5 border-t py-5">
                   <img
                     src={`/coins/${n.id}.svg`}
                     alt=""
@@ -295,7 +311,7 @@ const Index = () => {
                   <span className="shrink-0 text-[13px] tracking-[0.1em] text-muted-foreground">
                     {n.tick}
                   </span>
-                </div>
+                </Reveal>
               ))}
             </div>
           </Wrap>
@@ -304,7 +320,7 @@ const Index = () => {
         {/* ===================== NON-CUSTODIAL (panneau inversé) ===================== */}
         <section data-dark className="mt-24 bg-foreground py-20 text-background lg:mt-28 lg:py-24">
           <Wrap className="grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-20">
-            <div>
+            <Reveal>
               <Kicker inverted>Non-custodial</Kicker>
               <h2 className="mt-5 font-display text-[2.1rem] leading-[1.04] tracking-[-0.045em] text-background sm:text-[2.9rem] lg:text-[3.5rem]">
                 Rien à retirer,
@@ -315,12 +331,13 @@ const Index = () => {
                 Aucun solde client, aucun portefeuille interne. Vos clés restent
                 les vôtres.
               </p>
-            </div>
+            </Reveal>
 
             <dl>
               {specs.map((s, i) => (
-                <div
+                <Reveal
                   key={s.k}
+                  delay={i * 80}
                   className={cn(
                     "flex justify-between gap-6 border-t border-background/15 py-5 text-[17px]",
                     i === specs.length - 1 && "border-b border-background/15",
@@ -328,7 +345,7 @@ const Index = () => {
                 >
                   <dt>{s.k}</dt>
                   <dd className="shrink-0 text-background/55">{s.v}</dd>
-                </div>
+                </Reveal>
               ))}
             </dl>
           </Wrap>
@@ -341,7 +358,7 @@ const Index = () => {
               L'ordre du DOM est celui du mobile — titre, logo, texte. Sur grand
               écran le logo repasse à droite via les placements de grille.
             */}
-            <div className="grid gap-7 lg:grid-cols-2 lg:items-start lg:gap-20">
+            <Reveal className="grid gap-7 lg:grid-cols-2 lg:items-start lg:gap-20">
               <div className="lg:col-start-1 lg:row-start-1">
                 <Kicker>Paiement</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
@@ -364,14 +381,14 @@ const Index = () => {
                   Ooble accepte Interac e-Transfer comme moyen de paiement.
                 </p>
               </div>
-            </div>
+            </Reveal>
           </Wrap>
         </section>
 
         {/* ===================== DESK OTC ===================== */}
         <section>
           <Wrap className="pt-24 lg:pt-28">
-            <div className="grid gap-8 border-b pb-8 lg:grid-cols-2 lg:items-end lg:gap-20">
+            <Reveal className="grid gap-8 border-b pb-8 lg:grid-cols-2 lg:items-end lg:gap-20">
               <div>
                 <Kicker>Gros volumes</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
@@ -394,20 +411,22 @@ const Index = () => {
                   <Link to="/contact">Écrire au desk</Link>
                 </Button>
               </div>
-            </div>
+            </Reveal>
           </Wrap>
         </section>
 
         {/* ===================== FAQ ===================== */}
         <section id="faq" className="scroll-mt-24">
           <Wrap className="pt-24 lg:pt-28">
-            <Kicker>FAQ</Kicker>
-            <H2 className="mb-10 mt-4">Questions fréquentes</H2>
+            <Reveal>
+              <Kicker>FAQ</Kicker>
+              <H2 className="mb-10 mt-4">Questions fréquentes</H2>
+            </Reveal>
 
             {faqs.map((item, i) => {
               const open = faqOpen === i;
               return (
-                <div key={item.q} className="border-t">
+                <Reveal key={item.q} delay={i * 60} className="border-t">
                   <button
                     onClick={() => setFaqOpen(open ? null : i)}
                     aria-expanded={open}
@@ -431,7 +450,7 @@ const Index = () => {
                       {item.a}
                     </p>
                   )}
-                </div>
+                </Reveal>
               );
             })}
             <div className="border-t" />
@@ -441,12 +460,14 @@ const Index = () => {
         {/* ===================== CTA ===================== */}
         <section>
           <Wrap className="pt-28 text-center lg:pt-32">
-            <h2 className="mx-auto max-w-[760px] text-balance font-display text-[2.6rem] leading-[0.98] tracking-[-0.05em] sm:text-[3.6rem] lg:text-[5rem]">
-              Ouvrez un compte
-              <br />
-              <Soft>en cinq minutes</Soft>
-            </h2>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <Reveal>
+              <h2 className="mx-auto max-w-[760px] text-balance font-display text-[2.6rem] leading-[0.98] tracking-[-0.05em] sm:text-[3.6rem] lg:text-[5rem]">
+                Ouvrez un compte
+                <br />
+                <Soft>en cinq minutes</Soft>
+              </h2>
+            </Reveal>
+            <Reveal delay={140} className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/connexion">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
@@ -456,7 +477,7 @@ const Index = () => {
               <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
                 <Link to="/faq">Consulter la FAQ</Link>
               </Button>
-            </div>
+            </Reveal>
           </Wrap>
         </section>
       </main>
