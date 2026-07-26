@@ -1,23 +1,32 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
+import { NETWORKS, type NetId } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
 import { sendEmail } from "@/lib/email";
-import { getMyProfile } from "@/lib/profile";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type Unit = "USDT" | "CAD";
-type Step = "amount" | "reception" | "deposit" | "done";
+type Step = "amount" | "reception" | "network" | "deposit" | "done";
 
 const MIN_USDT = 50;
-// Adresse de dépôt USDT d'Ooble (réseau TRC-20). À terme : une adresse/
-// référence unique par client (voir Mon compte) pour identifier les ventes.
-const OOBLE_DEPOSIT_TRC20 = "TQoobLEdEmoDEP0s1tAddr3ssTRC20xY7k";
+
+/** Adresses de dépôt Ooble par réseau. À remplacer par les vraies adresses. */
+const OOBLE_DEPOSIT: Record<NetId, string> = {
+  trx: "TQoobLEdEmoDEP0s1tAddr3ssTRC20xY7k",
+  bnb: "0xOobleBEP20DepositAddr3ssPlaceholder",
+  eth: "0xOobleERC20DepositAddr3ssPlaceholder",
+  matic: "0xOoblePolygonDepositAddrPlaceholder",
+  sol: "OobleSOLDepositAddr3ssPlaceholderXYZ123",
+  avax: "0xOobleAvalancheDepositAddrPlaceholder",
+};
+
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 
@@ -47,21 +56,18 @@ const AppVendre = () => {
   const [unit, setUnit] = useState<Unit>("USDT");
   const [amount, setAmount] = useState("");
   const [email, setEmail] = useState("");
+  const [net, setNet] = useState<NetId | null>(null);
   const [savedRef, setSavedRef] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [sellRef, setSellRef] = useState<string | null>(null);
-
-  useEffect(() => {
-    getMyProfile().then((p) => setSellRef(p?.sellRef ?? null));
-  }, []);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "USDT" ? value : value / rate.sell;
   const cad = unit === "USDT" ? value * rate.sell : value;
   const belowMin = usdt > 0 && usdt < MIN_USDT;
+  const network = NETWORKS.find((n) => n.id === net) ?? null;
+  const depositAddr = net ? OOBLE_DEPOSIT[net] : "";
 
-  /** Crée l'ordre de vente côté Supabase puis passe à la confirmation. */
   const submit = async () => {
     if (saving) return;
     setSaving(true);
@@ -71,6 +77,7 @@ const AppVendre = () => {
       cad,
       usdt,
       rate: rate.sell,
+      network: net ?? undefined,
       interacEmail: email,
     });
     setSaving(false);
@@ -82,9 +89,6 @@ const AppVendre = () => {
     setSavedRef(ref);
     setStep("done");
 
-    // E-mail de confirmation (best-effort, sans effet tant que Resend n'est
-    // pas configuré). On écrit au client à son adresse de connexion et, à
-    // défaut, à l'e-mail Interac fourni.
     const to = user?.email || email;
     if (to) {
       void sendEmail({
@@ -94,8 +98,8 @@ const AppVendre = () => {
           ref,
           usdtAmount: nfUsdt.format(usdt),
           cadAmount: nfCad.format(cad),
-          network: "Tron · TRC-20",
-          depositAddress: OOBLE_DEPOSIT_TRC20,
+          network: network ? `${network.name} · ${network.tag}` : "—",
+          depositAddress: depositAddr,
           orderUrl: `${window.location.origin}/app`,
         },
       });
@@ -158,7 +162,6 @@ const AppVendre = () => {
           </div>
         </div>
 
-        {/* Continuer — à GAUCHE (Vendre) */}
         <div className="mt-3 flex justify-start">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={value <= 0 || belowMin} onClick={() => setStep("reception")}>
             <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
@@ -195,7 +198,41 @@ const AppVendre = () => {
         </p>
 
         <div className="mt-6 flex justify-start">
-          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("deposit")}>
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("network")}>
+            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
+  /* ---------- Choix du réseau ---------- */
+  if (step === "network") {
+    return (
+      <AppShell center>
+        <StepHeader title="Réseau" sub="Depuis quel réseau envoyez-vous vos USDT ?" onBack={() => setStep("reception")} />
+        <div className="flex flex-wrap gap-2">
+          {NETWORKS.map((n) => {
+            const sel = net === n.id;
+            return (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => setNet(n.id)}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-xl border py-2 pl-2 pr-3.5 transition-colors active:scale-[0.98]",
+                  sel ? "border-foreground bg-secondary" : "border-border bg-card",
+                )}
+              >
+                <img src={`/coins/${n.id}.svg`} alt="" className="h-7 w-7 shrink-0 rounded-full" draggable={false} />
+                <span className="whitespace-nowrap text-sm">{n.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 flex justify-start">
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!net} onClick={() => setStep("deposit")}>
             <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>
         </div>
@@ -206,24 +243,30 @@ const AppVendre = () => {
   /* ---------- Dépôt : envoyer les USDT à Ooble ---------- */
   if (step === "deposit") {
     return (
-      <AppShell header={<StepHeader title="Envoyez vos USDT" sub="Transférez le montant exact à l'adresse ci-dessous" onBack={() => setStep("reception")} />}>
-        {/* Réseau + adresse de dépôt */}
-        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
-          <div className="flex items-center gap-2.5 border-b border-border px-4 py-2.5">
-            <img src="/coins/trx.svg" alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Tron</span>
-            <span className="ml-auto text-[11px] font-medium text-muted-foreground">TRC-20</span>
+      <AppShell header={<StepHeader title="Envoyez vos USDT" sub="Transférez le montant exact à l'adresse ci-dessous" onBack={() => setStep("network")} />}>
+        {/* QR code centré */}
+        <div className="flex justify-center">
+          <div className="rounded-2xl border border-border bg-white p-4">
+            <QRCodeSVG value={depositAddr} size={180} level="M" />
           </div>
-          <CopyRow label="Adresse de dépôt Ooble" value={OOBLE_DEPOSIT_TRC20} mono />
+        </div>
+
+        {/* Réseau + adresse de dépôt */}
+        <div className="mt-4 overflow-hidden rounded-[14px] border border-border bg-card">
+          <div className="flex items-center gap-2.5 border-b border-border px-4 py-2.5">
+            <img src={`/coins/${network?.id}.svg`} alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{network?.name}</span>
+            <span className="ml-auto text-[11px] font-medium text-muted-foreground">{network?.tag}</span>
+          </div>
+          <CopyRow label="Adresse de dépôt Ooble" value={depositAddr} mono />
           <CopyRow label="Montant exact à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
-          {sellRef && <CopyRow label="Votre référence de vente" value={sellRef} mono />}
         </div>
 
         {/* Avertissement réseau */}
         <div className="mt-3 flex items-start gap-2.5 rounded-[12px] border border-amber-300/60 bg-amber-50 px-4 py-3 dark:border-amber-500/30 dark:bg-amber-500/10">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={2} />
           <p className="text-[12.5px] leading-snug text-amber-800 dark:text-amber-200">
-            Envoyez uniquement de l'USDT sur le réseau <strong>TRC-20</strong>. Un autre réseau entraînerait la perte des fonds.
+            Envoyez uniquement de l'USDT sur le réseau <strong>{network?.tag}</strong>. Un autre réseau entraînerait la perte des fonds.
           </p>
         </div>
 
@@ -260,6 +303,7 @@ const AppVendre = () => {
         {[
           { label: "Vous envoyez", value: `${nfUsdt.format(usdt)} USDT` },
           { label: "Vous recevez", value: `${nfCad.format(cad)} CAD` },
+          { label: "Réseau", value: network ? `${network.name} · ${network.tag}` : "—" },
           { label: "Taux", value: `1 USDT = ${nfCad.format(rate.sell)} CAD` },
           { label: "Reçu par Interac", value: email, mono: true },
         ].map((r, i, arr) => (
@@ -280,7 +324,7 @@ const AppVendre = () => {
         <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" asChild>
           <Link to="/app"><Check className="h-[17px] w-[17px]" strokeWidth={2} /> Terminé</Link>
         </Button>
-        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setEmail(""); setSavedRef(""); setErr(null); }}>
+        <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setEmail(""); setNet(null); setSavedRef(""); setErr(null); }}>
           Nouvel ordre
         </Button>
       </div>

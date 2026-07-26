@@ -1,12 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
-import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { getMyProfile } from "@/lib/profile";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -14,11 +12,6 @@ const Compte = () => {
   const navigate = useNavigate();
   const { user, signOut, isStaff } = useAuth();
   const [theme, setThemeState] = useState<Theme>(getTheme);
-  const [sellRef, setSellRef] = useState<string | null>(null);
-
-  useEffect(() => {
-    getMyProfile().then((p) => setSellRef(p?.sellRef ?? null));
-  }, []);
 
   const chooseTheme = (t: Theme) => {
     setTheme(t);
@@ -48,19 +41,6 @@ const Compte = () => {
           <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
         </div>
       </div>
-
-      {/* Référence de vente unique — à indiquer lors d'une vente */}
-      {sellRef && (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="px-5 pb-1 pt-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Référence de vente</p>
-            <p className="mt-1 text-[12.5px] text-muted-foreground">
-              Indiquez-la lors de vos ventes pour que nous identifiions vos USDT.
-            </p>
-          </div>
-          <CopyRow label="Votre référence" value={sellRef} mono />
-        </div>
-      )}
 
       {/* Apparence — bascule clair / sombre */}
       <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4">
