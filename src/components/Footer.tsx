@@ -35,23 +35,21 @@ const Footer = () => (
             e-Transfer. Non-custodial : chaque ordre est réglé directement vers
             votre wallet ou votre compte — aucun solde conservé.
           </p>
-          <Button asChild variant="appSolid" shape="pill" className="mt-6">
+          <Button asChild variant="appSolid" shape="rounded" className="mt-6">
             <Link to="/connexion">
               Commencer <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
 
           <div className="mt-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Moyen de paiement accepté
-            </p>
+            <p className="text-[12px] text-muted-foreground">Moyen de paiement accepté</p>
             <InteracLogo className="mt-2 h-7" />
           </div>
         </div>
 
         {columns.map((col) => (
           <div key={col.title}>
-            <h4 className="font-display text-sm font-bold">{col.title}</h4>
+            <h4 className="font-display text-sm tracking-tight">{col.title}</h4>
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
               {col.links.map((link) => (
                 <li key={link.label}>
@@ -75,6 +73,13 @@ const Footer = () => (
           client.
         </p>
       </div>
+    </div>
+
+    {/* Grand wordmark — signature de bas de page, volontairement rogné */}
+    <div className="mx-auto max-w-[1120px] overflow-hidden px-6 sm:px-8" aria-hidden>
+      <p className="-mb-[2.2vw] select-none font-display text-[19vw] leading-[0.78] tracking-[-0.055em] text-foreground">
+        Ooble
+      </p>
     </div>
   </footer>
 );
