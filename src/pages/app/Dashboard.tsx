@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Send, Handshake, Coins, HandCoins, TrendingUp, Inbox } from "lucide-react";
+import { Send, Handshake, Coins, HandCoins, Inbox, ChevronRight } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import RateChart from "@/components/app/RateChart";
 import { NETWORKS } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { useUsdtHistory } from "@/hooks/useUsdtHistory";
-import { listMyOrders, orderRef, ORDER_STATUS_FR, isOrderOpen, type OrderRow } from "@/lib/orders";
+import { listMyOrders, type OrderRow } from "@/lib/orders";
+import { ActivityRow } from "@/components/app/ActivityList";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
-const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
-const dateFr = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /**
  * Signe animé du « Bonjour » — un petit personnage stylisé qui fait coucou
@@ -43,58 +42,39 @@ const HeroMark = () => (
   </svg>
 );
 
-/** Une ligne d'ordre dans l'activité récente. */
-const ActivityRow = ({ o }: { o: OrderRow }) => {
-  const buy = o.side === "buy";
-  return (
-    <div className="flex items-center gap-3 py-3.5">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-        {buy ? <Coins className="h-5 w-5" strokeWidth={1.6} /> : <HandCoins className="h-5 w-5" strokeWidth={1.6} />}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">
-          {buy ? "Achat" : "Vente"} · {nfUsdt.format(Number(o.usdt_amount))} USDT
-        </p>
-        <p className="truncate text-xs font-light text-muted-foreground">
-          {orderRef(o.id)} · {dateFr.format(new Date(o.created_at))}
-        </p>
-      </div>
-      <div className="shrink-0 text-right">
-        <p className="text-sm font-medium">{nf.format(Number(o.cad_amount))} CAD</p>
-        <p className={`text-xs font-medium ${isOrderOpen(o.status) ? "text-primary" : "text-muted-foreground"}`}>
-          {ORDER_STATUS_FR[o.status]}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-/** Activité récente — ordres réels de l'utilisateur (Supabase). */
+/** Activité récente — 3 derniers ordres, épuré. Détail complet sur /app/activite. */
 const RecentActivity = () => {
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
 
   useEffect(() => {
     let active = true;
-    listMyOrders(8).then((rows) => {
+    listMyOrders(3).then((rows) => {
       if (active) setOrders(rows);
     });
     return () => { active = false; };
   }, []);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-6">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-        Activité récente
-      </p>
+    <div className="rounded-2xl border border-border bg-card px-5 py-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          Activité récente
+        </p>
+        {orders && orders.length > 0 && (
+          <Link to="/app/activite" className="inline-flex items-center gap-0.5 text-[12px] font-medium text-primary transition-opacity hover:opacity-80">
+            Voir tout <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
+        )}
+      </div>
       {orders === null ? (
-        <div className="py-8 text-center text-sm font-light text-muted-foreground">Chargement…</div>
+        <div className="py-6 text-center text-[13px] text-muted-foreground">Chargement…</div>
       ) : orders.length === 0 ? (
-        <div className="flex flex-col items-center py-8 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-            <Inbox className="h-6 w-6" strokeWidth={1.6} />
+        <div className="flex flex-col items-center py-7 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+            <Inbox className="h-5 w-5" strokeWidth={1.6} />
           </span>
-          <p className="mt-4 text-[15px] font-medium text-foreground">Aucune transaction</p>
-          <p className="mt-1 text-sm font-light text-muted-foreground">
+          <p className="mt-3 text-[14px] font-medium text-foreground">Aucune transaction</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Votre premier achat ou vente apparaîtra ici.
           </p>
         </div>
@@ -110,7 +90,6 @@ const RecentActivity = () => {
 const Dashboard = () => {
   const rate = useUsdtRate();
   const history = useUsdtHistory();
-  const change = history.changePct;
 
   return (
     <AppShell
@@ -135,12 +114,6 @@ const Dashboard = () => {
               <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 Taux USDT / CAD
               </span>
-              {change !== null && (
-                <span className="hidden items-center gap-1 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground md:inline-flex">
-                  <TrendingUp className={`h-3 w-3 ${change < 0 ? "rotate-180" : ""}`} />
-                  {change >= 0 ? "+" : ""}{change.toFixed(2)} % · 7 j
-                </span>
-              )}
             </div>
 
             <div className="mt-4 flex items-baseline gap-2">
@@ -149,7 +122,8 @@ const Dashboard = () => {
               </span>
               <span className="text-[15px] font-medium text-muted-foreground">$ CAD</span>
             </div>
-            <p className="mt-2 text-sm font-light text-muted-foreground">1 USDT en dollars canadiens · marché + 2 %</p>
+            {/* Sous-titre masqué sur mobile pour ne pas encombrer */}
+            <p className="mt-2 hidden text-sm font-light text-muted-foreground md:block">1 USDT en dollars canadiens · marché + 2 %</p>
 
             <RateChart data={history.points} className="hidden w-full text-foreground/55 md:mt-4 md:block md:min-h-[6rem] md:flex-1" />
           </section>

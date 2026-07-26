@@ -141,11 +141,13 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
         ))}
 
         {list.length === 0 && (
-          <div className="flex flex-col items-center py-16 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-              <Inbox className="h-5 w-5" strokeWidth={1.6} />
+          <div className="flex flex-col items-center px-6 py-10 text-center md:py-16">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-muted-foreground md:h-12 md:w-12">
+              <Inbox className="h-[18px] w-[18px] md:h-5 md:w-5" strokeWidth={1.6} />
             </span>
-            <p className="mt-3 text-[13px] text-muted-foreground">{TABS.find((t) => t.id === tab)!.empty}</p>
+            <p className="mt-3 max-w-[260px] text-[11.5px] leading-snug text-muted-foreground md:max-w-none md:text-[13px]">
+              {TABS.find((t) => t.id === tab)!.empty}
+            </p>
           </div>
         )}
       </div>

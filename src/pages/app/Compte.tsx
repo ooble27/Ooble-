@@ -86,9 +86,11 @@ const Compte = () => {
         )}
       </div>
 
-      <Button variant="appOutline" shape="soft" size="lg" className="mt-6 w-full" onClick={logout}>
-        <LogOut className="h-4 w-4" /> Se déconnecter
-      </Button>
+      <div className="mt-6 flex justify-end">
+        <Button variant="appOutline" shape="soft" className="h-auto gap-2 px-[18px] py-[10px] text-sm" onClick={logout}>
+          <LogOut className="h-4 w-4" /> Se déconnecter
+        </Button>
+      </div>
 
       <p className="mt-6 text-center text-xs leading-relaxed text-muted-foreground">
         Démo front-end — l'authentification sécurisée sera bientôt disponible.
