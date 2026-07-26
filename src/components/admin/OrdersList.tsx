@@ -12,7 +12,9 @@ interface Props {
   onOpen: (order: AdminOrder) => void;
 }
 
-type TypeTab = "all" | OrderType;
+/* Seuls ces onglets existent. `OrderType` couvre aussi « transfer », qui n'a pas
+   de regroupement ici : `byType[type]` pouvait donc être absent. */
+type TypeTab = "all" | "buy" | "sell";
 type StatusFilter = "all" | OrderStatus;
 
 const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [

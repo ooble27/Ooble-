@@ -156,7 +156,8 @@ const Index = () => {
       <main>
         {/* ===================== HÉROS ===================== */}
         <section>
-          <Wrap className="pb-10 pt-20 text-center lg:pb-14 lg:pt-28">
+          {/* Le héros occupe une vraie hauteur d'écran, pas un simple bloc. */}
+          <Wrap className="flex min-h-[78svh] flex-col justify-center pb-20 pt-24 text-center lg:min-h-[82svh] lg:pb-28 lg:pt-28">
             {/* Pas de `text-balance` ici : il entre en conflit avec les <br>
                 explicites et casse le titre en quatre lignes. */}
             <h1 className="mx-auto max-w-[1040px] font-display text-[2.7rem] leading-[0.96] tracking-[-0.05em] sm:text-[4.2rem] lg:text-[6.25rem]">

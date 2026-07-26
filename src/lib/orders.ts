@@ -8,7 +8,7 @@ type DbStatus = Database["public"]["Enums"]["order_status"];
 export type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
 
 /** Correspondance réseau : identifiants front ↔ enum base. */
-const NET_TO_DB: Record<NetId, DbNetwork> = {
+export const NET_TO_DB: Record<NetId, DbNetwork> = {
   trx: "trc20", bnb: "bep20", eth: "erc20", matic: "polygon", sol: "spl", avax: "avalanche",
 };
 export const DB_TO_NET: Record<DbNetwork, NetId> = {

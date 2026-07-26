@@ -355,6 +355,47 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_recipients: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["recipient_kind"]
+          label: string
+          last_used_at: string | null
+          network: Database["public"]["Enums"]["usdt_network"] | null
+          user_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["recipient_kind"]
+          label: string
+          last_used_at?: string | null
+          network?: Database["public"]["Enums"]["usdt_network"] | null
+          user_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["recipient_kind"]
+          label?: string
+          last_used_at?: string | null
+          network?: Database["public"]["Enums"]["usdt_network"] | null
+          user_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_recipients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -402,6 +443,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "expired"
+      recipient_kind: "wallet" | "interac"
       usdt_network:
         | "trc20"
         | "bep20"
@@ -531,6 +573,7 @@ export const Constants = {
         "cancelled",
         "expired",
       ],
+      recipient_kind: ["wallet", "interac"],
       usdt_network: ["trc20", "bep20", "erc20", "polygon", "spl", "avalanche"],
     },
   },

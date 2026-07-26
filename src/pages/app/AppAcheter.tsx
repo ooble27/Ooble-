@@ -3,18 +3,18 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Coins, Check } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
+import RecipientBook from "@/components/app/RecipientBook";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
 import { sendEmail } from "@/lib/email";
 import { useAuth } from "@/lib/auth";
+import { OOBLE_INTERAC_EMAIL } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 type Unit = "CAD" | "USDT";
 type Step = "amount" | "network" | "address" | "done";
-
-const OOBLE_INTERAC = "paiement@ooble.ca";
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 const short = (a: string) => (a.length > 16 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
@@ -94,7 +94,7 @@ const AppAcheter = () => {
           cadAmount: nfCad.format(cad),
           usdtAmount: nfUsdt.format(usdt),
           network: network ? `${network.name} · ${network.tag}` : "—",
-          interacRecipient: OOBLE_INTERAC,
+          interacRecipient: OOBLE_INTERAC_EMAIL,
           orderUrl: `${window.location.origin}/app`,
         },
       });
@@ -234,6 +234,8 @@ const AppAcheter = () => {
           />
         </div>
 
+        <RecipientBook kind="wallet" network={net} value={address} onPick={setAddress} />
+
         {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
 
         <div className="mt-6 flex justify-end">
@@ -266,7 +268,7 @@ const AppAcheter = () => {
       {/* Instructions Interac */}
       <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Envoyez votre e-Transfer</p>
       <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
-        <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC} mono />
+        <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC_EMAIL} mono />
         <CopyRow label="Montant exact" value={`${nfCad.format(cad)} CAD`} />
         <CopyRow label="Message / référence" value={savedRef} mono />
       </div>

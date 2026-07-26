@@ -4,6 +4,7 @@ import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle, MessageSquare } from 
 import { QRCodeSVG } from "qrcode.react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
+import RecipientBook from "@/components/app/RecipientBook";
 import { Button } from "@/components/ui/button";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
@@ -202,6 +203,8 @@ const AppVendre = () => {
             />
           </div>
         </div>
+        <RecipientBook kind="interac" value={email} onPick={setEmail} />
+
         <p className="mt-3 px-1 text-[13px] text-muted-foreground">
           Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par e-Transfer à cette adresse dès réception de vos USDT.
         </p>
