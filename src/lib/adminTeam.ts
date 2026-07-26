@@ -70,3 +70,19 @@ export async function setMemberRole(userId: string, role: TeamRole): Promise<{ e
   const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: TEAM_TO_APP[role] });
   return error ? { error: error.message } : {};
 }
+
+/**
+ * Ajoute un membre à l'équipe par e-mail : attribue un rôle à un compte
+ * existant. La personne doit d'abord avoir créé son compte Ooble.
+ */
+export async function addRoleByEmail(email: string, role: TeamRole): Promise<{ error?: string }> {
+  const clean = email.trim().toLowerCase();
+  const { data: prof, error: pErr } = await supabase
+    .from("profiles")
+    .select("id")
+    .ilike("email", clean)
+    .maybeSingle();
+  if (pErr) return { error: pErr.message };
+  if (!prof) return { error: "Aucun compte Ooble avec cet e-mail. La personne doit d'abord s'inscrire." };
+  return setMemberRole(prof.id, role);
+}

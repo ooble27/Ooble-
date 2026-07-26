@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
 import { sendEmail } from "@/lib/email";
+import { getMyProfile } from "@/lib/profile";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,11 @@ const AppVendre = () => {
   const [savedRef, setSavedRef] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [sellRef, setSellRef] = useState<string | null>(null);
+
+  useEffect(() => {
+    getMyProfile().then((p) => setSellRef(p?.sellRef ?? null));
+  }, []);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "USDT" ? value : value / rate.sell;
@@ -210,6 +216,7 @@ const AppVendre = () => {
           </div>
           <CopyRow label="Adresse de dépôt Ooble" value={OOBLE_DEPOSIT_TRC20} mono />
           <CopyRow label="Montant exact à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
+          {sellRef && <CopyRow label="Votre référence de vente" value={sellRef} mono />}
         </div>
 
         {/* Avertissement réseau */}

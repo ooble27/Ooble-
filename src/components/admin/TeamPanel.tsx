@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { UserPlus, ChevronDown, Users } from "lucide-react";
+import { UserPlus, ChevronDown, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TEAM_ROLES, type TeamRole } from "@/lib/adminOrders";
-import { fetchTeam, setMemberRole, type LiveTeamMember } from "@/lib/adminTeam";
+import { fetchTeam, setMemberRole, addRoleByEmail, type LiveTeamMember } from "@/lib/adminTeam";
 
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const roleDesc = (role: TeamRole) => TEAM_ROLES.find((r) => r.role === role)?.desc ?? "";
@@ -10,6 +10,11 @@ const roleDesc = (role: TeamRole) => TEAM_ROLES.find((r) => r.role === role)?.de
 const TeamPanel = () => {
   const [members, setMembers] = useState<LiveTeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<TeamRole>("Opérateur");
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     fetchTeam().then((m) => { setMembers(m); setLoading(false); });
@@ -19,6 +24,18 @@ const TeamPanel = () => {
   const setRole = (userId: string, role: TeamRole) => {
     setMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, role } : m)));
     setMemberRole(userId, role).then((res) => { if (res.error) fetchTeam().then(setMembers); });
+  };
+
+  const invite = async () => {
+    if (inviteBusy || !/^\S+@\S+\.\S+$/.test(inviteEmail)) return;
+    setInviteBusy(true);
+    setInviteMsg(null);
+    const res = await addRoleByEmail(inviteEmail, inviteRole);
+    setInviteBusy(false);
+    if (res.error) { setInviteMsg({ ok: false, text: res.error }); return; }
+    setInviteMsg({ ok: true, text: `${inviteEmail} ajouté·e comme ${inviteRole}.` });
+    setInviteEmail("");
+    fetchTeam().then(setMembers);
   };
 
   return (
@@ -31,11 +48,53 @@ const TeamPanel = () => {
           variant="appSolid"
           shape="rounded"
           className="h-auto gap-1.5 rounded-[9px] px-3.5 py-2 text-[13px] font-bold"
-          title="Invitez un membre depuis Supabase → Authentication, puis attribuez-lui un rôle ici."
+          onClick={() => { setInviteOpen((v) => !v); setInviteMsg(null); }}
         >
-          <UserPlus className="h-4 w-4" /> Inviter
+          {inviteOpen ? <X className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />} Inviter
         </Button>
       </div>
+
+      {/* Formulaire d'invitation : attribue un rôle à un compte existant */}
+      {inviteOpen && (
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="mb-3 text-[12.5px] text-muted-foreground">
+            Attribuez un rôle à un compte Ooble existant. La personne doit d'abord avoir créé son compte.
+          </p>
+          <div className="flex flex-col gap-2.5 sm:flex-row">
+            <input
+              type="email"
+              spellCheck={false}
+              autoCapitalize="none"
+              placeholder="membre@exemple.ca"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              className="min-w-0 flex-1 rounded-[10px] border border-border bg-secondary/40 px-3.5 py-2.5 text-[13px] outline-none placeholder:text-muted-foreground/60"
+            />
+            <div className="relative shrink-0">
+              <select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value as TeamRole)}
+                className="h-full w-full appearance-none rounded-[10px] border border-border bg-card py-2.5 pl-3.5 pr-8 text-[13px] font-medium outline-none"
+              >
+                {TEAM_ROLES.map((r) => <option key={r.role} value={r.role}>{r.role}</option>)}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            </div>
+            <Button
+              variant="appSolid"
+              shape="rounded"
+              className="h-auto shrink-0 rounded-[10px] px-4 py-2.5 text-[13px] font-bold"
+              disabled={inviteBusy || !/^\S+@\S+\.\S+$/.test(inviteEmail)}
+              onClick={invite}
+            >
+              {inviteBusy ? "…" : "Ajouter"}
+            </Button>
+          </div>
+          {inviteMsg && (
+            <p className={`mt-2.5 text-[12.5px] ${inviteMsg.ok ? "text-primary" : "text-destructive"}`}>{inviteMsg.text}</p>
+          )}
+        </div>
+      )}
 
       <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
         {members.map((m) => (

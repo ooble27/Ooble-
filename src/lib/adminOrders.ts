@@ -26,6 +26,8 @@ export interface AdminOrder {
   ref: string;
   type: OrderType;
   status: OrderStatus;
+  /** Identifiant de l'utilisateur client (pour la fiche complète). */
+  userId?: string;
   clientName: string;
   clientEmail: string;
   cad: number;

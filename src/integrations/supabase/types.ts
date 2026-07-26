@@ -322,6 +322,7 @@ export type Database = {
           id: string
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           phone: string | null
+          sell_ref: string | null
           updated_at: string
         }
         Insert: {
@@ -332,6 +333,7 @@ export type Database = {
           id: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           phone?: string | null
+          sell_ref?: string | null
           updated_at?: string
         }
         Update: {
@@ -342,6 +344,7 @@ export type Database = {
           id?: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           phone?: string | null
+          sell_ref?: string | null
           updated_at?: string
         }
         Relationships: []

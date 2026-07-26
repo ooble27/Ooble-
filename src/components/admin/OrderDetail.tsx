@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Copy, Check, Hand, Ban, RotateCcw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -6,54 +6,93 @@ import {
   CURRENT_OPERATOR, STATUS_META, TYPE_META, nfCad, nfUsdt, timeAgo,
   type AdminOrder,
 } from "@/lib/adminOrders";
+import { fetchOrderEvents, type OrderEvent } from "@/lib/adminOrderEvents";
+import { useAuth } from "@/lib/auth";
 import { StatusBadge } from "./AdminBits";
 import { NETWORKS } from "@/components/app/networks";
+import { Trash2 } from "lucide-react";
 
 interface Props {
   order: AdminOrder;
   onBack: () => void;
   onPatch: (id: string, changes: Partial<AdminOrder>) => void;
+  onDelete: (id: string) => void;
 }
 
 type SectionId = "client" | "transaction" | "paiement" | "destination" | "historique";
 
 const dateFmt = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const timeFmt = new Intl.DateTimeFormat("fr-CA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
-/** Chronologie (façon Terex). */
-const Timeline = ({ order }: { order: AdminOrder }) => {
-  const flow: AdminOrder["status"][] = ["attente", "recu", "cours", "termine"];
-  const reached = (t: AdminOrder["status"]) => flow.indexOf(order.status) >= flow.indexOf(t);
-  const steps = [
-    { label: "Commande créée", done: true, hint: timeAgo(order.createdMinsAgo) },
-    { label: "Fonds reçus (Interac)", done: reached("recu"), hint: "" },
-    { label: order.assignedTo ? `Prise en charge — ${order.assignedTo}` : "Prise en charge", done: reached("cours"), hint: "" },
-    { label: order.type === "buy" ? "USDT envoyés au client" : "CAD versés au client", done: order.status === "termine", hint: "" },
+/** Libellé d'action pour un événement de statut (journal). */
+const EVENT_LABEL: Record<string, string> = {
+  created: "Commande créée",
+  awaiting_payment: "En attente de paiement",
+  payment_received: "Fonds reçus",
+  settling: "Prise en charge",
+  completed: "Terminée",
+  cancelled: "Annulée",
+  expired: "Expirée",
+};
+
+/**
+ * Chronologie réelle (order_events) : qui a fait quoi et quand. On ouvre
+ * toujours par « Commande créée », puis chaque événement enregistré.
+ */
+const Timeline = ({ order, events }: { order: AdminOrder; events: OrderEvent[] | null }) => {
+  const steps: { label: string; actor?: string; hint: string; done: boolean }[] = [
+    { label: "Commande créée", hint: timeAgo(order.createdMinsAgo), done: true },
+    ...(events ?? []).map((e) => ({
+      label: EVENT_LABEL[e.status] ?? e.status,
+      actor: e.actor,
+      hint: timeFmt.format(new Date(e.createdAt)),
+      done: true,
+    })),
   ];
-  if (order.status === "annule") steps.push({ label: "Commande annulée", done: true, hint: "" });
+
   return (
     <div className="px-5 py-4">
-      <ol>
-        {steps.map((st, i) => (
-          <li key={i} className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <span className={cn("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", st.done ? "bg-foreground" : "border border-border")} />
-              {i < steps.length - 1 && <span className={cn("w-px flex-1", st.done ? "bg-foreground/30" : "bg-border")} />}
-            </div>
-            <div className={cn(i < steps.length - 1 ? "pb-5" : "pb-0")}>
-              <p className={cn("text-[13px]", st.done ? "font-medium text-foreground" : "text-muted-foreground")}>{st.label}</p>
-              {st.hint && <p className="mt-0.5 text-[12px] text-muted-foreground">{st.hint}</p>}
-            </div>
-          </li>
-        ))}
-      </ol>
+      {events === null ? (
+        <p className="text-[13px] text-muted-foreground">Chargement de l'historique…</p>
+      ) : (
+        <ol>
+          {steps.map((st, i) => (
+            <li key={i} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-foreground" />
+                {i < steps.length - 1 && <span className="w-px flex-1 bg-foreground/30" />}
+              </div>
+              <div className={cn(i < steps.length - 1 ? "pb-5" : "pb-0")}>
+                <p className="text-[13px] font-medium text-foreground">
+                  {st.label}
+                  {st.actor && <span className="font-normal text-muted-foreground"> — {st.actor}</span>}
+                </p>
+                {st.hint && <p className="mt-0.5 text-[12px] text-muted-foreground">{st.hint}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 };
 
-const OrderDetail = ({ order, onBack, onPatch }: Props) => {
+const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
+  const { isAdmin } = useAuth();
   const [section, setSection] = useState<SectionId>("client");
   const [copied, setCopied] = useState<string | null>(null);
+  const [events, setEvents] = useState<OrderEvent[] | null>(null);
+  const [showFiche, setShowFiche] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
+
+  // Journal d'audit réel (rechargé quand le statut change).
+  useEffect(() => {
+    let active = true;
+    setEvents(null);
+    fetchOrderEvents(order.id).then((e) => { if (active) setEvents(e); });
+    return () => { active = false; };
+  }, [order.id, order.status, order.assignedTo]);
 
   const copy = (value: string, key: string) => {
     navigator.clipboard?.writeText(value).catch(() => {});
@@ -163,9 +202,19 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
             <Row label="Nom complet" value={order.clientName} />
             <Row label="E-mail" value={order.clientEmail} mono copyKey="email" />
             <Row label="Type de compte" value="Particulier" />
-            <button className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/40">
-              <span className="text-[13px] font-medium">Voir la fiche complète du client</span>
-              <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
+            {showFiche && (
+              <>
+                <Row label="Identifiant client" value={order.userId ? order.userId.slice(0, 8).toUpperCase() : "—"} mono />
+                <Row label="Client depuis" value={createdAt} />
+                <Row label="Vérification KYC" value="À vérifier" />
+              </>
+            )}
+            <button
+              onClick={() => setShowFiche((v) => !v)}
+              className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/40"
+            >
+              <span className="text-[13px] font-medium">{showFiche ? "Masquer la fiche client" : "Voir la fiche complète du client"}</span>
+              <ChevronRight className={cn("h-[18px] w-[18px] text-muted-foreground transition-transform", showFiche && "rotate-90")} />
             </button>
           </>
         )}
@@ -200,7 +249,7 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
             <Row label="Adresse de réception" value={order.address} mono copyKey="addr" />
           </>
         )}
-        {active === "historique" && <Timeline order={order} />}
+        {active === "historique" && <Timeline order={order} events={events} />}
       </div>
 
       {/* Barre d'actions */}
@@ -240,6 +289,36 @@ const OrderDetail = ({ order, onBack, onPatch }: Props) => {
       <p className="pt-1 text-center text-[12px] text-muted-foreground">
         Cette commande est <span className="text-foreground">{STATUS_META[order.status].label.toLowerCase()}</span>.
       </p>
+
+      {/* Zone admin : suppression définitive */}
+      {isAdmin && (
+        <div className="mt-2 flex items-center justify-center gap-2.5 border-t border-border pt-4">
+          {confirmDel ? (
+            <>
+              <span className="text-[12.5px] text-muted-foreground">Supprimer définitivement ?</span>
+              <Button
+                shape="rounded"
+                className="h-auto gap-1.5 rounded-[10px] border border-destructive bg-destructive px-3.5 py-2 text-[12.5px] font-bold text-destructive-foreground hover:opacity-90"
+                onClick={() => onDelete(order.id)}
+              >
+                <Trash2 className="h-[14px] w-[14px]" /> Confirmer
+              </Button>
+              <Button variant="ghost" shape="rounded" className="h-auto rounded-[10px] px-3.5 py-2 text-[12.5px]" onClick={() => setConfirmDel(false)}>
+                Annuler
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              shape="rounded"
+              className="h-auto gap-1.5 rounded-[10px] px-3.5 py-2 text-[12.5px] text-destructive hover:bg-destructive/10"
+              onClick={() => setConfirmDel(true)}
+            >
+              <Trash2 className="h-[14px] w-[14px]" /> Supprimer la commande
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

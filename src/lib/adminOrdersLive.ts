@@ -48,6 +48,7 @@ function toAdminOrder(row: RowWithProfile, currentUid: string | null): AdminOrde
     ref: orderRef(row.id),
     type: row.side, // 'buy' | 'sell'
     status: DB_TO_DEMO[row.status],
+    userId: row.user_id,
     clientName: row.profiles?.full_name?.trim() || "Client",
     clientEmail: row.profiles?.email ?? row.interac_email ?? "",
     cad: Number(row.cad_amount),
@@ -59,6 +60,12 @@ function toAdminOrder(row: RowWithProfile, currentUid: string | null): AdminOrde
     createdMinsAgo: minsAgo(row.created_at),
     assignedTo: assigned,
   };
+}
+
+/** Supprime définitivement une commande (RLS : admin uniquement). */
+export async function deleteOrder(id: string): Promise<{ error?: string }> {
+  const { error } = await supabase.from("orders").delete().eq("id", id);
+  return error ? { error: error.message } : {};
 }
 
 /** Lit toutes les commandes (le staff les voit toutes via RLS). */

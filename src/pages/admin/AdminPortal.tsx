@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type AdminOrder } from "@/lib/adminOrders";
-import { fetchAdminOrders, persistOrderPatch } from "@/lib/adminOrdersLive";
+import { fetchAdminOrders, persistOrderPatch, deleteOrder } from "@/lib/adminOrdersLive";
 import { supabase } from "@/integrations/supabase/client";
 import OrdersQueue from "@/components/admin/OrdersQueue";
 import OrdersList from "@/components/admin/OrdersList";
@@ -47,6 +47,12 @@ const AdminPortal = () => {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
     setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
     persistOrderPatch(id, changes).then((res) => { if (res.error) refresh(); });
+  };
+
+  const remove = (id: string) => {
+    setSelected(null);
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+    deleteOrder(id).then((res) => { if (res.error) refresh(); });
   };
 
   const active = NAV.find((n) => n.id === tab)!;
@@ -98,7 +104,7 @@ const AdminPortal = () => {
 
         {selected ? (
           <div className="mt-6">
-            <OrderDetail order={selected} onBack={() => setSelected(null)} onPatch={patch} />
+            <OrderDetail order={selected} onBack={() => setSelected(null)} onPatch={patch} onDelete={remove} />
           </div>
         ) : (
           <>
