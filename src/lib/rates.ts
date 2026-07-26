@@ -7,6 +7,14 @@ export const DEMO_RATES = {
 
 export const RATE_LOCK_MINUTES = 15;
 
+/**
+ * Taux de change en dollars canadiens, à quatre décimales (1,3702 $).
+ * La précision compte pour un cours : `formatCad` arrondirait au cent.
+ */
+export function formatRate(amount: number): string {
+  return `${amount.toFixed(4).replace(".", ",")} $`;
+}
+
 export function formatCad(amount: number): string {
   return new Intl.NumberFormat("fr-CA", {
     style: "currency",

@@ -1,83 +1,38 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { InteracLogo } from "./marks";
-import Logo from "./Logo";
 
-const columns = [
-  {
-    title: "Produit",
-    links: [
-      { label: "Commencer", to: "/connexion" },
-      { label: "Comment ça marche", to: "/#comment" },
-      { label: "FAQ", to: "/faq" },
-      { label: "Contact", to: "/contact" },
-    ],
-  },
-  {
-    title: "Ooble",
-    links: [
-      { label: "Sécurité", to: "/faq" },
-      { label: "Conditions d'utilisation", to: "/faq" },
-      { label: "Confidentialité", to: "/faq" },
-    ],
-  },
+const links = [
+  { label: "Connexion", to: "/connexion" },
+  { label: "Comment ça marche", to: "/#comment" },
+  { label: "Réseaux", to: "/#reseaux" },
+  { label: "FAQ", to: "/faq" },
+  { label: "Contact", to: "/contact" },
 ];
 
 const Footer = () => (
-  <footer className="border-t bg-background">
-    <div className="mx-auto max-w-[1120px] px-6 py-16 sm:px-8">
-      <div className="grid gap-12 md:grid-cols-[1.5fr_1fr_1fr]">
-        <div>
-          <Logo />
-          <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            Achetez et vendez des USDT en dollars canadiens par Interac
-            e-Transfer. Non-custodial : chaque ordre est réglé directement vers
-            votre wallet ou votre compte — aucun solde conservé.
-          </p>
-          <Button asChild variant="appSolid" shape="rounded" className="mt-6">
-            <Link to="/connexion">
-              Commencer <ArrowRight className="h-4 w-4" />
+  <footer className="bg-background">
+    <div className="mx-auto max-w-[1200px] px-6 pt-28 sm:px-10">
+      <div className="flex flex-wrap justify-between gap-x-10 gap-y-6 border-b pb-7">
+        <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          {links.map((link) => (
+            <Link key={link.label} to={link.to} className="transition-opacity hover:opacity-70">
+              {link.label}
             </Link>
-          </Button>
-
-          <div className="mt-8">
-            <p className="text-[12px] text-muted-foreground">Moyen de paiement accepté</p>
-            <InteracLogo className="mt-2 h-7" />
-          </div>
-        </div>
-
-        {columns.map((col) => (
-          <div key={col.title}>
-            <h4 className="font-display text-sm tracking-tight">{col.title}</h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              {col.links.map((link) => (
-                <li key={link.label}>
-                  <Link to={link.to} className="transition-colors hover:text-foreground">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-14 flex flex-col gap-3 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
+          ))}
+        </nav>
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Ooble. Tous droits réservés.
-        </p>
-        <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
-          Les cryptoactifs comportent des risques ; leur valeur peut fluctuer.
-          Ooble règle chaque ordre individuellement et ne conserve aucun fonds
-          client.
+          © {new Date().getFullYear()} Ooble — Canada
         </p>
       </div>
+
+      <p className="mt-6 max-w-3xl text-xs leading-relaxed text-muted-foreground">
+        Les cryptoactifs comportent des risques ; leur valeur peut fluctuer. Ooble
+        règle chaque ordre individuellement et ne conserve aucun fonds client.
+      </p>
     </div>
 
-    {/* Grand wordmark — signature de bas de page, volontairement rogné */}
-    <div className="mx-auto max-w-[1120px] overflow-hidden px-6 sm:px-8" aria-hidden>
-      <p className="-mb-[2.2vw] select-none font-display text-[19vw] leading-[0.78] tracking-[-0.055em] text-foreground">
+    {/* Signature de bas de page — wordmark volontairement rogné */}
+    <div className="mx-auto mt-10 max-w-[1200px] overflow-hidden px-6 sm:px-10" aria-hidden>
+      <p className="-mb-[2.6vw] select-none text-center font-display text-[26vw] leading-[0.8] tracking-[-0.06em] text-foreground">
         Ooble
       </p>
     </div>

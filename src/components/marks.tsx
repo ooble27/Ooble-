@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface MarkProps {
   className?: string;
 }
@@ -48,13 +50,17 @@ export const TransferMark = ({ className }: MarkProps) => (
   </svg>
 );
 
-/** Logo Interac officiel (moyen de paiement accepté). */
+/**
+ * Logo Interac officiel (moyen de paiement accepté).
+ * `cn` est nécessaire ici : sans lui, une classe de hauteur passée par l'appelant
+ * entre en conflit avec le `h-6` par défaut au lieu de le remplacer.
+ * L'artwork est sombre : posez-le toujours sur un fond clair.
+ */
 export const InteracLogo = ({ className }: MarkProps) => (
   <img
     src="/interac.png"
     alt="Interac"
-    className={`inline-block h-6 w-auto align-middle ${className ?? ""}`}
-    loading="lazy"
+    className={cn("inline-block h-6 w-auto align-middle", className)}
     draggable={false}
   />
 );
