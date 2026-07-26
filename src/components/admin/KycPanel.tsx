@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, X, FileCheck } from "lucide-react";
+import { Check, X, ScanFace } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { KYC_STATUS_META, timeAgo, type KycRequest, type KycStatus } from "@/lib/adminOrders";
@@ -80,7 +80,7 @@ const KycPanel = () => {
         {list.length === 0 && (
           <div className="flex flex-col items-center py-16 text-center">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
-              <FileCheck className="h-5 w-5" strokeWidth={1.6} />
+              <ScanFace className="h-5 w-5" strokeWidth={1.6} />
             </span>
             <p className="mt-3 text-[13px] text-muted-foreground">
               {loading ? "Chargement…" : "Aucune vérification ici."}

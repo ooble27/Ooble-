@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Inbox, ShoppingCart, FileCheck, Calculator, Users, ArrowLeft, Shield,
+  Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type AdminOrder } from "@/lib/adminOrders";
@@ -19,7 +19,7 @@ type TabId = "queue" | "orders" | "kyc" | "accounting" | "team";
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
   { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique.", icon: ShoppingCart },
-  { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: FileCheck },
+  { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: ScanFace },
   { id: "accounting", label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
   { id: "team",       label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
 ];
