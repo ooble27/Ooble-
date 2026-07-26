@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth, type AppRole } from "@/lib/auth";
 import { type AdminOrder } from "@/lib/adminOrders";
 import { fetchAdminOrders, persistOrderPatch, deleteOrder } from "@/lib/adminOrdersLive";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,17 +25,52 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "team",       label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
 ];
 
+const ROLE_TABS: Record<AppRole, TabId[]> = {
+  admin:        ["queue", "orders", "kyc", "accounting", "team"],
+  operator:     ["queue", "orders"],
+  kyc_reviewer: ["kyc"],
+  support:      ["queue", "orders"],
+  marketing:    ["accounting"],
+};
+
+const ROLE_LABEL: Partial<Record<AppRole, string>> = {
+  admin: "Admin",
+  operator: "Opérateur",
+  kyc_reviewer: "KYC",
+  support: "Support",
+  marketing: "Marketing",
+};
+
 const AdminPortal = () => {
+  const { roles, isAdmin } = useAuth();
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<TabId>("queue");
   const [selected, setSelected] = useState<AdminOrder | null>(null);
+
+  const allowedTabs = useMemo(() => {
+    const set = new Set<TabId>();
+    for (const r of roles) {
+      for (const t of ROLE_TABS[r] ?? []) set.add(t);
+    }
+    return set;
+  }, [roles]);
+
+  const visibleNav = useMemo(() => NAV.filter((n) => allowedTabs.has(n.id)), [allowedTabs]);
+  const [tab, setTab] = useState<TabId>(visibleNav[0]?.id ?? "queue");
+
+  useEffect(() => {
+    if (visibleNav.length > 0 && !allowedTabs.has(tab)) {
+      setTab(visibleNav[0].id);
+    }
+  }, [visibleNav, allowedTabs, tab]);
+
+  const topRole = roles.includes("admin") ? "admin" : roles[0];
+  const badgeLabel = ROLE_LABEL[topRole] ?? "Staff";
 
   const refresh = () => fetchAdminOrders().then((rows) => { setOrders(rows); setLoading(false); });
 
   useEffect(() => {
     refresh();
-    // Temps réel : toute écriture sur `orders` déclenche un rechargement.
     const channel = supabase
       .channel("admin-orders")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => refresh())
@@ -43,7 +79,6 @@ const AdminPortal = () => {
   }, []);
 
   const patch = (id: string, changes: Partial<AdminOrder>) => {
-    // Optimiste : on met à jour l'écran tout de suite, puis on écrit en base.
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, ...changes } : o)));
     setSelected((s) => (s && s.id === id ? { ...s, ...changes } : s));
     persistOrderPatch(id, changes).then((res) => { if (res.error) refresh(); });
@@ -55,7 +90,8 @@ const AdminPortal = () => {
     deleteOrder(id).then((res) => { if (res.error) refresh(); });
   };
 
-  const active = NAV.find((n) => n.id === tab)!;
+  const active = visibleNav.find((n) => n.id === tab) ?? visibleNav[0];
+  if (!active) return null;
   const ActiveIcon = active.icon;
   const openOrder = (o: AdminOrder) => setSelected(o);
 
@@ -76,7 +112,7 @@ const AdminPortal = () => {
             <p className="truncate text-[12px] text-muted-foreground">Pilotez la plateforme Ooble</p>
           </div>
           <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
-            <Shield className="h-[13px] w-[13px]" /> Admin
+            <Shield className="h-[13px] w-[13px]" /> {badgeLabel}
           </span>
         </div>
       </div>
@@ -84,7 +120,7 @@ const AdminPortal = () => {
       <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-8">
         {/* Pastilles de navigation — défilables */}
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-          {NAV.map(({ id, label, icon: Icon }) => {
+          {visibleNav.map(({ id, label, icon: Icon }) => {
             const on = id === tab;
             return (
               <button

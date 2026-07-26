@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UserPlus, Users, Settings, ScanFace, Megaphone, Headphones, KeyRound, ArrowLeft } from "lucide-react";
+import { UserPlus, Users, Handshake, ScanFace, Megaphone, Headphones, Star, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TEAM_ROLES, type TeamRole } from "@/lib/adminOrders";
 import { fetchTeam, setMemberRole, addRoleByEmail, type LiveTeamMember } from "@/lib/adminTeam";
@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const roleDesc = (role: TeamRole) => TEAM_ROLES.find((r) => r.role === role)?.desc ?? "";
 
-const ROLE_ICONS: Record<TeamRole, typeof Settings> = {
-  "Opérateur": Settings,
+const ROLE_ICONS: Record<TeamRole, typeof Handshake> = {
+  "Opérateur": Handshake,
   "KYC": ScanFace,
   "Marketing": Megaphone,
   "Support": Headphones,
-  "Admin": KeyRound,
+  "Admin": Star,
 };
 
 const TeamPanel = () => {

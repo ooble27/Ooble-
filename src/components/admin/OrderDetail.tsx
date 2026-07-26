@@ -95,7 +95,7 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
     <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl border border-border bg-secondary/40 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {pill.ready && (
         <div
-          className="absolute top-1 h-[calc(100%-8px)] rounded-[10px] bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="absolute top-1 h-[calc(100%-8px)] rounded-[10px] border border-border bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{ left: pill.left, width: pill.width }}
         />
       )}
