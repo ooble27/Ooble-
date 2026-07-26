@@ -1,50 +1,70 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 /** Marge Ooble appliquée au taux de marché réel. */
 export const OOBLE_MARGIN = 0.02;
 
-/** Valeur de repli tant que le taux en direct n'est pas chargé (USDT/CAD). */
+/** Valeur de repli tant qu'aucun taux n'est chargé (USDT/CAD). */
 const FALLBACK_BASE = 1.4020;
 
 interface UsdtRate {
   /** Taux de marché réel USDT/CAD. */
   base: number;
-  /** Ce que le client paie pour 1 USDT (marché + marge). */
+  /** Ce que le client paie pour 1 USDT. */
   buy: number;
-  /** Ce que le client reçoit pour 1 USDT (marché − marge). */
+  /** Ce que le client reçoit pour 1 USDT. */
   sell: number;
-  /** true si le taux en direct a été chargé. */
+  /** true si un taux réel a été chargé. */
   live: boolean;
 }
 
+interface Loaded { buy: number; sell: number; base: number }
+
 /**
- * Récupère le taux USDT/CAD réel côté client (CoinGecko) et applique la
- * marge Ooble. Repli sur une valeur de base si l'appel échoue.
+ * Taux USDT/CAD. Source de vérité : la table `exchange_rates` (contrôlée côté
+ * serveur, lecture publique). Repli : CoinGecko côté client, puis valeur fixe.
  */
 export function useUsdtRate(): UsdtRate {
-  const [base, setBase] = useState<number | null>(null);
+  const [loaded, setLoaded] = useState<Loaded | null>(null);
 
   useEffect(() => {
     let alive = true;
-    fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=cad")
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => {
-        const v = d?.tether?.cad;
-        if (alive && typeof v === "number" && v > 0) setBase(v);
-      })
-      .catch(() => {
-        /* on garde le repli */
+
+    // 1) Taux officiel Ooble depuis la base.
+    supabase
+      .from("exchange_rates")
+      .select("buy_rate, sell_rate")
+      .order("fetched_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!alive) return;
+        if (data) {
+          const buy = Number(data.buy_rate);
+          const sell = Number(data.sell_rate);
+          setLoaded({ buy, sell, base: (buy + sell) / 2 });
+          return;
+        }
+        // 2) Repli marché en direct (CoinGecko).
+        fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=cad")
+          .then((r) => (r.ok ? r.json() : Promise.reject()))
+          .then((d) => {
+            const v = d?.tether?.cad;
+            if (alive && typeof v === "number" && v > 0) {
+              setLoaded({ base: v, buy: v * (1 + OOBLE_MARGIN), sell: v * (1 - OOBLE_MARGIN) });
+            }
+          })
+          .catch(() => { /* on garde le repli fixe */ });
       });
-    return () => {
-      alive = false;
-    };
+
+    return () => { alive = false; };
   }, []);
 
-  const b = base ?? FALLBACK_BASE;
+  if (loaded) return { ...loaded, live: true };
   return {
-    base: b,
-    buy: b * (1 + OOBLE_MARGIN),
-    sell: b * (1 - OOBLE_MARGIN),
-    live: base !== null,
+    base: FALLBACK_BASE,
+    buy: FALLBACK_BASE * (1 + OOBLE_MARGIN),
+    sell: FALLBACK_BASE * (1 - OOBLE_MARGIN),
+    live: false,
   };
 }
