@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, HandCoins, Check, Mail } from "lucide-react";
+import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,12 @@ import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 type Unit = "USDT" | "CAD";
-type Step = "amount" | "reception" | "done";
+type Step = "amount" | "reception" | "deposit" | "done";
 
 const MIN_USDT = 50;
+// Adresse de dépôt USDT d'Ooble (réseau TRC-20). À terme : une adresse/
+// référence unique par client (voir Mon compte) pour identifier les ventes.
+const OOBLE_DEPOSIT_TRC20 = "TQoobLEdEmoDEP0s1tAddr3ssTRC20xY7k";
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 
@@ -86,7 +89,7 @@ const AppVendre = () => {
           usdtAmount: nfUsdt.format(usdt),
           cadAmount: nfCad.format(cad),
           network: "Tron · TRC-20",
-          depositAddress: "Communiquée après confirmation",
+          depositAddress: OOBLE_DEPOSIT_TRC20,
           orderUrl: `${window.location.origin}/app`,
         },
       });
@@ -185,20 +188,67 @@ const AppVendre = () => {
           Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par e-Transfer à cette adresse dès réception de vos USDT.
         </p>
 
-        {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
-
         <div className="mt-6 flex justify-start">
-          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email) || saving} onClick={submit}>
-            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Création…" : "Continuer"}
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("deposit")}>
+            <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>
         </div>
       </AppShell>
     );
   }
 
-  /* ---------- Confirmation ---------- */
+  /* ---------- Dépôt : envoyer les USDT à Ooble ---------- */
+  if (step === "deposit") {
+    return (
+      <AppShell header={<StepHeader title="Envoyez vos USDT" sub="Transférez le montant exact à l'adresse ci-dessous" onBack={() => setStep("reception")} />}>
+        {/* Réseau + adresse de dépôt */}
+        <div className="overflow-hidden rounded-[14px] border border-border bg-card">
+          <div className="flex items-center gap-2.5 border-b border-border px-4 py-2.5">
+            <img src="/coins/trx.svg" alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Tron</span>
+            <span className="ml-auto text-[11px] font-medium text-muted-foreground">TRC-20</span>
+          </div>
+          <CopyRow label="Adresse de dépôt Ooble" value={OOBLE_DEPOSIT_TRC20} mono />
+          <CopyRow label="Montant exact à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
+        </div>
+
+        {/* Avertissement réseau */}
+        <div className="mt-3 flex items-start gap-2.5 rounded-[12px] border border-amber-300/60 bg-amber-50 px-4 py-3 dark:border-amber-500/30 dark:bg-amber-500/10">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={2} />
+          <p className="text-[12.5px] leading-snug text-amber-800 dark:text-amber-200">
+            Envoyez uniquement de l'USDT sur le réseau <strong>TRC-20</strong>. Un autre réseau entraînerait la perte des fonds.
+          </p>
+        </div>
+
+        <p className="mt-3 px-1 text-[13px] text-muted-foreground">
+          Une fois le transfert effectué, confirmez ci-dessous. Nous créditons vos{" "}
+          <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par Interac dès réception.
+        </p>
+
+        {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
+
+        <div className="mt-6 flex justify-start">
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={saving} onClick={submit}>
+            <Check className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Enregistrement…" : "J'ai envoyé mes USDT"}
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
+  /* ---------- Confirmation : en attente de réception ---------- */
   return (
-    <AppShell header={<StepHeader title="Ordre créé" sub="Envoyez vos USDT à Ooble" />}>
+    <AppShell header={<StepHeader title="USDT envoyés" sub="En attente de confirmation" />}>
+      <div className="mb-4 flex items-start gap-2.5 rounded-[14px] border border-border bg-secondary/40 px-4 py-3.5">
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+          <Check className="h-[14px] w-[14px]" strokeWidth={2.5} />
+        </span>
+        <p className="text-[13px] leading-snug text-muted-foreground">
+          Nous vérifions la réception de vos USDT sur la blockchain. Dès confirmation, vous recevez{" "}
+          <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par Interac e-Transfer.
+        </p>
+      </div>
+
       <div className="overflow-hidden rounded-[16px] border border-border bg-card">
         {[
           { label: "Vous envoyez", value: `${nfUsdt.format(usdt)} USDT` },
@@ -215,7 +265,7 @@ const AppVendre = () => {
 
       <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Détail de l'ordre</p>
       <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
-        <CopyRow label="Montant à envoyer" value={`${nfUsdt.format(usdt)} USDT`} />
+        <CopyRow label="Montant envoyé" value={`${nfUsdt.format(usdt)} USDT`} />
         <CopyRow label="Référence de l'ordre" value={savedRef} mono />
       </div>
 
