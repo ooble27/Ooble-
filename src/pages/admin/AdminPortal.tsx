@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft, BadgeCheck,
+  Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
+  BadgeCheck, UserRound, Megaphone, Headphones,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -42,6 +43,14 @@ const ROLE_LABEL: Partial<Record<AppRole, string>> = {
   marketing: "Marketing",
 };
 
+const ROLE_ICON: Record<AppRole, typeof BadgeCheck> = {
+  admin: BadgeCheck,
+  operator: UserRound,
+  kyc_reviewer: ScanFace,
+  support: Headphones,
+  marketing: Megaphone,
+};
+
 const AdminPortal = () => {
   const { roles } = useAuth();
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -68,6 +77,7 @@ const AdminPortal = () => {
 
   const topRole = roles.includes("admin") ? "admin" : roles[0];
   const badgeLabel = ROLE_LABEL[topRole] ?? "Staff";
+  const BadgeIcon = ROLE_ICON[topRole] ?? BadgeCheck;
 
   const refresh = () => fetchAdminOrders().then((rows) => { setOrders(rows); setLoading(false); });
 
@@ -127,7 +137,7 @@ const AdminPortal = () => {
             <p className="truncate text-[12px] text-muted-foreground">Pilotez la plateforme Ooble</p>
           </div>
           <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
-            <BadgeCheck className="h-[13px] w-[13px]" /> {badgeLabel}
+            <BadgeIcon className="h-[13px] w-[13px]" /> {badgeLabel}
           </span>
         </div>
       </div>

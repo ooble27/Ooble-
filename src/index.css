@@ -33,6 +33,8 @@
     --destructive: 6 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
+    --surface: 0 0% 94%;
+
     --border: 196 15% 83%;
     --input: 196 15% 80%;
     --ring: 174 58% 38%;
@@ -63,6 +65,8 @@
 
     --deep: 193 45% 12%;
     --deep-foreground: 0 0% 100%;
+
+    --surface: 0 0% 7%;
 
     --destructive: 6 74% 56%;
     --destructive-foreground: 0 0% 100%;

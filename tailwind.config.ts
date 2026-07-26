@@ -52,6 +52,7 @@ export default {
           DEFAULT: "hsl(var(--deep))",
           foreground: "hsl(var(--deep-foreground))",
         },
+        surface: "hsl(var(--surface))",
         "accent-tint": "hsl(var(--accent-tint))",
         "accent-ink": "hsl(var(--accent-ink))",
       },
