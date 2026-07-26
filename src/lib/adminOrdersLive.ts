@@ -13,7 +13,7 @@ import { CURRENT_OPERATOR, type AdminOrder, type OrderStatus } from "@/lib/admin
 
 type DbStatus = Database["public"]["Enums"]["order_status"];
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
-type RowWithProfile = OrderRow & { profiles: { full_name: string | null } | null };
+type RowWithProfile = OrderRow & { profiles: { full_name: string | null; email: string | null } | null };
 
 /** Statut base → statut d'affichage du back-office. */
 const DB_TO_DEMO: Record<DbStatus, OrderStatus> = {
@@ -49,7 +49,7 @@ function toAdminOrder(row: RowWithProfile, currentUid: string | null): AdminOrde
     type: row.side, // 'buy' | 'sell'
     status: DB_TO_DEMO[row.status],
     clientName: row.profiles?.full_name?.trim() || "Client",
-    clientEmail: row.interac_email ?? "",
+    clientEmail: row.profiles?.email ?? row.interac_email ?? "",
     cad: Number(row.cad_amount),
     usdt: Number(row.usdt_amount),
     rate: Number(row.locked_rate),
@@ -68,7 +68,7 @@ export async function fetchAdminOrders(): Promise<AdminOrder[]> {
 
   const { data, error } = await supabase
     .from("orders")
-    .select("*, profiles(full_name)")
+    .select("*, profiles(full_name, email)")
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, X, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { SEED_KYC, KYC_STATUS_META, timeAgo, type KycRequest, type KycStatus } from "@/lib/adminOrders";
+import { KYC_STATUS_META, timeAgo, type KycRequest, type KycStatus } from "@/lib/adminOrders";
+import { fetchKyc, setKycStatus } from "@/lib/adminKyc";
 import { ClientCell, SubTabs } from "./AdminBits";
 
 const KycBadge = ({ status }: { status: KycStatus }) => {
@@ -13,11 +14,21 @@ const KycBadge = ({ status }: { status: KycStatus }) => {
 type Filter = "attente" | "verifie" | "refuse";
 
 const KycPanel = () => {
-  const [rows, setRows] = useState<KycRequest[]>(SEED_KYC);
+  const [rows, setRows] = useState<KycRequest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Filter>("attente");
 
-  const set = (id: string, status: KycStatus) =>
+  useEffect(() => {
+    fetchKyc().then((r) => { setRows(r); setLoading(false); });
+  }, []);
+
+  // Optimiste : mise à jour immédiate à l'écran puis écriture en base.
+  const set = (id: string, status: KycStatus) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    setKycStatus(id, status).then((res) => {
+      if (res.error) fetchKyc().then(setRows);
+    });
+  };
 
   const counts = {
     attente: rows.filter((r) => r.status === "attente").length,
@@ -71,7 +82,9 @@ const KycPanel = () => {
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
               <FileCheck className="h-5 w-5" strokeWidth={1.6} />
             </span>
-            <p className="mt-3 text-[13px] text-muted-foreground">Aucune vérification ici.</p>
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              {loading ? "Chargement…" : "Aucune vérification ici."}
+            </p>
           </div>
         )}
       </div>

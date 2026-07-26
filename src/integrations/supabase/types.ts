@@ -317,6 +317,7 @@ export type Database = {
         Row: {
           created_at: string
           daily_limit_cad: number
+          email: string | null
           full_name: string | null
           id: string
           kyc_status: Database["public"]["Enums"]["kyc_status"]
@@ -326,6 +327,7 @@ export type Database = {
         Insert: {
           created_at?: string
           daily_limit_cad?: number
+          email?: string | null
           full_name?: string | null
           id: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
@@ -335,6 +337,7 @@ export type Database = {
         Update: {
           created_at?: string
           daily_limit_cad?: number
+          email?: string | null
           full_name?: string | null
           id?: string
           kyc_status?: Database["public"]["Enums"]["kyc_status"]

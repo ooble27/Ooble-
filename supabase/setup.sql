@@ -41,6 +41,7 @@ create type public.app_role as enum ('admin', 'operator', 'kyc_reviewer', 'suppo
 create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   full_name text,
+  email text,
   phone text,
   kyc_status public.kyc_status not null default 'not_started',
   daily_limit_cad numeric(12, 2) not null default 3000,
@@ -52,8 +53,8 @@ alter table public.profiles enable row level security;
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, new.raw_user_meta_data ->> 'full_name');
+  insert into public.profiles (id, full_name, email)
+  values (new.id, new.raw_user_meta_data ->> 'full_name', new.email);
   return new;
 end;
 $$;
