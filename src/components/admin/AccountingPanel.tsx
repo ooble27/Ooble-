@@ -37,17 +37,17 @@ const AccountingPanel = ({ orders }: { orders: AdminOrder[] }) => {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card label="Revenus (marge 2 %)" value={`${nfCad.format(stats.margin)} $`} sub="Sur commandes terminées" />
-        <Card label="Volume traité" value={`${nfCad.format(stats.volume)} $`} />
+        <Card label="Revenus (marge 2 %)" value={`${nfCad.format(stats.margin)} CAD`} sub="Sur commandes terminées" />
+        <Card label="Volume traité" value={`${nfCad.format(stats.volume)} CAD`} />
         <Card label="Commandes" value={String(stats.count)} sub="Terminées" />
-        <Card label="Panier moyen" value={`${nfCad.format(stats.avg)} $`} />
+        <Card label="Panier moyen" value={`${nfCad.format(stats.avg)} CAD`} />
       </div>
 
       <div>
         <p className="mb-2.5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Répartition</p>
         <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-          <Line label="Achats (USDT vendus)" value={`${nfCad.format(stats.buyVol)} $`} count={stats.buyN} />
-          <Line label="Ventes (USDT rachetés)" value={`${nfCad.format(stats.sellVol)} $`} count={stats.sellN} />
+          <Line label="Achats (USDT vendus)" value={`${nfCad.format(stats.buyVol)} CAD`} count={stats.buyN} />
+          <Line label="Ventes (USDT rachetés)" value={`${nfCad.format(stats.sellVol)} CAD`} count={stats.sellN} />
         </div>
       </div>
 

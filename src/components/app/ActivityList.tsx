@@ -35,7 +35,7 @@ export const ActivityRow = ({ o, onClick }: { o: OrderRow; onClick?: () => void 
         </p>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-[14px] font-semibold">{nf.format(Number(o.cad_amount))} $</p>
+        <p className="text-[14px] font-semibold">{nf.format(Number(o.cad_amount))} <span className="text-[12px] font-medium">CAD</span></p>
         <p className="text-[11.5px] text-muted-foreground">
           {dateShort.format(new Date(o.created_at))}
         </p>

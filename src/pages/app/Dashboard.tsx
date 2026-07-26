@@ -120,7 +120,7 @@ const Dashboard = () => {
               <span className="font-display text-[34px] font-light leading-none tracking-tight">
                 {nf.format(rate.buy)}
               </span>
-              <span className="text-[15px] font-medium text-muted-foreground">$ CAD</span>
+              <span className="text-[15px] font-medium text-muted-foreground">CAD</span>
             </div>
             {/* Sous-titre masqué sur mobile pour ne pas encombrer */}
             <p className="mt-2 hidden text-sm font-light text-muted-foreground md:block">1 USDT en dollars canadiens · marché + 2 %</p>

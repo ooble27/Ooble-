@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useRef, useEffect, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { House, Coins, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,26 +9,50 @@ const items = [
   { to: "/app/vendre", label: "Vendre", icon: HandCoins, end: false },
 ];
 
-/** Barre de navigation flottante (structure Terex, recolorée Ooble). */
-const BottomNav = () => (
-  <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-    <div className="flex w-full max-w-[390px] items-center justify-around gap-1.5 rounded-[24px] border border-border bg-card/95 p-2 backdrop-blur-xl">
-      {items.map(({ to, label, icon: Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          className={({ isActive }) =>
-            cn(
-              "flex items-center justify-center rounded-2xl py-[13px] transition-all duration-300",
-              isActive ? "gap-2 bg-secondary px-[18px]" : "gap-0 bg-transparent px-[15px]",
-            )
-          }
-        >
-          {({ isActive }) => (
-            <>
+const BottomNav = () => {
+  const location = useLocation();
+  const navRef = useRef<HTMLDivElement>(null);
+  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
+
+  useEffect(() => {
+    if (!navRef.current) return;
+    const active = navRef.current.querySelector<HTMLElement>("[data-active='true']");
+    if (active) {
+      const navRect = navRef.current.getBoundingClientRect();
+      const elRect = active.getBoundingClientRect();
+      setIndicator({ left: elRect.left - navRect.left, width: elRect.width });
+    }
+  }, [location.pathname]);
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div
+        ref={navRef}
+        className="relative flex w-auto items-center gap-1 rounded-[20px] border border-border bg-card/95 p-1.5 backdrop-blur-xl"
+      >
+        {/* Sliding indicator */}
+        <div
+          className="absolute top-1.5 h-[calc(100%-12px)] rounded-2xl bg-secondary transition-all duration-300 ease-out"
+          style={{ left: indicator.left, width: indicator.width }}
+        />
+
+        {items.map(({ to, label, icon: Icon, end }) => {
+          const isActive = end
+            ? location.pathname === to
+            : location.pathname.startsWith(to);
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              data-active={isActive}
+              className={cn(
+                "relative z-10 flex items-center justify-center rounded-2xl py-[10px] transition-all duration-300",
+                isActive ? "gap-2 px-[16px]" : "gap-0 px-[14px]",
+              )}
+            >
               <Icon
-                size={21}
+                size={20}
                 strokeWidth={isActive ? 2.1 : 1.7}
                 className={cn("shrink-0 transition-colors", isActive ? "text-foreground" : "text-muted-foreground")}
               />
@@ -39,12 +64,12 @@ const BottomNav = () => (
               >
                 {label}
               </span>
-            </>
-          )}
-        </NavLink>
-      ))}
+            </NavLink>
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default BottomNav;
