@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UserPlus, Users, Briefcase, FileCheck, Megaphone, Headphones, Shield, ArrowLeft } from "lucide-react";
+import { UserPlus, Users, Layers, ScanFace, Mail, MessageCircle, Crown, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TEAM_ROLES, type TeamRole } from "@/lib/adminOrders";
 import { fetchTeam, setMemberRole, addRoleByEmail, type LiveTeamMember } from "@/lib/adminTeam";
@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const roleDesc = (role: TeamRole) => TEAM_ROLES.find((r) => r.role === role)?.desc ?? "";
 
-const ROLE_ICONS: Record<TeamRole, typeof Briefcase> = {
-  "Opérateur": Briefcase,
-  "KYC": FileCheck,
-  "Marketing": Megaphone,
-  "Support": Headphones,
-  "Admin": Shield,
+const ROLE_ICONS: Record<TeamRole, typeof Layers> = {
+  "Opérateur": Layers,
+  "KYC": ScanFace,
+  "Marketing": Mail,
+  "Support": MessageCircle,
+  "Admin": Crown,
 };
 
 const TeamPanel = () => {
@@ -107,7 +107,7 @@ const TeamPanel = () => {
             placeholder="email du compte existant…"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-            className="mt-4 w-full rounded-xl border border-border bg-secondary/40 px-4 py-3 text-[13px] outline-none placeholder:text-muted-foreground/60 focus:border-foreground"
+            className="mt-4 w-full rounded-xl border border-border bg-secondary/40 px-4 py-3 text-base outline-none placeholder:text-muted-foreground/60 focus:border-foreground"
           />
 
           {inviteMsg && (
