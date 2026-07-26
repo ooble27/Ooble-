@@ -52,8 +52,9 @@ const AccountingPanel = ({ orders }: { orders: AdminOrder[] }) => {
       </div>
 
       <p className="px-1 text-[12px] text-muted-foreground">
-        Estimations sur données de démonstration — la comptabilité réelle sera alimentée par le backend
-        (paiements Interac réconciliés). Marge appliquée : {nfUsdt.format(MARGIN * 100)} %.
+        Calculé sur les commandes réelles terminées. Les revenus sont une estimation via la marge
+        ({nfUsdt.format(MARGIN * 100)} %) ; les montants définitifs seront confirmés par la
+        réconciliation des paiements Interac.
       </p>
     </div>
   );
