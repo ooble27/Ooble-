@@ -35,7 +35,7 @@ const Footer = () => (
             e-Transfer. Non-custodial : chaque ordre est réglé directement vers
             votre wallet ou votre compte — aucun solde conservé.
           </p>
-          <Button asChild variant="primary" shape="pill" className="mt-6">
+          <Button asChild variant="appSolid" shape="pill" className="mt-6">
             <Link to="/connexion">
               Commencer <ArrowRight className="h-4 w-4" />
             </Link>

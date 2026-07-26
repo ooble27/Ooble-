@@ -41,7 +41,7 @@ const Header = () => {
           <Button asChild variant="ghost" shape="rounded" size="default">
             <Link to="/connexion">Se connecter</Link>
           </Button>
-          <Button asChild variant="primary" shape="rounded" size="default">
+          <Button asChild variant="appSolid" shape="rounded" size="default">
             <Link to="/connexion">Commencer</Link>
           </Button>
         </div>
@@ -81,7 +81,7 @@ const Header = () => {
             >
               Se connecter
             </Link>
-            <Button asChild variant="primary" shape="rounded" className="mt-1 w-full">
+            <Button asChild variant="appSolid" shape="rounded" className="mt-1 w-full">
               <Link to="/connexion" onClick={() => setOpen(false)}>Commencer</Link>
             </Button>
           </div>
