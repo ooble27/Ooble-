@@ -5,7 +5,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
-import { CoinsArt, WalletArt } from "@/components/illustrations";
 import { RATE_LOCK_MINUTES } from "@/lib/rates";
 import { cn } from "@/lib/utils";
 
@@ -166,42 +165,24 @@ const Index = () => {
               des USDT<Soft> en dollars</Soft>
             </h1>
 
-            {/*
-              Sur grand écran les illustrations encadrent les actions — la place
-              est libre sous le titre, qui occupe lui toute la largeur. Sur
-              mobile elles ne tiennent pas de part et d'autre : elles passent
-              côte à côte en dessous.
-            */}
-            <div className="mt-12 flex items-center justify-center gap-10 lg:mt-14 lg:gap-20">
-              <WalletArt className="hidden w-[190px] shrink-0 lg:block xl:w-[220px]" aria-hidden />
-
-              <div className="shrink-0">
-                <div className="flex flex-wrap justify-center gap-2.5">
-                  <Button asChild variant="appSolid" shape="rounded" size="default" className="px-6">
-                    <Link to="/connexion">
-                      <Coins className="h-4 w-4" strokeWidth={1.7} />
-                      Acheter
-                    </Link>
-                  </Button>
-                  <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
-                    <Link to="/connexion">
-                      <HandCoins className="h-4 w-4" strokeWidth={1.7} />
-                      Vendre
-                    </Link>
-                  </Button>
-                </div>
-                <p className="mt-6 text-[13.5px] text-muted-foreground">
-                  Taux verrouillé {RATE_LOCK_MINUTES} minutes
-                </p>
-              </div>
-
-              <CoinsArt className="hidden w-[200px] shrink-0 lg:block xl:w-[230px]" aria-hidden />
+            <div className="mt-12 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
+                <Link to="/connexion">
+                  <Coins className="h-4 w-4" strokeWidth={1.8} />
+                  Acheter
+                </Link>
+              </Button>
+              <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
+                <Link to="/connexion">
+                  <HandCoins className="h-4 w-4" strokeWidth={1.8} />
+                  Vendre
+                </Link>
+              </Button>
             </div>
 
-            <div className="mt-12 flex items-center justify-center gap-8 lg:hidden">
-              <WalletArt className="w-[130px]" aria-hidden />
-              <CoinsArt className="w-[135px]" aria-hidden />
-            </div>
+            <p className="mt-7 text-[14px] text-muted-foreground">
+              Taux verrouillé {RATE_LOCK_MINUTES} minutes
+            </p>
           </Wrap>
         </section>
 
@@ -464,14 +445,14 @@ const Index = () => {
               <br />
               <Soft>en cinq minutes</Soft>
             </h2>
-            <div className="mt-10 flex flex-wrap justify-center gap-2.5">
-              <Button asChild variant="appSolid" shape="rounded" size="default" className="px-6">
+            <div className="mt-10 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/connexion">
-                  <Coins className="h-4 w-4" strokeWidth={1.7} />
+                  <Coins className="h-4 w-4" strokeWidth={1.8} />
                   Ouvrir un compte
                 </Link>
               </Button>
-              <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
+              <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
                 <Link to="/faq">Consulter la FAQ</Link>
               </Button>
             </div>
