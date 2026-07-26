@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle } from "lucide-react";
+import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle, MessageSquare } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
@@ -9,6 +9,7 @@ import { NETWORKS, type NetId } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
 import { sendEmail } from "@/lib/email";
+import { getMyProfile } from "@/lib/profile";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,15 @@ const AppVendre = () => {
   const [savedRef, setSavedRef] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [interacQA, setInteracQA] = useState<{ q: string; a: string } | null>(null);
+
+  useEffect(() => {
+    getMyProfile().then((p) => {
+      if (p?.interacQuestion && p?.interacAnswer) {
+        setInteracQA({ q: p.interacQuestion, a: p.interacAnswer });
+      }
+    });
+  }, []);
 
   const value = parseFloat(amount.replace(",", ".")) || 0;
   const usdt = unit === "USDT" ? value : value / rate.sell;
@@ -196,7 +206,22 @@ const AppVendre = () => {
           Vous recevrez <span className="font-semibold text-foreground">{nfCad.format(cad)} CAD</span> par e-Transfer à cette adresse dès réception de vos USDT.
         </p>
 
-        <div className="mt-6 flex justify-start">
+        {/* Question / réponse Interac pour recevoir le virement */}
+        {interacQA && (
+          <div className="mt-4 overflow-hidden rounded-[14px] border border-border bg-card">
+            <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+              <MessageSquare className="h-3.5 w-3.5 text-primary" strokeWidth={2} />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Question de sécurité Interac</span>
+            </div>
+            <CopyRow label="Question" value={interacQA.q} />
+            <CopyRow label="Réponse à entrer" value={interacQA.a} mono />
+          </div>
+        )}
+        <p className="mt-2 px-1 text-[12px] text-muted-foreground">
+          Utilisez cette réponse pour débloquer votre e-Transfer quand vous le recevrez.
+        </p>
+
+        <div className="mt-5 flex justify-start">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!/^\S+@\S+\.\S+$/.test(email)} onClick={() => setStep("network")}>
             <HandCoins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
           </Button>

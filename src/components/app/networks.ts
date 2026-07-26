@@ -12,6 +12,6 @@ export const NETWORKS: Network[] = [
   { id: "bnb", name: "BNB Chain", tag: "BEP20" },
   { id: "eth", name: "Ethereum", tag: "ERC20" },
   { id: "matic", name: "Polygon", tag: "Polygon" },
-  { id: "sol", name: "Solana", tag: "SPL" },
+  { id: "sol", name: "Solana", tag: "SOL" },
   { id: "avax", name: "Avalanche", tag: "C-Chain" },
 ];

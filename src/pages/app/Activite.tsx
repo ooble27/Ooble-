@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Inbox, Coins, HandCoins, Filter } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
-import { ActivityRow, OrderDetail } from "@/components/app/ActivityList";
+import { ActivityRow, OrderDetailSheet } from "@/components/app/ActivityList";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ const Activite = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const [tab, setTab] = useState<TabFilter>("all");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<OrderRow | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -22,10 +22,9 @@ const Activite = () => {
 
   const filtered = orders?.filter((o) => tab === "all" || o.side === tab) ?? null;
 
-  const toggle = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
-
   return (
     <AppShell
+      wide
       header={
         <div className="flex items-start gap-3">
           <button
@@ -82,18 +81,9 @@ const Activite = () => {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card px-5">
           {filtered.map((o) => (
-            <div key={o.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-              <div className="px-5">
-                <ActivityRow o={o} detailed onClick={() => toggle(o.id)} />
-              </div>
-              {expandedId === o.id && (
-                <div className="border-t border-border px-3 pb-3 pt-2">
-                  <OrderDetail o={o} />
-                </div>
-              )}
-            </div>
+            <ActivityRow key={o.id} o={o} onClick={() => setSelected(o)} />
           ))}
         </div>
       )}
@@ -103,6 +93,9 @@ const Activite = () => {
           {filtered.length} transaction{filtered.length > 1 ? "s" : ""}
         </p>
       )}
+
+      {/* Bottom sheet détail */}
+      <OrderDetailSheet o={selected} open={!!selected} onClose={() => setSelected(null)} />
     </AppShell>
   );
 };

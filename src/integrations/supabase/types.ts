@@ -320,6 +320,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          interac_answer: string | null
+          interac_question: string | null
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           phone: string | null
           sell_ref: string | null
@@ -331,6 +333,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          interac_answer?: string | null
+          interac_question?: string | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           phone?: string | null
           sell_ref?: string | null
@@ -342,6 +346,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          interac_answer?: string | null
+          interac_question?: string | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           phone?: string | null
           sell_ref?: string | null

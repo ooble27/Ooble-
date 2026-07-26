@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
+import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { getMyProfile, type MyProfile } from "@/lib/profile";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +14,11 @@ const Compte = () => {
   const navigate = useNavigate();
   const { user, signOut, isStaff } = useAuth();
   const [theme, setThemeState] = useState<Theme>(getTheme);
+  const [profile, setProfile] = useState<MyProfile | null>(null);
+
+  useEffect(() => {
+    getMyProfile().then(setProfile);
+  }, []);
 
   const chooseTheme = (t: Theme) => {
     setTheme(t);
@@ -41,6 +48,23 @@ const Compte = () => {
           <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
         </div>
       </div>
+
+      {/* Question / réponse Interac pour recevoir les ventes */}
+      {profile?.interacQuestion && (
+        <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-center gap-2.5 px-5 pb-1 pt-4">
+            <MessageSquare className="h-4 w-4 text-primary" strokeWidth={1.9} />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Interac e-Transfer</p>
+          </div>
+          <p className="px-5 pb-2 text-[12.5px] text-muted-foreground">
+            Lors d'une vente, vous recevrez un virement Interac avec cette question de sécurité. Entrez la réponse ci-dessous pour débloquer vos fonds.
+          </p>
+          <div className="divide-y divide-border border-t border-border">
+            <CopyRow label="Question" value={profile.interacQuestion} />
+            <CopyRow label="Réponse" value={profile.interacAnswer!} mono />
+          </div>
+        </div>
+      )}
 
       {/* Apparence — bascule clair / sombre */}
       <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4">
