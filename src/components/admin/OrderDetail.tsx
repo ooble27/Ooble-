@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { ArrowLeft, ArrowRight, Copy, Check, Hand, Ban, RotateCcw, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,49 @@ const Timeline = ({ order, events }: { order: AdminOrder; events: OrderEvent[] |
           ))}
         </ol>
       )}
+    </div>
+  );
+};
+
+const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: SectionId; label: string }[]; active: SectionId; onSelect: (id: SectionId) => void }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
+
+  const activeIdx = sections.findIndex((s) => s.id === active);
+
+  const measure = useCallback(() => {
+    const box = containerRef.current;
+    const el = btnRefs.current[activeIdx];
+    if (!box || !el) return;
+    const boxRect = box.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    setPill({ left: elRect.left - boxRect.left, width: elRect.width, ready: true });
+  }, [activeIdx]);
+
+  useEffect(() => { requestAnimationFrame(measure); }, [measure]);
+
+  return (
+    <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl border border-border bg-secondary/40 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {pill.ready && (
+        <div
+          className="absolute top-1 h-[calc(100%-8px)] rounded-lg bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ left: pill.left, width: pill.width }}
+        />
+      )}
+      {sections.map((s, i) => (
+        <button
+          key={s.id}
+          ref={(el) => { btnRefs.current[i] = el; }}
+          onClick={() => onSelect(s.id)}
+          className={cn(
+            "relative z-10 flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200",
+            s.id === active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {s.label}
+        </button>
+      ))}
     </div>
   );
 };
@@ -176,24 +219,8 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
         </div>
       </div>
 
-      {/* Onglets de section — contrôle segmenté */}
-      <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-secondary/40 p-1">
-        {SECTIONS.map((s) => {
-          const on = s.id === active;
-          return (
-            <button
-              key={s.id}
-              onClick={() => setSection(s.id)}
-              className={cn(
-                "flex-1 whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-medium transition-colors",
-                on ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {s.label}
-            </button>
-          );
-        })}
-      </div>
+      {/* Onglets de section — contrôle segmenté avec pill glissante */}
+      <SegmentedTabs sections={SECTIONS} active={active} onSelect={(id) => setSection(id)} />
 
       {/* Contenu de section */}
       <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
