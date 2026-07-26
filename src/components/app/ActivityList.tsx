@@ -60,7 +60,7 @@ export const OrderDetailContent = ({ o }: { o: OrderRow }) => {
           {ORDER_STATUS_FR[o.status]}
         </span>
       </div>
-      <div className="overflow-hidden rounded-[14px] border border-border">
+      <div className="overflow-hidden rounded-[14px] border border-border bg-card">
         {[
           { label: "Référence", value: orderRef(o.id), copy: true },
           { label: "Taux", value: `1 USDT = ${nf.format(Number(o.locked_rate))} CAD` },

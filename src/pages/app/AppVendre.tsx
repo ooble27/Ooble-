@@ -210,7 +210,7 @@ const AppVendre = () => {
         {interacQA && (
           <div className="mt-4 overflow-hidden rounded-[14px] border border-border bg-card">
             <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
-              <MessageSquare className="h-3.5 w-3.5 text-primary" strokeWidth={2} />
+              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Question de sécurité Interac</span>
             </div>
             <CopyRow label="Question" value={interacQA.q} />
