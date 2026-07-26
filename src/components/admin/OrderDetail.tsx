@@ -17,6 +17,7 @@ interface Props {
   onBack: () => void;
   onPatch: (id: string, changes: Partial<AdminOrder>) => void;
   onDelete: (id: string) => void;
+  onShowClient?: (userId: string) => void;
 }
 
 type SectionId = "client" | "transaction" | "paiement" | "destination" | "historique";
@@ -116,12 +117,11 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
   );
 };
 
-const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
+const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) => {
   const { isAdmin } = useAuth();
   const [section, setSection] = useState<SectionId>("client");
   const [copied, setCopied] = useState<string | null>(null);
   const [events, setEvents] = useState<OrderEvent[] | null>(null);
-  const [showFiche, setShowFiche] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
 
   useEffect(() => {
@@ -222,20 +222,14 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete }: Props) => {
           <>
             <Row label="Nom complet" value={order.clientName} />
             <Row label="E-mail" value={order.clientEmail} mono copyKey="email" />
-            <Row label="Type de compte" value="Particulier" />
-            {showFiche && (
-              <>
-                <Row label="Identifiant client" value={order.userId ? order.userId.slice(0, 8).toUpperCase() : "—"} mono />
-                <Row label="Client depuis" value={createdAt} />
-                <Row label="Vérification KYC" value="À vérifier" />
-              </>
-            )}
+            <Row label="Téléphone" value={null} />
+            <Row label="ID utilisateur" value={order.userId ? order.userId.slice(0, 12) + "…" + order.userId.slice(-4) : "—"} mono copyKey="uid" />
             <button
-              onClick={() => setShowFiche((v) => !v)}
+              onClick={() => order.userId && onShowClient?.(order.userId)}
               className="flex w-full items-center justify-between px-5 py-3.5 text-left transition-colors hover:bg-secondary/40"
             >
-              <span className="text-[14px] font-medium">{showFiche ? "Masquer la fiche client" : "Voir la fiche complète du client"}</span>
-              <ChevronRight className={cn("h-[18px] w-[18px] text-muted-foreground transition-transform", showFiche && "rotate-90")} />
+              <span className="text-[14px] font-medium">Voir la fiche complète du client</span>
+              <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
             </button>
           </>
         )}

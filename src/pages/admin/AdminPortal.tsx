@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft, Shield,
+  Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft, BadgeCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -14,6 +14,7 @@ import OrderDetail from "@/components/admin/OrderDetail";
 import KycPanel from "@/components/admin/KycPanel";
 import AccountingPanel from "@/components/admin/AccountingPanel";
 import TeamPanel from "@/components/admin/TeamPanel";
+import ClientProfile from "@/components/admin/ClientProfile";
 
 type TabId = "queue" | "orders" | "kyc" | "accounting" | "team";
 
@@ -42,10 +43,11 @@ const ROLE_LABEL: Partial<Record<AppRole, string>> = {
 };
 
 const AdminPortal = () => {
-  const { roles, isAdmin } = useAuth();
+  const { roles } = useAuth();
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<AdminOrder | null>(null);
+  const [clientView, setClientView] = useState<{ userId: string; name: string } | null>(null);
 
   const allowedTabs = useMemo(() => {
     const set = new Set<TabId>();
@@ -95,6 +97,19 @@ const AdminPortal = () => {
   const ActiveIcon = active.icon;
   const openOrder = (o: AdminOrder) => setSelected(o);
 
+  const showClient = (userId: string) => {
+    const name = selected?.clientName ?? "Client";
+    setClientView({ userId, name });
+  };
+
+  const openOrderById = (orderId: string) => {
+    const o = orders.find((x) => x.id === orderId);
+    if (o) {
+      setClientView(null);
+      setSelected(o);
+    }
+  };
+
   return (
     <div className="app-type min-h-screen bg-background text-foreground">
       {/* Barre du haut */}
@@ -112,38 +127,46 @@ const AdminPortal = () => {
             <p className="truncate text-[12px] text-muted-foreground">Pilotez la plateforme Ooble</p>
           </div>
           <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
-            <Shield className="h-[13px] w-[13px]" /> {badgeLabel}
+            <BadgeCheck className="h-[13px] w-[13px]" /> {badgeLabel}
           </span>
         </div>
       </div>
 
       <div className="mx-auto max-w-[1200px] px-5 py-6 md:px-8">
-        {/* Pastilles de navigation — défilables */}
-        <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-          {visibleNav.map(({ id, label, icon: Icon }) => {
-            const on = id === tab;
-            return (
-              <button
-                key={id}
-                onClick={() => { setTab(id); setSelected(null); }}
-                className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
-                  on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
-                )}
-              >
-                <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {selected ? (
-          <div className="mt-6">
-            <OrderDetail order={selected} onBack={() => setSelected(null)} onPatch={patch} onDelete={remove} />
+        {clientView ? (
+          <ClientProfile
+            userId={clientView.userId}
+            clientName={clientView.name}
+            onBack={() => setClientView(null)}
+            onOpenOrder={openOrderById}
+          />
+        ) : selected ? (
+          <div>
+            {/* Pastilles de navigation — masquées quand une commande est ouverte */}
+            <OrderDetail order={selected} onBack={() => setSelected(null)} onPatch={patch} onDelete={remove} onShowClient={showClient} />
           </div>
         ) : (
           <>
+            {/* Pastilles de navigation — défilables */}
+            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+              {visibleNav.map(({ id, label, icon: Icon }) => {
+                const on = id === tab;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => { setTab(id); setSelected(null); }}
+                    className={cn(
+                      "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
+                      on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+                    )}
+                  >
+                    <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Titre de section */}
             <div className="mt-6 flex items-center gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
