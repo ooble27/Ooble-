@@ -3,7 +3,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { layout, infoCard, notice, C } from "./components.mjs";
+import { layout, notice, C } from "./components.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -18,6 +18,8 @@ const renderVars = (str, data) =>
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 const p = (html) => `<p style="margin:0 0 14px;font-family:${FONT};font-size:15px;line-height:1.6;color:${C.text};">${html}</p>`;
+const mono = (val) => `<span style="font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:14px;color:${C.ink};font-weight:600;word-break:break-all;">${val}</span>`;
+const bold = (val) => `<strong style="color:${C.ink};font-weight:700;">${val}</strong>`;
 
 /* ------------------------------------------------------------------ */
 /*  Définition des templates                                          */
@@ -36,12 +38,10 @@ const templates = [
       intro:
         "Votre compte est créé. Ooble vous permet d'acheter et vendre de l'USDT en dollars canadiens, réglé par Interac e-Transfer — de façon simple, rapide et non-custodial.",
       contentHtml:
-        infoCard([
-          ["USDT uniquement", "6 réseaux au choix"],
-          ["Paiement", "Interac e-Transfer"],
-          ["Vos fonds", "Non-custodial"],
-        ]) +
-        p("Confirmez votre adresse e-mail pour activer toutes les fonctionnalités :"),
+        p(`${bold("USDT uniquement")} — recevez ou envoyez sur 6 réseaux au choix.`) +
+        p(`${bold("Paiement par Interac e-Transfer")} — simple et rapide, en dollars canadiens.`) +
+        p(`${bold("Non-custodial")} — vos clés, vos fonds. Ooble ne conserve jamais vos USDT.`) +
+        p("Confirmez votre adresse e-mail pour activer toutes les fonctionnalités :"),
       cta: { label: "Vérifier mon adresse", href: "{{verifyUrl}}" },
       preheader: "Votre compte Ooble est prêt — confirmez votre adresse e-mail.",
     }),
@@ -62,18 +62,11 @@ const templates = [
       intro:
         "Envoyez un virement Interac e-Transfer avec les informations ci-dessous. Dès réception, nous envoyons vos USDT à votre adresse.",
       contentHtml:
-        infoCard(
-          [
-            ["Référence", "{{ref}}", true],
-            ["À payer", "{{cadAmount}} CAD"],
-            ["Vous recevez", "{{usdtAmount}} USDT"],
-            ["Réseau", "{{network}}"],
-            ["Destinataire Interac", "{{interacRecipient}}", true],
-          ],
-          { title: "Détails du paiement" },
-        ) +
+        p(`Votre référence : ${mono("{{ref}}")}.`) +
+        p(`Montant à payer : ${bold("{{cadAmount}} CAD")} — vous recevrez ${bold("{{usdtAmount}} USDT")} sur le réseau ${bold("{{network}}")}.`) +
+        p(`Envoyez votre e-Transfer à : ${mono("{{interacRecipient}}")}.`) +
         notice(
-          "Indiquez la référence <strong>{{ref}}</strong> dans le message de votre e-Transfer. Le taux est garanti 15 minutes.",
+          "Indiquez la référence <strong>{{ref}}</strong> dans le message de votre e-Transfer. Le taux est garanti 15 minutes.",
         ),
       cta: { label: "Voir ma commande", href: "{{orderUrl}}" },
       preheader: "Réglez {{cadAmount}} CAD par Interac pour recevoir {{usdtAmount}} USDT.",
@@ -95,16 +88,10 @@ const templates = [
       intro:
         "Transférez vos USDT à l'adresse de dépôt ci-dessous. Dès confirmation sur la blockchain, vous recevez vos CAD par Interac e-Transfer.",
       contentHtml:
-        infoCard(
-          [
-            ["Référence", "{{ref}}", true],
-            ["Vous envoyez", "{{usdtAmount}} USDT"],
-            ["Vous recevez", "{{cadAmount}} CAD"],
-            ["Réseau", "{{network}}"],
-            ["Adresse de dépôt", "{{depositAddress}}", true],
-          ],
-          { title: "Détails de l'envoi" },
-        ) +
+        p(`Votre référence : ${mono("{{ref}}")}.`) +
+        p(`Vous envoyez ${bold("{{usdtAmount}} USDT")} et recevrez ${bold("{{cadAmount}} CAD")} par Interac e-Transfer.`) +
+        p(`Réseau : ${bold("{{network}}")}.`) +
+        p(`Adresse de dépôt :<br />${mono("{{depositAddress}}")}`) +
         notice("Envoyez uniquement de l'USDT sur le réseau <strong>{{network}}</strong>. Un autre réseau entraînerait la perte des fonds."),
       cta: { label: "Voir ma commande", href: "{{orderUrl}}" },
       preheader: "Envoyez {{usdtAmount}} USDT pour recevoir {{cadAmount}} CAD par Interac.",
@@ -121,13 +108,11 @@ const templates = [
       eyebrow: "Paiement reçu",
       title: "Nous avons bien reçu votre paiement",
       intro:
-        "Merci ! Votre paiement de {{amount}} est confirmé. Notre équipe traite votre commande — vous recevrez vos {{usdtAmount}} USDT très bientôt.",
-      contentHtml: infoCard([
-        ["Référence", "{{ref}}", true],
-        ["Montant reçu", "{{amount}}"],
-        ["À envoyer", "{{usdtAmount}} USDT"],
-        ["Statut", "En traitement"],
-      ]),
+        "Merci ! Votre paiement de {{amount}} est confirmé. Notre équipe traite votre commande — vous recevrez vos {{usdtAmount}} USDT très bientôt.",
+      contentHtml:
+        p(`Référence : ${mono("{{ref}}")}.`) +
+        p(`Montant reçu : ${bold("{{amount}}")}. Nous préparons l'envoi de ${bold("{{usdtAmount}} USDT")} à votre adresse.`) +
+        p(`Statut : ${bold("En traitement")} — vous serez notifié dès que vos USDT seront envoyés.`),
       cta: { label: "Suivre ma commande", href: "{{orderUrl}}" },
       preheader: "Paiement de {{amount}} confirmé — traitement en cours.",
     }),
@@ -146,12 +131,10 @@ const templates = [
       eyebrow: "Terminé",
       title: "Votre transaction est terminée",
       intro: "C'est réglé. Merci d'avoir utilisé Ooble — voici le récapitulatif de votre transaction.",
-      contentHtml: infoCard([
-        ["Référence", "{{ref}}", true],
-        ["{{summaryLabel}}", "{{summaryValue}}"],
-        ["Réseau", "{{network}}"],
-        ["Transaction", "{{txHash}}", true],
-      ]),
+      contentHtml:
+        p(`Référence : ${mono("{{ref}}")}.`) +
+        p(`{{summaryLabel}} : ${bold("{{summaryValue}}")} sur le réseau ${bold("{{network}}")}.`) +
+        p(`Transaction :<br />${mono("{{txHash}}")}`),
       cta: { label: "Voir le reçu", href: "{{orderUrl}}" },
       preheader: "Transaction {{ref}} terminée avec succès.",
     }),
