@@ -29,21 +29,23 @@ const Field = ({
 } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div
     className={cn(
-      "flex items-center gap-3 px-4 py-3.5 transition-colors focus-within:bg-primary/[0.03]",
+      "px-4 py-3 transition-colors focus-within:bg-primary/[0.03]",
       !last && "border-b border-border/50",
     )}
   >
-    <Icon className="h-[18px] w-[18px] shrink-0 text-muted-foreground/50" strokeWidth={1.6} />
-    <div className="min-w-0 flex-1">
-      <span className="block text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground/60">
+    <div className="flex items-center gap-2">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" strokeWidth={1.6} />
+      <span className="text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground/60">
         {label}
       </span>
+    </div>
+    <div className="mt-1 flex items-center gap-2">
       <input
-        className="mt-0.5 w-full bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground/30"
+        className="w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground/30"
         {...props}
       />
+      {trailing}
     </div>
-    {trailing}
   </div>
 );
 
