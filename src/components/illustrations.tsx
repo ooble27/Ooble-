@@ -191,68 +191,35 @@ export const InteracArt = ({ className }: ArtProps) => (
 );
 
 /**
- * Composition minimaliste alignée sur le CoinStrip du héros :
- *   [ carte $ neutre ] → [ USDT couleur de marque ]
- *
- * Palette strictement neutre pour tout ce qui n'est pas la pièce USDT — même
- * approche que la rangée du héros. Aucune surface teal ni verte en fond.
+ * Interac → portefeuille crypto.
+ * Utilise currentColor pour les traits — fonctionne en clair et en sombre.
  */
-export const ETransferArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 360 220" className={className} fill="none" role="img" aria-label="Virement Interac vers USDT">
-    {/* Carte « dollars canadiens » — pastille neutre arrondie */}
-    <g>
-      <rect x="24" y="46" width="128" height="128" rx="30" fill="#F1F3F4" stroke={INK} strokeWidth="3" />
-      {/* symbole dollar centré */}
-      <text
-        x="88"
-        y="132"
-        textAnchor="middle"
-        fontFamily="Poppins, Manrope, Arial, sans-serif"
-        fontWeight="600"
-        fontSize="72"
-        fill={INK}
-      >
-        $
+export const InteracWalletArt = ({ className }: ArtProps) => (
+  <svg viewBox="0 0 420 260" className={className} fill="none" role="img" aria-label="Interac e-Transfer vers portefeuille crypto">
+    {/* Carte Interac */}
+    <g transform="rotate(-4 120 130)">
+      <rect x="36" y="68" width="168" height="112" rx="18" fill="#fff" stroke="currentColor" strokeWidth="3" />
+      <rect x="54" y="92" width="42" height="28" rx="6" fill="#F2C14E" stroke="currentColor" strokeWidth="2.5" />
+      <text x="120" y="130" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="22" letterSpacing="-0.5" fill="currentColor">
+        Interac
       </text>
-      {/* étiquette CAD */}
-      <rect x="52" y="152" width="72" height="14" rx="7" fill={INK} opacity="0.08" />
-      <text
-        x="88"
-        y="163"
-        textAnchor="middle"
-        fontFamily="Poppins, Manrope, Arial, sans-serif"
-        fontWeight="600"
-        fontSize="9"
-        letterSpacing="2"
-        fill={INK}
-        opacity="0.6"
-      >
-        CAD
-      </text>
+      <rect x="54" y="148" width="100" height="8" rx="4" fill="currentColor" opacity="0.15" />
+      <rect x="54" y="162" width="66" height="6" rx="3" fill="currentColor" opacity="0.1" />
     </g>
 
-    {/* Flèche en pointillés — flux du CAD vers l'USDT */}
-    <path
-      d="M162 110 h36"
-      stroke={INK}
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeDasharray="2 10"
-    />
-    <path
-      d="M192 101 l12 9 l-12 9"
-      fill="none"
-      stroke={INK}
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    {/* Flèche de transfert */}
+    <path d="M216 130 h44" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="2 11" opacity="0.4" />
+    <path d="M254 121 l12 9 l-12 9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
 
-    {/* Pièce USDT — seule pastille colorée, dans le même style que le CoinStrip */}
-    <g>
-      <rect x="208" y="46" width="128" height="128" rx="30" fill="#F1F3F4" stroke={INK} strokeWidth="3" />
-      <UsdtCoin cx={272} cy={110} r={40} rot={-4} />
+    {/* Portefeuille */}
+    <g transform="rotate(4 340 140)">
+      <rect x="274" y="92" width="132" height="96" rx="18" fill="#0F3A43" stroke="currentColor" strokeWidth="3" />
+      <path d="M274 142 h132 v28 a18 18 0 0 1 -18 18 H292 a18 18 0 0 1 -18 -18 Z" fill="#2FA39B" stroke="currentColor" strokeWidth="3" />
+      <rect x="356" y="130" width="32" height="22" rx="11" fill="#F2C14E" stroke="currentColor" strokeWidth="2.5" />
+      <circle cx="376" cy="141" r="4" fill="currentColor" />
     </g>
+    <UsdtCoin cx={310} cy={78} r={22} rot={-8} />
+    <Spark cx={380} cy={78} s={12} />
   </svg>
 );
 
