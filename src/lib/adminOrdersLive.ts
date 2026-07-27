@@ -9,7 +9,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { DB_TO_NET, orderRef } from "@/lib/orders";
-import { CURRENT_OPERATOR, type AdminOrder, type OrderStatus } from "@/lib/adminOrders";
+import { CURRENT_OPERATOR, nfCad, nfUsdt, type AdminOrder, type OrderStatus } from "@/lib/adminOrders";
+import { sendEmail } from "@/lib/email";
+import { NETWORKS } from "@/components/app/networks";
 
 type DbStatus = Database["public"]["Enums"]["order_status"];
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
@@ -117,5 +119,60 @@ export async function persistOrderPatch(
       actor: uid ?? "staff",
     });
   }
+
+  // E-mails transactionnels (best-effort, fire-and-forget).
+  if (changes.status === "recu" || changes.status === "termine") {
+    void notifyClient(id, changes.status);
+  }
+
   return {};
+}
+
+async function notifyClient(orderId: string, newStatus: "recu" | "termine") {
+  const { data } = await supabase
+    .from("orders")
+    .select("*, profiles(full_name, email)")
+    .eq("id", orderId)
+    .single();
+  if (!data) return;
+  const row = data as RowWithProfile;
+  const to = row.profiles?.email ?? row.interac_email;
+  if (!to) return;
+
+  const ref = orderRef(row.id);
+  const net = NETWORKS.find((n) => n.id === DB_TO_NET[row.network]);
+  const networkLabel = net ? `${net.name} · ${net.tag}` : "—";
+  const orderUrl = `${window.location.origin}/app`;
+
+  if (newStatus === "recu") {
+    const amount = row.side === "buy"
+      ? `${nfCad.format(Number(row.cad_amount))} CAD`
+      : `${nfUsdt.format(Number(row.usdt_amount))} USDT`;
+    void sendEmail({
+      to,
+      template: "payment-received",
+      vars: {
+        ref,
+        amount,
+        usdtAmount: nfUsdt.format(Number(row.usdt_amount)),
+        orderUrl,
+      },
+    });
+  } else {
+    const isBuy = row.side === "buy";
+    void sendEmail({
+      to,
+      template: "order-completed",
+      vars: {
+        ref,
+        summaryLabel: isBuy ? "Vous avez reçu" : "Vous avez vendu",
+        summaryValue: isBuy
+          ? `${nfUsdt.format(Number(row.usdt_amount))} USDT`
+          : `${nfCad.format(Number(row.cad_amount))} CAD`,
+        network: networkLabel,
+        txHash: "—",
+        orderUrl,
+      },
+    });
+  }
 }
