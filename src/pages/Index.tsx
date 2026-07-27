@@ -186,13 +186,13 @@ const Index = () => {
 
             <div className="animate-up mt-10 flex flex-wrap justify-center gap-3 [animation-delay:260ms]">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="btn-depth px-7">
-                <Link to="/connexion">
+                <Link to="/inscription">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
                   Acheter
                 </Link>
               </Button>
               <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
-                <Link to="/connexion">
+                <Link to="/inscription">
                   <HandCoins className="h-4 w-4" strokeWidth={1.8} />
                   Vendre
                 </Link>
@@ -468,7 +468,7 @@ const Index = () => {
             </Reveal>
             <Reveal delay={140} className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
-                <Link to="/connexion">
+                <Link to="/inscription">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
                   Ouvrir un compte
                 </Link>

@@ -1,20 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Eye, EyeOff, Lock, Mail, User, Building2, Phone, MapPin, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 
-type Mode = "login" | "register" | "forgot";
-type AccountType = "individual" | "business";
+type Mode = "login" | "forgot";
 
 function traduireErreur(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
-  if (m.includes("already registered") || m.includes("already been registered")) return "Un compte existe déjà avec cet e-mail.";
-  if (m.includes("password should be at least")) return "Le mot de passe doit contenir au moins 6 caractères.";
   if (m.includes("email not confirmed")) return "Adresse e-mail non confirmée — vérifiez votre boîte mail.";
   if (m.includes("unable to validate email")) return "Adresse e-mail invalide.";
   return message;
@@ -40,24 +36,16 @@ const Field = ({
 
 const Connexion = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, sendPasswordReset } = useAuth();
+  const { signIn, sendPasswordReset } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
-  const [accountType, setAccountType] = useState<AccountType>("individual");
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [businessName, setBusinessName] = useState("");
-  const [businessNumber, setBusinessNumber] = useState("");
-  const [businessAddress, setBusinessAddress] = useState("");
-  const [businessPhone, setBusinessPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const isRegister = mode === "register";
   const isForgot = mode === "forgot";
-  const isBusiness = accountType === "business";
 
   const switchMode = (m: Mode) => {
     setMode(m);
@@ -78,40 +66,17 @@ const Connexion = () => {
         setNotice("Si un compte existe pour cette adresse, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail.");
         return;
       }
-      if (isRegister) {
-        if (isBusiness && !businessName.trim()) {
-          setError("Le nom de l'entreprise est requis.");
-          return;
-        }
-        const res = await signUp(email, password, name, isBusiness ? {
-          accountType: "business",
-          businessName: businessName.trim(),
-          businessNumber: businessNumber.trim() || undefined,
-          businessAddress: businessAddress.trim() || undefined,
-          businessPhone: businessPhone.trim() || undefined,
-        } : { accountType: "individual" });
-        if (res.error) return setError(traduireErreur(res.error));
-        if (res.needsConfirmation) {
-          setNotice("Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.");
-          setMode("login");
-          return;
-        }
-        navigate("/app", { replace: true });
-      } else {
-        const res = await signIn(email, password);
-        if (res.error) return setError(traduireErreur(res.error));
-        navigate("/app", { replace: true });
-      }
+      const res = await signIn(email, password);
+      if (res.error) return setError(traduireErreur(res.error));
+      navigate("/app", { replace: true });
     } finally {
       setBusy(false);
     }
   };
 
-  const title = isForgot ? "Mot de passe oublié" : isRegister ? "Créez votre compte" : "Bon retour";
+  const title = isForgot ? "Mot de passe oublié" : "Bon retour";
   const subtitle = isForgot
     ? "Entrez votre adresse e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe."
-    : isRegister
-    ? "Achetez et vendez des USDT en dollars canadiens, en gardant vos clés."
     : "Connectez-vous pour acheter et vendre vos USDT.";
 
   return (
@@ -138,100 +103,7 @@ const Connexion = () => {
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{subtitle}</p>
 
-          {!isForgot && (
-            <div className="mt-7 grid grid-cols-2 gap-1 rounded-xl border border-border bg-secondary/60 p-1">
-              {(["login", "register"] as Mode[]).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => switchMode(m)}
-                  className={cn(
-                    "rounded-[9px] py-2.5 text-sm transition-colors",
-                    mode === m ? "bg-card text-foreground shadow-soft dark:bg-neutral-600" : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {m === "login" ? "Se connecter" : "S'inscrire"}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <form onSubmit={submit} className="mt-6 space-y-3">
-            {/* Sélecteur type de compte — inscription uniquement */}
-            {isRegister && (
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { key: "individual" as AccountType, icon: User, label: "Individuel" },
-                  { key: "business" as AccountType, icon: Building2, label: "Entreprise" },
-                ] as const).map(({ key, icon: Icon, label }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setAccountType(key)}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition-colors",
-                      accountType === key
-                        ? "border-foreground bg-card text-foreground"
-                        : "border-border bg-card text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={1.9} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {isRegister && (
-              <Field
-                icon={User}
-                type="text"
-                placeholder={isBusiness ? "Nom du responsable" : "Nom complet"}
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            )}
-
-            {/* Champs entreprise — inscription business uniquement */}
-            {isRegister && isBusiness && (
-              <>
-                <Field
-                  icon={Building2}
-                  type="text"
-                  placeholder="Nom de l'entreprise"
-                  autoComplete="organization"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  required
-                />
-                <Field
-                  icon={FileText}
-                  type="text"
-                  placeholder="Numéro d'entreprise (NEQ / BN)"
-                  value={businessNumber}
-                  onChange={(e) => setBusinessNumber(e.target.value)}
-                />
-                <Field
-                  icon={MapPin}
-                  type="text"
-                  placeholder="Adresse de l'entreprise"
-                  autoComplete="street-address"
-                  value={businessAddress}
-                  onChange={(e) => setBusinessAddress(e.target.value)}
-                />
-                <Field
-                  icon={Phone}
-                  type="tel"
-                  placeholder="Téléphone de l'entreprise"
-                  autoComplete="tel"
-                  value={businessPhone}
-                  onChange={(e) => setBusinessPhone(e.target.value)}
-                />
-              </>
-            )}
-
+          <form onSubmit={submit} className="mt-7 space-y-3">
             <Field
               icon={Mail}
               type="email"
@@ -247,7 +119,7 @@ const Connexion = () => {
                 icon={Lock}
                 type={showPassword ? "text" : "password"}
                 placeholder="Mot de passe"
-                autoComplete={isRegister ? "new-password" : "current-password"}
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -289,13 +161,7 @@ const Connexion = () => {
 
             <div className="flex justify-end pt-1">
               <Button type="submit" variant="appSolid" shape="rounded" size="default" className="px-6" disabled={busy}>
-                {busy
-                  ? "Un instant…"
-                  : isForgot
-                  ? "Envoyer le lien"
-                  : isRegister
-                  ? "Créer mon compte"
-                  : "Se connecter"}
+                {busy ? "Un instant…" : isForgot ? "Envoyer le lien" : "Se connecter"}
                 {!busy && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
@@ -303,14 +169,13 @@ const Connexion = () => {
 
           {!isForgot && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              {isRegister ? "Vous avez déjà un compte ? " : "Nouveau sur Ooble ? "}
-              <button
-                type="button"
-                onClick={() => switchMode(isRegister ? "login" : "register")}
+              Nouveau sur Ooble ?{" "}
+              <Link
+                to="/inscription"
                 className="text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
               >
-                {isRegister ? "Se connecter" : "Créer un compte"}
-              </button>
+                Créer un compte
+              </Link>
             </p>
           )}
 

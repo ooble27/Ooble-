@@ -8,7 +8,7 @@ const columns: { title: string; links: { label: string; to: string }[] }[] = [
     links: [
       { label: "Accueil", to: "/" },
       { label: "Réseaux", to: "/#reseaux" },
-      { label: "Ouvrir un compte", to: "/connexion" },
+      { label: "Ouvrir un compte", to: "/inscription" },
     ],
   },
   {

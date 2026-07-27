@@ -85,7 +85,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
             size="sm"
             className={cn("h-9 rounded-[10px] text-[13.5px]", inverted && "bg-background text-foreground")}
           >
-            <Link to="/connexion">Ouvrir un compte</Link>
+            <Link to="/inscription">Ouvrir un compte</Link>
           </Button>
         </div>
 
@@ -140,7 +140,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
                 <Link to="/connexion" onClick={close}>Connexion</Link>
               </Button>
               <Button asChild variant="appSolid" shape="rounded" size="default" className="flex-1">
-                <Link to="/connexion" onClick={close}>Ouvrir un compte</Link>
+                <Link to="/inscription" onClick={close}>Ouvrir un compte</Link>
               </Button>
             </div>
           </div>

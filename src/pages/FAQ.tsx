@@ -146,7 +146,7 @@ const FAQ = () => {
               </Link>
             </Button>
             <Button asChild variant="secondary" shape="rounded" size="default" className="px-6">
-              <Link to="/connexion">Ouvrir un compte</Link>
+              <Link to="/inscription">Ouvrir un compte</Link>
             </Button>
           </div>
         </section>
