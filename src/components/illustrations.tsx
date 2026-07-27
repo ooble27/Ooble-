@@ -191,35 +191,41 @@ export const InteracArt = ({ className }: ArtProps) => (
 );
 
 /**
- * Interac → portefeuille crypto.
- * Utilise currentColor pour les traits — fonctionne en clair et en sombre.
+ * Carte bancaire → portefeuille crypto.
+ * Pas de texte dessiné — shapes géométriques uniquement.
+ * currentColor pour les traits → dark mode.
  */
 export const InteracWalletArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 260" className={className} fill="none" role="img" aria-label="Interac e-Transfer vers portefeuille crypto">
-    {/* Carte Interac */}
-    <g transform="rotate(-4 120 130)">
-      <rect x="36" y="68" width="168" height="112" rx="18" fill="#fff" stroke="currentColor" strokeWidth="3" />
-      <rect x="54" y="92" width="42" height="28" rx="6" fill="#F2C14E" stroke="currentColor" strokeWidth="2.5" />
-      <text x="120" y="130" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="22" letterSpacing="-0.5" fill="currentColor">
-        Interac
-      </text>
-      <rect x="54" y="148" width="100" height="8" rx="4" fill="currentColor" opacity="0.15" />
-      <rect x="54" y="162" width="66" height="6" rx="3" fill="currentColor" opacity="0.1" />
+  <svg viewBox="0 0 420 260" className={className} fill="none" role="img" aria-label="Paiement vers portefeuille crypto">
+    {/* Carte bancaire */}
+    <g transform="rotate(-3 130 130)">
+      <rect x="34" y="66" width="180" height="118" rx="16" fill="#fff" stroke={INK} strokeWidth="3" />
+      {/* puce dorée */}
+      <rect x="54" y="88" width="36" height="26" rx="5" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
+      <line x1="54" y1="98" x2="90" y2="98" stroke={INK} strokeWidth="1.5" opacity="0.3" />
+      <line x1="54" y1="106" x2="90" y2="106" stroke={INK} strokeWidth="1.5" opacity="0.3" />
+      <line x1="70" y1="88" x2="70" y2="114" stroke={INK} strokeWidth="1.5" opacity="0.3" />
+      {/* bandes de détails */}
+      <rect x="54" y="132" width="110" height="8" rx="4" fill={INK} opacity="0.12" />
+      <rect x="54" y="148" width="74" height="7" rx="3.5" fill={INK} opacity="0.08" />
+      {/* logo de réseau sur la carte */}
+      <circle cx="188" cy="158" r="10" fill="#FDB515" opacity="0.7" />
+      <circle cx="178" cy="158" r="10" fill="#EB001B" opacity="0.5" />
     </g>
 
-    {/* Flèche de transfert */}
-    <path d="M216 130 h44" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeDasharray="2 11" opacity="0.4" />
-    <path d="M254 121 l12 9 l-12 9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.4" />
+    {/* Flux : points + chevron */}
+    <path d="M224 130 h42" stroke={INK} strokeWidth="2.5" strokeLinecap="round" strokeDasharray="2 10" opacity="0.3" />
+    <path d="M260 122 l10 8 l-10 8" fill="none" stroke={INK} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
 
     {/* Portefeuille */}
-    <g transform="rotate(4 340 140)">
-      <rect x="274" y="92" width="132" height="96" rx="18" fill="#0F3A43" stroke="currentColor" strokeWidth="3" />
-      <path d="M274 142 h132 v28 a18 18 0 0 1 -18 18 H292 a18 18 0 0 1 -18 -18 Z" fill="#2FA39B" stroke="currentColor" strokeWidth="3" />
-      <rect x="356" y="130" width="32" height="22" rx="11" fill="#F2C14E" stroke="currentColor" strokeWidth="2.5" />
-      <circle cx="376" cy="141" r="4" fill="currentColor" />
+    <g transform="rotate(3 340 130)">
+      <rect x="278" y="82" width="120" height="90" rx="16" fill="#0F3A43" stroke={INK} strokeWidth="3" />
+      <path d="M278 132 h120 v24 a16 16 0 0 1 -16 16 H294 a16 16 0 0 1 -16 -16 Z" fill="#2FA39B" stroke={INK} strokeWidth="3" />
+      {/* fermoir */}
+      <rect x="358" y="118" width="28" height="20" rx="10" fill="#F2C14E" stroke={INK} strokeWidth="2.5" />
+      <circle cx="376" cy="128" r="3.5" fill={INK} />
     </g>
-    <UsdtCoin cx={310} cy={78} r={22} rot={-8} />
-    <Spark cx={380} cy={78} s={12} />
+    <UsdtCoin cx={316} cy={68} r={20} rot={-6} />
   </svg>
 );
 
