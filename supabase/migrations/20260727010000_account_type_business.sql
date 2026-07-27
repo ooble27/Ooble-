@@ -3,28 +3,27 @@
 create type public.account_type as enum ('individual', 'business');
 
 alter table public.profiles
+  alter column daily_limit_cad set default 9999,
   add column if not exists account_type public.account_type not null default 'individual',
   add column if not exists business_name text,
   add column if not exists business_number text,
   add column if not exists business_address text,
   add column if not exists business_phone text;
 
--- Limite journalière plus élevée par défaut pour les entreprises (10 000 $).
--- Les individuels restent à 3 000 $.
 comment on column public.profiles.business_number is 'NEQ (Québec) ou BN/NE (fédéral)';
 
 -- Met à jour le trigger pour gérer le type de compte à l'inscription.
+-- Limite journalière identique (9 999 $) pour tous les comptes, individuel ou entreprise.
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
 declare
   v_account_type public.account_type;
-  v_limit numeric(12,2);
+  v_limit numeric(12,2) := 9999.00;
 begin
   v_account_type := coalesce(
     (new.raw_user_meta_data->>'account_type')::public.account_type,
     'individual'
   );
-  v_limit := case when v_account_type = 'business' then 10000.00 else 3000.00 end;
 
   insert into public.profiles (
     id, full_name, email, sell_ref,
