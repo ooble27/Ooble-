@@ -191,46 +191,68 @@ export const InteracArt = ({ className }: ArtProps) => (
 );
 
 /**
- * Notification de virement Interac sur un téléphone — la scène la plus lisible
- * pour dire « on paie par Interac » : un écran de banque affichant un montant
- * reçu et un bouton d'action, avec deux pièces USDT posées à côté pour la paire.
+ * Composition minimaliste alignée sur le CoinStrip du héros :
+ *   [ carte $ neutre ] → [ USDT couleur de marque ]
+ *
+ * Palette strictement neutre pour tout ce qui n'est pas la pièce USDT — même
+ * approche que la rangée du héros. Aucune surface teal ni verte en fond.
  */
 export const ETransferArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 360 340" className={className} fill="none" role="img" aria-label="Virement Interac reçu">
-    {/* Ombre douce sous le téléphone (subtile, pas de halo) */}
-    <ellipse cx="176" cy="316" rx="120" ry="10" fill={INK} opacity="0.06" />
-
-    {/* Téléphone */}
+  <svg viewBox="0 0 360 220" className={className} fill="none" role="img" aria-label="Virement Interac vers USDT">
+    {/* Carte « dollars canadiens » — pastille neutre arrondie */}
     <g>
-      <rect x="82" y="30" width="188" height="286" rx="30" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
-      <rect x="94" y="42" width="164" height="262" rx="20" fill="#fff" />
-      {/* encoche */}
-      <rect x="152" y="46" width="48" height="8" rx="4" fill={INK} />
-
-      {/* En-tête (nom de banque stylisé) */}
-      <rect x="108" y="70" width="70" height="8" rx="4" fill={INK} opacity="0.75" />
-      <rect x="108" y="83" width="46" height="6" rx="3" fill={INK} opacity="0.3" />
-
-      {/* Notification e-Transfer */}
-      <rect x="108" y="108" width="136" height="82" rx="14" fill="#EEF2F2" stroke={INK} strokeWidth="2" />
-      <circle cx="125" cy="126" r="9" fill="#F2C14E" stroke={INK} strokeWidth="2" />
-      <text x="125" y="130" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="10" fill={INK}>i</text>
-      <rect x="140" y="120" width="80" height="6" rx="3" fill={INK} opacity="0.75" />
-      <rect x="140" y="131" width="52" height="5" rx="2.5" fill={INK} opacity="0.35" />
-      <text x="176" y="170" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="800" fontSize="26" fill={INK}>500 $</text>
-
-      {/* Bouton « Accepter » */}
-      <rect x="112" y="204" width="128" height="34" rx="17" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
-      <text x="176" y="226" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill="#fff">Accepter</text>
-
-      {/* Bouton secondaire « Refuser » */}
-      <rect x="112" y="248" width="128" height="34" rx="17" fill="#fff" stroke={INK} strokeWidth="2" />
-      <text x="176" y="270" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill={INK}>Détails</text>
+      <rect x="24" y="46" width="128" height="128" rx="30" fill="#F1F3F4" stroke={INK} strokeWidth="3" />
+      {/* symbole dollar centré */}
+      <text
+        x="88"
+        y="132"
+        textAnchor="middle"
+        fontFamily="Poppins, Manrope, Arial, sans-serif"
+        fontWeight="600"
+        fontSize="72"
+        fill={INK}
+      >
+        $
+      </text>
+      {/* étiquette CAD */}
+      <rect x="52" y="152" width="72" height="14" rx="7" fill={INK} opacity="0.08" />
+      <text
+        x="88"
+        y="163"
+        textAnchor="middle"
+        fontFamily="Poppins, Manrope, Arial, sans-serif"
+        fontWeight="600"
+        fontSize="9"
+        letterSpacing="2"
+        fill={INK}
+        opacity="0.6"
+      >
+        CAD
+      </text>
     </g>
 
-    {/* Deux pièces USDT à droite du téléphone, en léger décalage */}
-    <UsdtCoin cx={306} cy={128} r={30} rot={-8} />
-    <UsdtCoin cx={318} cy={192} r={22} rot={12} />
+    {/* Flèche en pointillés — flux du CAD vers l'USDT */}
+    <path
+      d="M162 110 h36"
+      stroke={INK}
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeDasharray="2 10"
+    />
+    <path
+      d="M192 101 l12 9 l-12 9"
+      fill="none"
+      stroke={INK}
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+
+    {/* Pièce USDT — seule pastille colorée, dans le même style que le CoinStrip */}
+    <g>
+      <rect x="208" y="46" width="128" height="128" rx="30" fill="#F1F3F4" stroke={INK} strokeWidth="3" />
+      <UsdtCoin cx={272} cy={110} r={40} rot={-4} />
+    </g>
   </svg>
 );
 
