@@ -23,7 +23,13 @@ interface AuthContextValue {
   /** Les rôles sont encore en cours de chargement. */
   rolesLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error?: string; needsConfirmation?: boolean }>;
+  signUp: (email: string, password: string, name: string, extra?: {
+    accountType?: "individual" | "business";
+    businessName?: string;
+    businessNumber?: string;
+    businessAddress?: string;
+    businessPhone?: string;
+  }) => Promise<{ error?: string; needsConfirmation?: boolean }>;
   /** Envoie le courriel de réinitialisation de mot de passe. */
   sendPasswordReset: (email: string) => Promise<{ error?: string }>;
   /** Définit un nouveau mot de passe (après clic sur le lien de réinitialisation). */
@@ -103,17 +109,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         return error ? { error: error.message } : {};
       },
-      signUp: async (email, password, name) => {
+      signUp: async (email, password, name, extra) => {
+        const meta: Record<string, string> = {
+          full_name: name.trim() || nameFromEmail(email),
+        };
+        if (extra?.accountType) meta.account_type = extra.accountType;
+        if (extra?.businessName) meta.business_name = extra.businessName;
+        if (extra?.businessNumber) meta.business_number = extra.businessNumber;
+        if (extra?.businessAddress) meta.business_address = extra.businessAddress;
+        if (extra?.businessPhone) meta.business_phone = extra.businessPhone;
+
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
-            data: { full_name: name.trim() || nameFromEmail(email) },
+            data: meta,
             emailRedirectTo: `${window.location.origin}/app`,
           },
         });
         if (error) return { error: error.message };
-        // Si la confirmation d'e-mail est activée, aucune session n'est ouverte.
         return { needsConfirmation: !data.session };
       },
       sendPasswordReset: async (email) => {

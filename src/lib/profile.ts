@@ -1,4 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+export type AccountType = Database["public"]["Enums"]["account_type"];
 
 export interface MyProfile {
   fullName: string | null;
@@ -6,6 +9,11 @@ export interface MyProfile {
   sellRef: string | null;
   interacQuestion: string | null;
   interacAnswer: string | null;
+  accountType: AccountType;
+  businessName: string | null;
+  businessNumber: string | null;
+  businessAddress: string | null;
+  businessPhone: string | null;
 }
 
 export async function getMyProfile(): Promise<MyProfile | null> {
@@ -14,7 +22,7 @@ export async function getMyProfile(): Promise<MyProfile | null> {
   if (!uid) return null;
   const { data, error } = await supabase
     .from("profiles")
-    .select("full_name, email, sell_ref, interac_question, interac_answer")
+    .select("full_name, email, sell_ref, interac_question, interac_answer, account_type, business_name, business_number, business_address, business_phone")
     .eq("id", uid)
     .maybeSingle();
   if (error || !data) return null;
@@ -38,6 +46,11 @@ export async function getMyProfile(): Promise<MyProfile | null> {
     sellRef: data.sell_ref,
     interacQuestion: question,
     interacAnswer: answer,
+    accountType: data.account_type,
+    businessName: data.business_name,
+    businessNumber: data.business_number,
+    businessAddress: data.business_address,
+    businessPhone: data.business_phone,
   };
 }
 

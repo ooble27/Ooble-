@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight, MessageSquare } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight, MessageSquare, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
@@ -46,8 +46,47 @@ const Compte = () => {
         <div className="min-w-0">
           <p className="truncate font-display text-lg font-bold">{user?.name}</p>
           <p className="truncate text-sm text-muted-foreground">{user?.email}</p>
+          {profile?.accountType === "business" && (
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-deep/10 px-2 py-0.5 text-[11px] font-semibold text-deep">
+              <Building2 className="h-3 w-3" /> Entreprise
+            </span>
+          )}
         </div>
       </div>
+
+      {/* Informations entreprise */}
+      {profile?.accountType === "business" && profile.businessName && (
+        <div className="mt-4 rounded-2xl border border-border bg-card">
+          <div className="flex items-center gap-2.5 px-5 pb-1 pt-4">
+            <Building2 className="h-4 w-4 text-muted-foreground" strokeWidth={1.9} />
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Entreprise</p>
+          </div>
+          <div className="divide-y divide-border border-t border-border">
+            <div className="flex items-center justify-between px-5 py-3">
+              <span className="text-sm text-muted-foreground">Raison sociale</span>
+              <span className="text-sm font-medium">{profile.businessName}</span>
+            </div>
+            {profile.businessNumber && (
+              <div className="flex items-center justify-between px-5 py-3">
+                <span className="text-sm text-muted-foreground">NEQ / BN</span>
+                <span className="font-mono text-sm">{profile.businessNumber}</span>
+              </div>
+            )}
+            {profile.businessAddress && (
+              <div className="flex items-center justify-between px-5 py-3">
+                <span className="text-sm text-muted-foreground">Adresse</span>
+                <span className="text-right text-sm">{profile.businessAddress}</span>
+              </div>
+            )}
+            {profile.businessPhone && (
+              <div className="flex items-center justify-between px-5 py-3">
+                <span className="text-sm text-muted-foreground">Téléphone</span>
+                <span className="text-sm">{profile.businessPhone}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Question / réponse Interac pour recevoir les ventes */}
       {profile?.interacQuestion && (

@@ -3,6 +3,8 @@ import type { Database } from "@/integrations/supabase/types";
 
 type KycStatus = Database["public"]["Enums"]["kyc_status"];
 
+type AccountType = Database["public"]["Enums"]["account_type"];
+
 export interface ClientProfile {
   id: string;
   fullName: string;
@@ -12,6 +14,11 @@ export interface ClientProfile {
   dailyLimitCad: number;
   interacQuestion: string | null;
   interacAnswer: string | null;
+  accountType: AccountType;
+  businessName: string | null;
+  businessNumber: string | null;
+  businessAddress: string | null;
+  businessPhone: string | null;
   createdAt: string;
   orderCount: number;
   totalCad: number;
@@ -38,7 +45,7 @@ export { KYC_LABEL };
 export async function fetchClientProfile(userId: string): Promise<ClientProfile | null> {
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, phone, kyc_status, daily_limit_cad, interac_question, interac_answer, created_at")
+    .select("id, full_name, email, phone, kyc_status, daily_limit_cad, interac_question, interac_answer, account_type, business_name, business_number, business_address, business_phone, created_at")
     .eq("id", userId)
     .maybeSingle();
   if (error || !profile) return null;
@@ -65,6 +72,11 @@ export async function fetchClientProfile(userId: string): Promise<ClientProfile 
     dailyLimitCad: profile.daily_limit_cad,
     interacQuestion: profile.interac_question,
     interacAnswer: profile.interac_answer,
+    accountType: profile.account_type,
+    businessName: profile.business_name,
+    businessNumber: profile.business_number,
+    businessAddress: profile.business_address,
+    businessPhone: profile.business_phone,
     createdAt: profile.created_at,
     orderCount: count ?? 0,
     totalCad,

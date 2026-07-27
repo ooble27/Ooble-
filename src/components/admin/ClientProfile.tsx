@@ -103,6 +103,11 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
               <div className="min-w-0">
                 <p className="truncate text-[17px] font-semibold">{name}</p>
                 <p className="text-[13px] text-muted-foreground">{profile?.email || "—"}</p>
+                {profile?.accountType === "business" && (
+                  <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                    Entreprise{profile.businessName ? ` — ${profile.businessName}` : ""}
+                  </span>
+                )}
                 {profile && (
                   <p className="mt-0.5 text-[12px] text-muted-foreground">
                     Client depuis {dateFmt.format(new Date(profile.createdAt))}
@@ -142,6 +147,15 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
             )}
             {profile?.interacAnswer && (
               <Row label="Réponse Interac" value={profile.interacAnswer} />
+            )}
+            <Row label="Type de compte" value={profile?.accountType === "business" ? "Entreprise" : "Individuel"} />
+            {profile?.accountType === "business" && (
+              <>
+                <Row label="Raison sociale" value={profile.businessName} />
+                {profile.businessNumber && <Row label="NEQ / BN" value={profile.businessNumber} mono />}
+                {profile.businessAddress && <Row label="Adresse entreprise" value={profile.businessAddress} />}
+                {profile.businessPhone && <Row label="Tél. entreprise" value={profile.businessPhone} />}
+              </>
             )}
             <Row label="Inscription" value={profile ? dateFmt.format(new Date(profile.createdAt)) : "—"} />
           </div>

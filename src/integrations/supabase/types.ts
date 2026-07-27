@@ -315,6 +315,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
+          business_address: string | null
+          business_name: string | null
+          business_number: string | null
+          business_phone: string | null
           created_at: string
           daily_limit_cad: number
           email: string | null
@@ -328,6 +333,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          business_address?: string | null
+          business_name?: string | null
+          business_number?: string | null
+          business_phone?: string | null
           created_at?: string
           daily_limit_cad?: number
           email?: string | null
@@ -341,6 +351,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          business_address?: string | null
+          business_name?: string | null
+          business_number?: string | null
+          business_phone?: string | null
           created_at?: string
           daily_limit_cad?: number
           email?: string | null
@@ -432,6 +447,7 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      account_type: "individual" | "business"
       app_role: "admin" | "operator" | "kyc_reviewer" | "support" | "marketing"
       kyc_status: "not_started" | "pending" | "approved" | "rejected"
       order_side: "buy" | "sell"
@@ -561,6 +577,7 @@ export type Enums<
 export const Constants = {
   public: {
     Enums: {
+      account_type: ["individual", "business"],
       app_role: ["admin", "operator", "kyc_reviewer", "support", "marketing"],
       kyc_status: ["not_started", "pending", "approved", "rejected"],
       order_side: ["buy", "sell"],
