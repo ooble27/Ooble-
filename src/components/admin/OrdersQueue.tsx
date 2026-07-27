@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Hand, Clock, Coins, HandCoins, Inbox } from "lucide-react";
+import { Hand, Check, Clock, Coins, HandCoins, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -106,7 +106,17 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
 
             {/* Action (à droite) */}
             <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-              {tab === "queue" && (
+              {tab === "queue" && o.status === "attente" && (
+                <Button
+                  variant="appSolid"
+                  shape="rounded"
+                  className="h-auto gap-1.5 rounded-[9px] px-3 py-[7px] text-[12.5px] font-bold"
+                  onClick={() => onPatch(o.id, { status: "recu" })}
+                >
+                  <Check className="h-[13px] w-[13px]" /> Marquer reçu
+                </Button>
+              )}
+              {tab === "queue" && o.status === "recu" && (
                 <Button
                   variant="appSolid"
                   shape="rounded"
