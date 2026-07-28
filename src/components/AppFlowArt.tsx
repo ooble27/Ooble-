@@ -35,16 +35,17 @@ const ORIGINS = [0, 1, 2].map((i) => ({ x: i * STEP.x, y: i * STEP.y }));
  * lui qui donne l'allure étirée. La hauteur coupe le bas de la dernière carte,
  * mais le fondu rend la coupe invisible.
  */
-const VIEW_BOX = "-5 -158 1200 592";
+const VIEW_BOX = "-5 -158 1200 672";
 
 /*
  * Fondus : vertical puis horizontal, croisés pour estomper les quatre bords.
  * Le bord gauche ne part pas de zéro — il reste un fond de teinte — pour qu'on
  * devine le flanc de la première carte au lieu de le voir disparaître net.
  */
-/* Le palier haut est court (7 %) : le cadre garde une marge pour la carte qui se
-   soulève, et un fondu plus long y mangerait son coin supérieur. */
-const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 7%, #000 60%, transparent 100%)";
+/* Fondu doux : opaque presque jusqu'en bas, pour que le bouton « Valider » de la
+   carte de devant (et le curseur qui le clique) restent bien visibles ; seuls le
+   tout haut et le tout bas se dissolvent dans la page. */
+const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 6%, #000 90%, transparent 100%)";
 const FADE_X =
   "linear-gradient(to right, rgba(0,0,0,0.32) 0%, #000 6%, #000 90%, transparent 100%)";
 
