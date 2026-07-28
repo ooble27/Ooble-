@@ -2,19 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Inbox, Coins, HandCoins, Filter } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
-import { ActivityRow, OrderDetailSheet } from "@/components/app/ActivityList";
+import { ActivityRow } from "@/components/app/ActivityList";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 
 type TabFilter = "all" | "buy" | "sell";
 
 const Activite = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const [tab, setTab] = useState<TabFilter>("all");
-  const [selected, setSelected] = useState<OrderRow | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -24,12 +21,9 @@ const Activite = () => {
 
   const filtered = orders?.filter((o) => tab === "all" || o.side === tab) ?? null;
 
+  // Détail toujours sur une page dédiée (desktop comme mobile), plus de pop-up.
   const handleClick = (o: OrderRow) => {
-    if (isMobile) {
-      navigate(`/app/activite/${o.id}`, { state: { order: o } });
-    } else {
-      setSelected(o);
-    }
+    navigate(`/app/activite/${o.id}`, { state: { order: o } });
   };
 
   return (
@@ -103,9 +97,6 @@ const Activite = () => {
           {filtered.length} transaction{filtered.length > 1 ? "s" : ""}
         </p>
       )}
-
-      {/* Desktop popup */}
-      <OrderDetailSheet o={selected} open={!!selected} onClose={() => setSelected(null)} />
     </AppShell>
   );
 };

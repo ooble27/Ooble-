@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Send, Handshake, Coins, HandCoins, Inbox, ChevronRight } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import RateChart from "@/components/app/RateChart";
@@ -23,6 +23,7 @@ function greeting(): string {
 
 /** Activité récente — 3 derniers ordres, épuré. Détail complet sur /app/activite. */
 const RecentActivity = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
 
   useEffect(() => {
@@ -59,7 +60,13 @@ const RecentActivity = () => {
         </div>
       ) : (
         <div className="mt-1 divide-y divide-border">
-          {orders.map((o) => <ActivityRow key={o.id} o={o} />)}
+          {orders.map((o) => (
+            <ActivityRow
+              key={o.id}
+              o={o}
+              onClick={() => navigate(`/app/activite/${o.id}`, { state: { order: o } })}
+            />
+          ))}
         </div>
       )}
     </div>
