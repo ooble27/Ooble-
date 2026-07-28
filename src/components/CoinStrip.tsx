@@ -4,83 +4,123 @@ interface Props {
   className?: string;
 }
 
+const WireLine = ({ w = "70%" }: { w?: string }) => (
+  <div className="h-[10px] rounded-full bg-foreground/[0.06]" style={{ width: w }} />
+);
+
+const WireBox = ({ children }: { children?: React.ReactNode }) => (
+  <div className="rounded-xl border border-foreground/[0.06] px-4 py-3">
+    {children}
+  </div>
+);
+
 const CoinStrip = ({ className }: Props) => (
-  <div className={cn("flex justify-center", className)} style={{ perspective: "1200px" }}>
+  <div className={cn("flex justify-center", className)} style={{ perspective: "1600px" }}>
     <div
-      className="relative w-full max-w-[380px] sm:max-w-[440px]"
-      style={{ transform: "rotateY(-18deg) rotateX(8deg) rotateZ(2deg)", transformStyle: "preserve-3d" }}
+      className="relative h-[260px] w-[440px] sm:h-[320px] sm:w-[560px]"
+      style={{
+        transform: "rotateY(-28deg) rotateX(12deg) rotateZ(2deg)",
+        transformStyle: "preserve-3d",
+      }}
     >
-      {/* Subtle shadow underneath the tilted card */}
-      <div className="absolute inset-x-4 bottom-0 top-8 rounded-[28px] bg-foreground/[0.04] blur-xl" aria-hidden />
-
-      {/* Main card — buy interface mockup */}
-      <div className="relative overflow-hidden rounded-[24px] border border-border/40 bg-card/90 shadow-[0_4px_40px_-12px_rgba(0,0,0,0.1),0_1px_3px_rgba(0,0,0,0.04)] backdrop-blur-sm">
-        {/* Header */}
-        <div className="px-5 pb-3 pt-5">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-              <img src="/coins/usdt.svg" alt="" className="h-5 w-5" draggable={false} />
-            </div>
-            <span className="font-display text-[15px] tracking-tight">Acheter USDT</span>
-          </div>
+      {/* Card 1 — Acheter USDT (front-left) */}
+      <div
+        className="absolute left-0 top-0 h-[220px] w-[200px] rounded-2xl border border-foreground/[0.07] bg-white/80 p-5 shadow-[0_2px_20px_rgba(0,0,0,0.04)] backdrop-blur-sm dark:bg-card/80 sm:h-[280px] sm:w-[250px]"
+        style={{ transform: "translateZ(60px)", transformStyle: "preserve-3d" }}
+      >
+        <p className="font-display text-[15px] tracking-tight sm:text-[18px]">Acheter USDT</p>
+        <div className="mt-4 space-y-[10px] font-mono text-[11px] text-foreground/30 sm:mt-5 sm:space-y-[12px] sm:text-[13px]">
+          <p>montant</p>
+          <p>méthode</p>
+          <p>réseau</p>
+          <p>frais</p>
+          <p>disponible</p>
+          <p>confirmer</p>
         </div>
+      </div>
 
-        {/* Amount card */}
-        <div className="mx-4 rounded-[16px] border border-border/40 bg-secondary/25 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50">Montant</span>
-            <div className="inline-flex gap-0.5 rounded-lg bg-background/60 p-[2px]">
-              <span className="rounded-md bg-card px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-sm">CAD</span>
-              <span className="rounded-md px-2.5 py-1 text-[10px] text-muted-foreground/40">USDT</span>
+      {/* Dashed connector from card 1 to card 2 */}
+      <svg
+        className="absolute left-[170px] top-[30px] h-[180px] w-[80px] sm:left-[210px] sm:top-[40px] sm:h-[220px] sm:w-[100px]"
+        style={{ transform: "translateZ(30px)" }}
+        viewBox="0 0 80 180"
+        fill="none"
+      >
+        <path
+          d="M10 10 L10 80 Q10 95 25 95 L55 95 Q70 95 70 110 L70 170"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeDasharray="6 6"
+          className="text-foreground/10"
+          fill="none"
+        />
+        <path
+          d="M64 162 L70 174 L76 162"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className="text-foreground/10"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* Card 2 — Vendre USDT (middle) */}
+      <div
+        className="absolute left-[120px] top-[10px] h-[220px] w-[200px] rounded-2xl border border-foreground/[0.07] bg-white/80 p-5 shadow-[0_2px_20px_rgba(0,0,0,0.04)] backdrop-blur-sm dark:bg-card/80 sm:left-[150px] sm:h-[280px] sm:w-[250px]"
+        style={{ transform: "translateZ(0px)", transformStyle: "preserve-3d" }}
+      >
+        <p className="font-display text-[15px] tracking-tight sm:text-[18px]">Vendre USDT</p>
+        <div className="mt-5 space-y-3 sm:mt-6">
+          <WireBox>
+            <div className="space-y-2">
+              <WireLine w="50%" />
+              <WireLine w="35%" />
             </div>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="font-display text-[32px] leading-none tracking-[-1.5px]">500</span>
-            <span className="text-sm text-muted-foreground/40">CAD</span>
-          </div>
-        </div>
-
-        {/* Summary rows */}
-        <div className="mx-4 mt-2.5 divide-y divide-border/30 rounded-[14px] border border-border/40 bg-secondary/15">
-          <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-[12px] text-muted-foreground/50">Vous recevez</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[13px] font-semibold">357,14 USDT</span>
-              <img src="/coins/usdt.svg" alt="" className="h-4 w-4" draggable={false} />
+          </WireBox>
+          <WireBox>
+            <div className="space-y-2">
+              <WireLine w="65%" />
+              <WireLine w="40%" />
             </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-[12px] text-muted-foreground/50">Taux</span>
-            <span className="text-[12px] text-muted-foreground/50">1 USDT = 1,40 CAD</span>
-          </div>
+          </WireBox>
         </div>
+      </div>
 
-        {/* Network chips */}
-        <div className="mx-4 mt-3 flex gap-1.5 overflow-hidden">
-          {[
-            { id: "trx", name: "Tron", sel: true },
-            { id: "eth", name: "Ethereum", sel: false },
-            { id: "bnb", name: "BNB", sel: false },
-            { id: "sol", name: "Solana", sel: false },
-          ].map((n) => (
-            <div
-              key={n.id}
-              className={cn(
-                "flex items-center gap-1.5 rounded-lg border py-1.5 pl-1.5 pr-2.5",
-                n.sel ? "border-foreground/15 bg-secondary/50" : "border-border/30 opacity-40",
-              )}
-            >
-              <img src={`/coins/${n.id}.svg`} alt="" className="h-5 w-5 rounded-full" draggable={false} />
-              <span className="text-[11px]">{n.name}</span>
+      {/* Card 3 — Transactions (back-right) */}
+      <div
+        className="absolute left-[240px] top-[20px] h-[220px] w-[200px] rounded-2xl border border-foreground/[0.07] bg-white/80 p-5 shadow-[0_2px_20px_rgba(0,0,0,0.04)] backdrop-blur-sm dark:bg-card/80 sm:left-[300px] sm:h-[280px] sm:w-[250px]"
+        style={{ transform: "translateZ(-60px)", transformStyle: "preserve-3d" }}
+      >
+        <p className="font-display text-[15px] tracking-tight sm:text-[18px]">Transactions</p>
+        <div className="mt-5 space-y-3 sm:mt-6">
+          <WireBox>
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <WireLine w="80px" />
+                <WireLine w="50px" />
+              </div>
+              <WireLine w="40px" />
             </div>
-          ))}
-        </div>
-
-        {/* Bottom bar with CTA */}
-        <div className="mt-3 flex items-center justify-end px-4 pb-4">
-          <div className="rounded-xl bg-foreground px-4 py-2.5 text-[12px] font-semibold text-background">
-            Continuer
-          </div>
+          </WireBox>
+          <WireBox>
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <WireLine w="70px" />
+                <WireLine w="55px" />
+              </div>
+              <WireLine w="35px" />
+            </div>
+          </WireBox>
+          <WireBox>
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <WireLine w="60px" />
+                <WireLine w="45px" />
+              </div>
+              <WireLine w="45px" />
+            </div>
+          </WireBox>
         </div>
       </div>
     </div>
