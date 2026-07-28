@@ -1,0 +1,225 @@
+<!--
+  Source de public/og-image.png (aperçu de partage — réseaux sociaux, WhatsApp).
+  FONT_500/600/700/800 sont des marqueurs à remplacer par les polices Poppins
+  encodées en base64 avant capture (ce fichier n'affiche pas le bon texte tel
+  quel, faute de police). Pour régénérer :
+
+    1. Récupérer les 4 fichiers .ttf Poppins (poids 500/600/700/800) depuis
+       https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800
+    2. Remplacer chaque FONT_<poids> par "data:font/ttf;base64,<contenu>"
+    3. Capturer ce HTML en 1200×630 (device scale 1) avec un navigateur headless
+       et enregistrer le résultat dans public/og-image.png
+-->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 500;
+    src: url("FONT_500") format("truetype");
+  }
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 600;
+    src: url("FONT_600") format("truetype");
+  }
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 700;
+    src: url("FONT_700") format("truetype");
+  }
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 800;
+    src: url("FONT_800") format("truetype");
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1200px;
+    height: 630px;
+    background: #0F3A43;
+    font-family: "Poppins", sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Grille de points, comme .deco-dots-inv sur un panneau inversé. */
+  .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 1.6px, transparent 1.6px);
+    background-size: 28px 28px;
+  }
+
+  /* Lueur douce en haut à droite, teal, comme .bg-wash. */
+  .wash {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(46% 60% at 88% 8%, rgba(47,163,155,0.30), transparent 70%),
+      radial-gradient(38% 46% at 8% 100%, rgba(47,163,155,0.14), transparent 70%);
+  }
+
+  .content {
+    position: relative;
+    height: 100%;
+    padding: 72px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .logo {
+    position: absolute;
+    top: 64px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    background: #0f343e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-word {
+    font-weight: 800;
+    font-size: 30px;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 68px;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    max-width: 690px;
+  }
+  h1 .soft {
+    color: rgba(255,255,255,0.4);
+  }
+
+  p.sub {
+    margin-top: 26px;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.62);
+    max-width: 560px;
+  }
+
+  .badges {
+    margin-top: 40px;
+    display: flex;
+    gap: 12px;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-weight: 600;
+    font-size: 17px;
+    color: #ffffff;
+  }
+  .badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2FA39B;
+  }
+
+  .art {
+    position: absolute;
+    right: -30px;
+    top: 0;
+    height: 630px;
+    width: 480px;
+  }
+
+  .domain {
+    position: absolute;
+    right: 40px;
+    bottom: 32px;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="dots"></div>
+  <div class="wash"></div>
+
+  <div class="art">
+    <svg viewBox="0 0 480 630" width="480" height="630" fill="none">
+      <!-- Pièces USDT, même style que les illustrations du site. -->
+      <g transform="translate(150 175) rotate(-10)">
+        <circle cx="0" cy="14" r="118" fill="#123f39" />
+        <circle cx="0" cy="0" r="118" fill="#26A17B" stroke="#14201f" stroke-width="5" />
+        <rect x="-49" y="-51" width="98" height="17" rx="8.5" fill="#fff" />
+        <rect x="-8.5" y="-51" width="17" height="96" rx="8.5" fill="#fff" />
+        <rect x="-28" y="-3" width="56" height="17" rx="8.5" fill="#fff" />
+      </g>
+      <g transform="translate(365 110) rotate(14)">
+        <circle cx="0" cy="6" r="46" fill="#123f39" />
+        <circle cx="0" cy="0" r="46" fill="#26A17B" stroke="#14201f" stroke-width="3.5" />
+        <rect x="-19" y="-20" width="38" height="7" rx="3.5" fill="#fff" />
+        <rect x="-3.5" y="-20" width="7" height="37.5" rx="3.5" fill="#fff" />
+        <rect x="-11" y="-1" width="22" height="7" rx="3.5" fill="#fff" />
+      </g>
+      <g transform="translate(88 430) rotate(-20)">
+        <circle cx="0" cy="5" r="38" fill="#123f39" />
+        <circle cx="0" cy="0" r="38" fill="#26A17B" stroke="#14201f" stroke-width="3" />
+        <rect x="-16" y="-16.5" width="32" height="6" rx="3" fill="#fff" />
+        <rect x="-3" y="-16.5" width="6" height="31" rx="3" fill="#fff" />
+        <rect x="-9" y="-1" width="18" height="6" rx="3" fill="#fff" />
+      </g>
+      <g transform="translate(330 500) rotate(8)">
+        <circle cx="0" cy="4" r="27" fill="#123f39" />
+        <circle cx="0" cy="0" r="27" fill="#26A17B" stroke="#14201f" stroke-width="2.5" />
+        <rect x="-11.5" y="-12" width="23" height="4.5" rx="2.25" fill="#fff" />
+        <rect x="-2.25" y="-12" width="4.5" height="22.5" rx="2.25" fill="#fff" />
+        <rect x="-6.5" y="-0.5" width="13" height="4.5" rx="2.25" fill="#fff" />
+      </g>
+      <!-- Anneau pointillé en écho au logo (deux cercles imbriqués). -->
+      <circle cx="150" cy="175" r="165" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="2" stroke-dasharray="2 14" />
+    </svg>
+  </div>
+
+  <div class="logo">
+    <span class="logo-mark">
+      <svg viewBox="0 0 32 32" width="32" height="32">
+        <circle cx="12.5" cy="16" r="4.6" fill="none" stroke="#2FA39B" stroke-width="2.6" />
+        <circle cx="20.5" cy="16" r="4.6" fill="none" stroke="#ffffff" stroke-width="2.6" />
+      </svg>
+    </span>
+    <span class="logo-word">Ooble</span>
+  </div>
+
+  <div class="domain">ooble.ca</div>
+
+  <div class="content">
+    <h1>Achetez et vendez<br />vos USDT <span class="soft">en&nbsp;dollars</span></h1>
+    <p class="sub">Réglé directement vers votre wallet ou votre compte Interac. Ooble ne conserve aucun solde.</p>
+    <div class="badges">
+      <span class="badge"><span class="dot"></span>Non-custodial</span>
+      <span class="badge"><span class="dot"></span>Interac e-Transfer</span>
+    </div>
+  </div>
+</body>
+</html>
