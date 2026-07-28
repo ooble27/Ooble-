@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import RotatingWord from "@/components/RotatingWord";
-import CoinStrip from "@/components/CoinStrip";
+import AppFlowArt from "@/components/AppFlowArt";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
 import { InteracWalletArt } from "@/components/illustrations";
@@ -199,7 +199,7 @@ const Index = () => {
               </Button>
             </div>
 
-            <CoinStrip className="animate-up mx-auto mt-16 [animation-delay:380ms]" />
+            <AppFlowArt className="animate-up mx-auto mt-12 [animation-delay:380ms] sm:mt-14" />
           </Wrap>
         </section>
 
