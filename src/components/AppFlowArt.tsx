@@ -34,19 +34,31 @@ const ORIGINS = [0, 1, 2].map((i) => ({ x: i * STEP.x, y: i * STEP.y }));
  * lui qui donne l'allure étirée. La hauteur coupe le bas de la dernière carte,
  * mais le fondu rend la coupe invisible.
  */
-const VIEW_BOX = "-28 -126 1236 560";
+const VIEW_BOX = "-5 -126 1200 560";
 
-/* Fondus : vertical puis horizontal, croisés pour estomper les quatre bords. */
+/*
+ * Fondus : vertical puis horizontal, croisés pour estomper les quatre bords.
+ * Le bord gauche ne part pas de zéro — il reste un fond de teinte — pour qu'on
+ * devine le flanc de la première carte au lieu de le voir disparaître net.
+ */
 const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 12%, #000 60%, transparent 100%)";
-const FADE_X = "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)";
+const FADE_X =
+  "linear-gradient(to right, rgba(0,0,0,0.32) 0%, #000 6%, #000 90%, transparent 100%)";
 
 const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
   <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
+    {/*
+      Le remplissage suit `--background`, pas `--card` : il ne sert qu'à masquer
+      la carte du dessous. En clair les deux jetons valent blanc, mais en sombre
+      `--card` est 3 % plus clair que la page — la carte devenait alors une dalle
+      grise, impossible à fondre dans le fond. Avec `--background` la carte n'est
+      dessinée que par son filet, dans les deux thèmes.
+    */}
     <rect
       width={CARD.w}
       height={CARD.h}
       rx={CARD.r}
-      className="fill-card stroke-foreground/[0.07]"
+      className="fill-background stroke-foreground/[0.07] dark:stroke-foreground/[0.13]"
       strokeWidth="1.5"
       filter="url(#ooble-card-shadow)"
     />
@@ -59,7 +71,7 @@ const Title = ({ children }: { children: string }) => (
   <text
     x="50"
     y="72"
-    className="fill-foreground/[0.42] font-display"
+    className="fill-foreground/[0.42] font-display dark:fill-foreground/[0.5]"
     fontSize="40"
     fontWeight="500"
     letterSpacing="-1"
@@ -70,7 +82,14 @@ const Title = ({ children }: { children: string }) => (
 
 /** Barre pleine (contenu « fantôme » d'une liste). */
 const Bar = ({ x, y, w, h = 24 }: { x: number; y: number; w: number; h?: number }) => (
-  <rect x={x} y={y} width={w} height={h} rx={h / 2} className="fill-foreground/[0.04]" />
+  <rect
+    x={x}
+    y={y}
+    width={w}
+    height={h}
+    rx={h / 2}
+    className="fill-foreground/[0.04] dark:fill-foreground/[0.07]"
+  />
 );
 
 /** Bloc au filet fin (champ ou ligne de tableau vide). */
@@ -82,7 +101,7 @@ const Outline = ({ x, y, w, h }: { x: number; y: number; w: number; h: number })
     height={h}
     rx="18"
     fill="none"
-    className="stroke-foreground/[0.06]"
+    className="stroke-foreground/[0.06] dark:stroke-foreground/[0.11]"
     strokeWidth="1.5"
   />
 );
@@ -96,7 +115,7 @@ const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) 
     height={h}
     rx="16"
     fill="none"
-    className="stroke-foreground/[0.11]"
+    className="stroke-foreground/[0.11] dark:stroke-foreground/[0.18]"
     strokeWidth="1.6"
     strokeDasharray="11 10"
   />
@@ -122,9 +141,12 @@ const AppFlowArt = ({ className }: { className?: string }) => (
       /* Le cadre est taillé pour le desktop, très étiré. Sur mobile un rapport
          plus haut est imposé et `slice` recadre l'illustration au lieu de la
          réduire — sinon la bande deviendrait minuscule sur un petit écran. Les
-         bords de la coupe sont mangés par le fondu. */
+         bords de la coupe sont mangés par le fondu.
+         Le calage est à gauche, et la fenêtre visible mesure 560 × ce rapport en
+         unités de `viewBox` : 1,67 donne ≈ 935, juste ce qu'il faut pour que le
+         titre « Transactions » rentre en entier à droite. */
       preserveAspectRatio="xMinYMid slice"
-      className="aspect-[1.6/1] h-auto w-full sm:aspect-auto sm:max-w-[760px] lg:max-w-[1040px] xl:max-w-[1120px]"
+      className="aspect-[1.67/1] h-auto w-full sm:aspect-auto sm:max-w-[760px] lg:max-w-[1040px] xl:max-w-[1120px]"
       style={{
         maskImage: `${FADE_Y}, ${FADE_X}`,
         WebkitMaskImage: `${FADE_Y}, ${FADE_X}`,
@@ -168,15 +190,20 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <Dashed x={330} y={52} w={240} h={62} />
 
         {/* Flux vers le règlement : petite fourche puis longue courbe */}
-        <g className="stroke-foreground/[0.13]" strokeWidth="2.2" strokeLinecap="round" fill="none">
+        <g
+          className="stroke-foreground/[0.13] dark:stroke-foreground/20"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          fill="none"
+        >
           <path d="M200 188 C 200 218 216 226 250 234" />
           <path d="M200 188 C 200 232 148 250 132 292 C 124 316 122 330 122 348" />
           <path d="M110 334 L 122 360 L 134 334" strokeLinejoin="round" />
         </g>
 
         {/* Blocs de règlement en bas */}
-        <rect x="60" y="300" width="110" height="95" rx="14" className="fill-foreground/[0.038]" />
-        <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038]" />
+        <rect x="60" y="300" width="110" height="95" rx="14" className="fill-foreground/[0.038] dark:fill-foreground/[0.07]" />
+        <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038] dark:fill-foreground/[0.07]" />
       </Card>
 
       {/* ---------- Transactions (au premier plan, à droite) ---------- */}
@@ -200,7 +227,13 @@ const AppFlowArt = ({ className }: { className?: string }) => (
 
         {/* Séparateur en trois points */}
         {[196, 230, 264].map((cy) => (
-          <circle key={cy} cx="316" cy={cy} r="8" className="fill-foreground/[0.07]" />
+          <circle
+            key={cy}
+            cx="316"
+            cy={cy}
+            r="8"
+            className="fill-foreground/[0.07] dark:fill-foreground/[0.12]"
+          />
         ))}
       </Card>
     </svg>
