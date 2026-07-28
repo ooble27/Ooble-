@@ -426,40 +426,4 @@
       animation: none;
     }
   }
-
-  /*
-   * Rayons resserrés façon Supabase, uniquement dans l'app connectée
-   * (`.app-surface`). Les panneaux du dashboard/back-office utilisaient de gros
-   * arrondis (`rounded-2xl` = 16 px, et `rounded-lg` remappé à ~14 px) qui
-   * donnaient un aspect « bulle » ; Supabase reste plus net (~8–10 px).
-   *
-   * On retune les utilitaires en un seul endroit plutôt que dans chaque
-   * composant. La spécificité (deux classes) l'emporte sur l'utilitaire seul,
-   * donc pas de `!important`. Les formes rondes (`rounded-full` : pastilles,
-   * avatars, pièces) ne sont volontairement pas touchées.
-   *
-   * `--radius` est aussi réduit pour les composants shadcn qui passent par le
-   * jeton (`rounded-lg/md/sm` = var(--radius) via la config Tailwind).
-   */
-  .app-surface { --radius: 0.6rem; }
-
-  /* Grands panneaux → 10 px */
-  .app-surface .rounded-2xl,
-  .app-surface [class*="rounded-[16px]"],
-  .app-surface [class*="rounded-[20px]"],
-  .app-surface [class*="rounded-[22px]"] {
-    border-radius: 0.625rem;
-  }
-  /* Boutons, tuiles d'icône, champs → 8 px */
-  .app-surface .rounded-xl,
-  .app-surface [class*="rounded-[14px]"],
-  .app-surface [class*="rounded-[12px]"] {
-    border-radius: 0.5rem;
-  }
-  /* Petits éléments (segments de bascule…) → 7 px */
-  .app-surface [class*="rounded-[10px]"],
-  .app-surface [class*="rounded-[9px]"],
-  .app-surface [class*="rounded-[7px]"] {
-    border-radius: 0.4375rem;
-  }
 }
