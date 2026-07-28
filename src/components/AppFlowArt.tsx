@@ -48,21 +48,18 @@ const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 7%, #000 60%, tr
 const FADE_X =
   "linear-gradient(to right, rgba(0,0,0,0.32) 0%, #000 6%, #000 90%, transparent 100%)";
 
-const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
-  /*
-    Deux groupes imbriqués, et pas un seul : l'extérieur porte le soulèvement,
-    qui est une animation CSS, l'intérieur porte la position et le cisaillement,
-    qui sont un attribut `transform`. Sur un même élément la règle CSS écraserait
-    l'attribut et la carte reviendrait à l'origine.
-  */
-  <g className="ooble-art-lift" style={{ animationDelay: `${i * 4}s` }}>
+/**
+ * Carte. Seule la carte « Acheter » (`lift`) s'anime : elle se soulève quand le
+ * curseur clique « Valider ». Les deux autres restent immobiles — le curseur va
+ * droit au bouton, il ne parcourt plus les trois écrans.
+ */
+const Card = ({ i, lift, children }: { i: number; lift?: boolean; children: React.ReactNode }) => {
+  const inner = (
     <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
       {/*
       Le remplissage suit `--background`, pas `--card` : il ne sert qu'à masquer
-      la carte du dessous. En clair les deux jetons valent blanc, mais en sombre
-      `--card` est 3 % plus clair que la page — la carte devenait alors une dalle
-      grise, impossible à fondre dans le fond. Avec `--background` la carte n'est
-      dessinée que par son filet, dans les deux thèmes.
+      la carte du dessous. Avec `--background` la carte n'est dessinée que par son
+      filet, dans les deux thèmes, et se fond dans le fond.
       */}
       <rect
         width={CARD.w}
@@ -73,23 +70,12 @@ const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
         filter="url(#ooble-card-shadow)"
       />
       {children}
-      {/*
-        Liseré de sélection, peint après le contenu pour ne pas passer sous le
-        remplissage opaque. Il accompagne le soulèvement — il ne suffisait pas
-        seul, notamment en thème sombre où il se voyait à peine.
-      */}
-      <rect
-        width={CARD.w}
-        height={CARD.h}
-        rx={CARD.r}
-        fill="none"
-        strokeWidth="2"
-        className="ooble-art-select stroke-foreground/[0.18] dark:stroke-foreground/30"
-        style={{ animationDelay: `${i * 4}s` }}
-      />
     </g>
-  </g>
-);
+  );
+  // Le soulèvement (animation CSS) doit porter sur un groupe SANS attribut
+  // `transform`, sinon il l'écraserait — d'où le groupe englobant.
+  return lift ? <g className="ooble-dep-lift">{inner}</g> : inner;
+};
 
 /** Titre d'écran, posé au même endroit sur les trois cartes. */
 const Title = ({ children }: { children: string }) => (
@@ -220,8 +206,8 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038] dark:fill-foreground/[0.07]" />
       </Card>
 
-      {/* ---------- Acheter des USDT — formulaire (au premier plan) ---------- */}
-      <Card i={2}>
+      {/* ---------- Acheter des USDT — formulaire (au premier plan, se soulève) ---------- */}
+      <Card i={2} lift>
         <Title>Acheter des USDT</Title>
 
         {/* Montant en USDT */}
@@ -246,7 +232,7 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         </text>
 
         {/* Bouton Valider — plein, avec une coche ; s'enfonce quand le curseur clique. */}
-        <g className="ooble-art-depbtn">
+        <g className="ooble-dep-btn">
           <rect x={44} y={340} width={232} height={60} rx={15} className="fill-foreground" />
           <path d="M104 371 l9 9 l17 -18" fill="none" className="stroke-background" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
           <text x={150} y={379} className="fill-background font-display" fontSize="23" fontWeight="600">Valider</text>
@@ -254,24 +240,22 @@ const AppFlowArt = ({ className }: { className?: string }) => (
       </Card>
 
       {/*
-        Curseur qui parcourt les trois écrans. Il est posé au niveau du SVG, pas
-        dans une carte : il ne doit pas subir le cisaillement, une souris ne
-        penche pas. Le déplacement vient d'une règle CSS — donc pas d'attribut
-        `transform` ici, il l'écraserait.
+        Curseur : il va DROIT au bouton « Valider » (approche depuis le bas-
+        droite), l'enfonce, puis se retire — exactement comme celui de la section
+        Interac sur « Déposer ». Il ne parcourt plus les trois écrans. Contour
+        seul (pas de remplissage), comme la main qu'on avait.
       */}
-      <g className="ooble-art-cursor">
-        {/*
-          Léger enfoncement de la main à l'arrivée sur chaque écran, à la place
-          de l'ancienne onde ronde. Groupe séparé : le groupe parent occupe déjà
-          son `transform` avec le déplacement.
-          `Pointer` est repositionné pour que le bout de l'index tombe sur le
-          point visé plutôt que le coin de l'icône.
-        */}
-        <g className="ooble-art-press">
-          {/* Halo de la couleur du fond pour détacher la main, puis la main
-              PLEINE dans la couleur d'encre (noire en clair, blanche en sombre). */}
-          <Pointer x={-11} y={-3} width={34} height={34} strokeWidth={5} className="text-background" />
-          <Pointer x={-11} y={-3} width={34} height={34} strokeWidth={1.4} fill="currentColor" className="text-foreground" />
+      <g className="ooble-buy-cursor">
+        <g className="ooble-dep-press">
+          <Pointer
+            x={-11}
+            y={-3}
+            width={34}
+            height={34}
+            strokeWidth={1.7}
+            fill="none"
+            className="stroke-foreground/[0.42] dark:stroke-foreground/[0.58]"
+          />
         </g>
       </g>
     </svg>

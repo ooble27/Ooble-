@@ -355,96 +355,31 @@
   }
 
   /*
-   * Illustration du héros — un curseur parcourt les trois écrans et
-   * « sélectionne » chacun à son tour.
-   *
-   * Cycle de 12 s découpé en trois tiers de 4 s. Les arrêts du curseur et les
-   * fenêtres de sélection tombent sur les mêmes tiers, ce qui permet de
-   * n'écrire qu'une seule règle de sélection : les trois cartes la partagent et
-   * se décalent avec `animation-delay` (0 s, 4 s, 8 s).
-   *
-   * Les coordonnées sont en unités de la `viewBox` du SVG, pas en pixels
-   * d'écran : un `translate` en `px` sur un élément SVG s'exprime dans l'espace
-   * utilisateur, donc l'animation suit l'échelle de l'illustration.
-   *
-   * Chaque arrêt tombe dans la bande de sa carte restée visible (0–280 pour la
-   * première, 280–560 pour la deuxième, 560–1180 pour la troisième) : posé sur
-   * une couture, le curseur semblerait désigner la carte voisine.
+   * Illustration du héros — le curseur va DROIT au bouton « Valider » de la carte
+   * Acheter, l'enfonce, puis se retire (même schéma que l'Interac sur « Déposer »).
+   * Il réutilise ooble-dep-press / ooble-dep-btn / ooble-dep-lift ; seul son trajet
+   * lui est propre, calé sur la position du bouton dans cette illustration.
    */
-  /* La main marque un temps d'arrêt sur chaque écran puis rejoint le suivant.
-     La fonction d'accélération est redéclarée à chaque palier pour que le départ
-     soit doux et l'arrivée freinée, au lieu d'un va-et-vient uniforme. */
-  @keyframes ooble-art-cursor {
-    0%, 22% {
-      transform: translate(180px, 107px);
-      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
-    }
-    33.3%, 55.5% {
-      transform: translate(450px, 147px);
-      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
-    }
-    66.6%, 88.8% {
-      /* Troisième arrêt : sur le bouton « Valider » de la carte Acheter. */
-      transform: translate(792px, 384px);
-      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
-    }
-    100% { transform: translate(180px, 107px); }
-  }
-
-  /* Le bouton « Valider » s'enfonce quand la main le clique (3ᵉ arrêt, ~79 %). */
-  @keyframes ooble-art-depbtn {
-    0%, 76% { transform: translateY(0); }
-    80% { transform: translateY(3px); }
-    85%, 100% { transform: translateY(0); }
-  }
-  .ooble-art-depbtn {
-    animation: ooble-art-depbtn 12s linear infinite;
-  }
-  .ooble-art-cursor {
-    /* Position de repli : sans animation la main reste sur le premier écran. */
-    transform: translate(180px, 107px);
-    animation: ooble-art-cursor 12s linear infinite;
-  }
-
-  /* Enfoncement de la main à l'arrivée. Sa boucle de 4 s se recale d'elle-même
-     sur les arrêts du curseur, espacés eux aussi de 4 s. */
-  @keyframes ooble-art-press {
-    0%, 3% { transform: scale(1); }
-    11% { transform: scale(0.87); }
-    24%, 100% { transform: scale(1); }
-  }
-  .ooble-art-press {
-    transform-box: fill-box;
-    transform-origin: 20% 10%; /* près du bout de l'index, pas au centre */
-    animation: ooble-art-press 4s cubic-bezier(0.34, 1.2, 0.5, 1) infinite;
-  }
-
-  /* Soulèvement de l'écran visé : c'est le signal principal, le seul qui se lise
-     aussi bien en thème sombre qu'en clair puisqu'il est géométrique et non
-     tonal. Léger dépassement à la montée, retour freiné à la descente. */
-  @keyframes ooble-art-lift {
+  @keyframes ooble-buy-cursor {
     0% {
-      transform: translateY(0);
-      animation-timing-function: cubic-bezier(0.34, 1.35, 0.5, 1);
+      transform: translate(852px, 456px);
+      opacity: 0;
+      animation-timing-function: cubic-bezier(0.22, 0.7, 0.24, 1);
     }
-    6%, 20% {
-      transform: translateY(-26px);
-      animation-timing-function: cubic-bezier(0.4, 0, 0.28, 1);
+    14% { opacity: 1; }
+    30%, 60% {
+      transform: translate(766px, 404px);
+      opacity: 1;
+      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
     }
-    30%, 100% { transform: translateY(0); }
+    84%, 100% {
+      transform: translate(852px, 456px);
+      opacity: 0;
+    }
   }
-  .ooble-art-lift {
-    animation: ooble-art-lift 12s linear infinite;
-  }
-
-  @keyframes ooble-art-select {
-    0%, 2% { opacity: 0; }
-    7%, 22% { opacity: 1; }
-    30%, 100% { opacity: 0; }
-  }
-  .ooble-art-select {
-    opacity: 0;
-    animation: ooble-art-select 12s ease-in-out infinite;
+  .ooble-buy-cursor {
+    transform: translate(766px, 404px);
+    animation: ooble-buy-cursor 2.8s linear infinite;
   }
 
   /*
@@ -513,8 +448,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .animate-up, .animate-marquee, .animate-page { animation: none; }
-    .ooble-art-cursor, .ooble-art-press, .ooble-art-lift, .ooble-art-select,
-    .ooble-art-depbtn,
+    .ooble-buy-cursor,
     .ooble-dep-cursor, .ooble-dep-press, .ooble-dep-btn, .ooble-dep-lift {
       animation: none;
     }
