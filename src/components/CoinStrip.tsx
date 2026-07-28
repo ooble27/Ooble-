@@ -4,96 +4,83 @@ interface Props {
   className?: string;
 }
 
-const INK = "#14201f";
-
-function UsdtCoin({ cx, cy, r, rot = 0 }: { cx: number; cy: number; r: number; rot?: number }) {
-  const bar = Math.max(3, r * 0.15);
-  return (
-    <g transform={`translate(${cx} ${cy}) rotate(${rot})`}>
-      <circle cx={0} cy={r * 0.16} r={r} fill="#17694f" stroke={INK} strokeWidth={3} />
-      <circle cx={0} cy={0} r={r} fill="#26A17B" stroke={INK} strokeWidth={3} />
-      <rect x={-r * 0.42} y={-r * 0.44} width={r * 0.84} height={bar} rx={bar / 2} fill="#fff" />
-      <rect x={-bar / 2} y={-r * 0.44} width={bar} height={r * 0.82} rx={bar / 2} fill="#fff" />
-      <rect x={-r * 0.24} y={-r * 0.02} width={r * 0.48} height={bar} rx={bar / 2} fill="#fff" />
-    </g>
-  );
-}
-
-function Spark({ cx, cy, s = 12 }: { cx: number; cy: number; s?: number }) {
-  const d = s * 0.28;
-  return (
-    <path
-      d={`M${cx} ${cy - s} L${cx + d} ${cy - d} L${cx + s} ${cy} L${cx + d} ${cy + d} L${cx} ${cy + s} L${cx - d} ${cy + d} L${cx - s} ${cy} L${cx - d} ${cy - d} Z`}
-      fill="#F2C14E"
-      stroke={INK}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  );
-}
-
 const CoinStrip = ({ className }: Props) => (
   <div className={cn("flex justify-center", className)}>
-    <svg
-      viewBox="0 0 680 160"
-      className="h-[100px] w-full max-w-[520px] sm:h-[130px] sm:max-w-[620px]"
-      fill="none"
-      role="img"
-      aria-label="USDT et Interac"
-    >
-      {/* --- Left: Phone with Interac notification --- */}
-      <g transform="rotate(-4 108 80)">
-        <rect x="42" y="30" width="76" height="110" rx="14" fill="#fff" stroke={INK} strokeWidth="2.8" />
-        <rect x="66" y="37" width="28" height="5" rx="2.5" fill={INK} opacity="0.3" />
-        {/* notification bar */}
-        <rect x="52" y="54" width="56" height="20" rx="6" fill="#EEF2F2" stroke={INK} strokeWidth="1.8" />
-        <circle cx="62" cy="64" r="5" fill="#F2C14E" stroke={INK} strokeWidth="1.5" />
-        <rect x="72" y="60" width="28" height="3.5" rx="1.75" fill={INK} opacity="0.6" />
-        <rect x="72" y="67" width="18" height="3" rx="1.5" fill={INK} opacity="0.25" />
-        {/* amount */}
-        <text x="80" y="100" textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="700" fontSize="16" fill={INK}>
-          500 $
-        </text>
-        {/* send button */}
-        <rect x="56" y="110" width="48" height="16" rx="8" fill="#2FA39B" stroke={INK} strokeWidth="1.8" />
-        <text x="80" y="122" textAnchor="middle" fontFamily="system-ui, sans-serif" fontWeight="600" fontSize="8" fill="#fff">
-          Envoyer
-        </text>
-      </g>
+    <div className="relative w-full max-w-[420px] sm:max-w-[480px]">
+      {/* Subtle glow behind */}
+      <div className="absolute inset-x-8 top-4 bottom-0 rounded-[28px] bg-primary/[0.06] blur-2xl" aria-hidden />
 
-      {/* --- Flow: dotted path left --- */}
-      <path d="M132 82 C 160 82, 180 72, 210 72" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2 10" opacity="0.3" />
-      <path d="M204 66 l10 6 l-10 6" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+      {/* Main card — buy interface mockup */}
+      <div className="relative overflow-hidden rounded-[24px] border border-border/60 bg-card shadow-soft">
+        {/* Header */}
+        <div className="px-5 pb-3 pt-5">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+              <img src="/coins/usdt.svg" alt="" className="h-5 w-5" draggable={false} />
+            </div>
+            <span className="font-display text-[15px] tracking-tight">Acheter USDT</span>
+          </div>
+        </div>
 
-      {/* --- Left small coin --- */}
-      <UsdtCoin cx={186} cy={112} r={16} rot={-14} />
+        {/* Amount card */}
+        <div className="mx-4 rounded-[16px] border border-border/50 bg-secondary/30 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">Montant</span>
+            <div className="inline-flex gap-0.5 rounded-lg bg-background/80 p-[2px]">
+              <span className="rounded-md bg-card px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-sm">CAD</span>
+              <span className="rounded-md px-2.5 py-1 text-[10px] text-muted-foreground/50">USDT</span>
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="font-display text-[32px] leading-none tracking-[-1.5px]">500</span>
+            <span className="text-sm text-muted-foreground/50">CAD</span>
+          </div>
+        </div>
 
-      {/* --- Center: large USDT coin --- */}
-      <UsdtCoin cx={340} cy={78} r={52} />
+        {/* Summary rows */}
+        <div className="mx-4 mt-2.5 divide-y divide-border/40 rounded-[14px] border border-border/50 bg-secondary/20">
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-[12px] text-muted-foreground/60">Vous recevez</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px] font-semibold">357,14 USDT</span>
+              <img src="/coins/usdt.svg" alt="" className="h-4 w-4" draggable={false} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-[12px] text-muted-foreground/60">Taux</span>
+            <span className="text-[12px] text-muted-foreground/60">1 USDT = 1,40 CAD</span>
+          </div>
+        </div>
 
-      {/* --- Sparkles around center coin --- */}
-      <Spark cx={278} cy={34} s={10} />
-      <Spark cx={410} cy={42} s={8} />
-      <Spark cx={396} cy={138} s={6} />
+        {/* Network chips */}
+        <div className="mx-4 mt-3 flex gap-1.5 overflow-hidden">
+          {[
+            { id: "trx", name: "Tron", sel: true },
+            { id: "eth", name: "Ethereum", sel: false },
+            { id: "bnb", name: "BNB", sel: false },
+            { id: "sol", name: "Solana", sel: false },
+          ].map((n) => (
+            <div
+              key={n.id}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border py-1.5 pl-1.5 pr-2.5",
+                n.sel ? "border-foreground/20 bg-secondary/60" : "border-border/40 opacity-50",
+              )}
+            >
+              <img src={`/coins/${n.id}.svg`} alt="" className="h-5 w-5 rounded-full" draggable={false} />
+              <span className="text-[11px]">{n.name}</span>
+            </div>
+          ))}
+        </div>
 
-      {/* --- Right small coin --- */}
-      <UsdtCoin cx={494} cy={112} r={16} rot={12} />
-
-      {/* --- Flow: dotted path right --- */}
-      <path d="M470 72 C 500 72, 520 82, 548 82" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2 10" opacity="0.3" />
-      <path d="M542 76 l10 6 l-10 6" fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
-
-      {/* --- Right: Wallet --- */}
-      <g transform="rotate(4 590 80)">
-        <rect x="556" y="44" width="88" height="66" rx="12" fill="#0F3A43" stroke={INK} strokeWidth="2.8" />
-        <path d="M556 76 h88 v18 a12 12 0 0 1 -12 12 H568 a12 12 0 0 1 -12 -12 Z" fill="#2FA39B" stroke={INK} strokeWidth="2.8" />
-        {/* clasp */}
-        <rect x="614" y="66" width="20" height="14" rx="7" fill="#F2C14E" stroke={INK} strokeWidth="2" />
-        <circle cx="626" cy="73" r="3" fill={INK} />
-        {/* card sticking out */}
-        <rect x="566" y="86" width="56" height="8" rx="4" fill="none" stroke={INK} strokeWidth="1.5" strokeDasharray="2 5" opacity="0.4" />
-      </g>
-    </svg>
+        {/* Bottom bar with CTA */}
+        <div className="mt-3 flex items-center justify-end px-4 pb-4">
+          <div className="rounded-xl bg-foreground px-4 py-2.5 text-[12px] font-semibold text-background">
+            Continuer
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
