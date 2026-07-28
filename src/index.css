@@ -384,10 +384,21 @@
       animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
     }
     66.6%, 88.8% {
-      transform: translate(730px, 162px);
+      /* Troisième arrêt : sur le bouton « Valider » de la carte Acheter. */
+      transform: translate(792px, 384px);
       animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
     }
     100% { transform: translate(180px, 107px); }
+  }
+
+  /* Le bouton « Valider » s'enfonce quand la main le clique (3ᵉ arrêt, ~79 %). */
+  @keyframes ooble-art-depbtn {
+    0%, 76% { transform: translateY(0); }
+    80% { transform: translateY(3px); }
+    85%, 100% { transform: translateY(0); }
+  }
+  .ooble-art-depbtn {
+    animation: ooble-art-depbtn 12s linear infinite;
   }
   .ooble-art-cursor {
     /* Position de repli : sans animation la main reste sur le premier écran. */
@@ -503,6 +514,7 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-up, .animate-marquee, .animate-page { animation: none; }
     .ooble-art-cursor, .ooble-art-press, .ooble-art-lift, .ooble-art-select,
+    .ooble-art-depbtn,
     .ooble-dep-cursor, .ooble-dep-press, .ooble-dep-btn, .ooble-dep-lift {
       animation: none;
     }

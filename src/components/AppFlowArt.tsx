@@ -220,9 +220,9 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038] dark:fill-foreground/[0.07]" />
       </Card>
 
-      {/* ---------- Envoyer des USDT — formulaire (au premier plan) ---------- */}
+      {/* ---------- Acheter des USDT — formulaire (au premier plan) ---------- */}
       <Card i={2}>
-        <Title>Envoyer des USDT</Title>
+        <Title>Acheter des USDT</Title>
 
         {/* Montant en USDT */}
         <text x="46" y="126" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
@@ -232,9 +232,9 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <text x="66" y="186" className="fill-foreground/[0.72] font-display dark:fill-foreground/[0.85]" fontSize="38" fontWeight="600" letterSpacing="-1.5">
           500
         </text>
-        <circle cx={352} cy={172} r={16} className="fill-primary" />
-        <text x={352} y={178} textAnchor="middle" fill="#fff" fontSize="17" fontWeight="700">$</text>
-        <text x={376} y={180} className="fill-foreground/50 dark:fill-foreground/60" fontSize="19" fontWeight="500">USDT</text>
+        {/* Vrai logo USDT (fichier de marque). */}
+        <image href="/coins/usdt.svg" x={336} y={155} width={34} height={34} />
+        <text x={378} y={180} className="fill-foreground/50 dark:fill-foreground/60" fontSize="19" fontWeight="500">USDT</text>
 
         {/* Adresse de destination */}
         <text x="46" y="240" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
@@ -245,8 +245,8 @@ const AppFlowArt = ({ className }: { className?: string }) => (
           0x7a2f4b…9c3d1
         </text>
 
-        {/* Bouton Valider — plein, avec une coche. */}
-        <g>
+        {/* Bouton Valider — plein, avec une coche ; s'enfonce quand le curseur clique. */}
+        <g className="ooble-art-depbtn">
           <rect x={44} y={340} width={232} height={60} rx={15} className="fill-foreground" />
           <path d="M104 371 l9 9 l17 -18" fill="none" className="stroke-background" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
           <text x={150} y={379} className="fill-background font-display" fontSize="23" fontWeight="600">Valider</text>
@@ -268,15 +268,10 @@ const AppFlowArt = ({ className }: { className?: string }) => (
           point visé plutôt que le coin de l'icône.
         */}
         <g className="ooble-art-press">
-          <Pointer
-            x={-11}
-            y={-3}
-            width={34}
-            height={34}
-            strokeWidth={1.7}
-            fill="none"
-            className="stroke-foreground/[0.38] dark:stroke-foreground/[0.52]"
-          />
+          {/* Halo de la couleur du fond pour détacher la main, puis la main
+              PLEINE dans la couleur d'encre (noire en clair, blanche en sombre). */}
+          <Pointer x={-11} y={-3} width={34} height={34} strokeWidth={5} className="text-background" />
+          <Pointer x={-11} y={-3} width={34} height={34} strokeWidth={1.4} fill="currentColor" className="text-foreground" />
         </g>
       </g>
     </svg>
