@@ -63,6 +63,20 @@ const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
       filter="url(#ooble-card-shadow)"
     />
     {children}
+    {/*
+      Liseré de sélection, peint après le contenu pour ne pas passer sous le
+      remplissage opaque. Il s'allume quand le curseur atteint cet écran : les
+      trois cartes partagent la même règle et se décalent d'un tiers de cycle.
+    */}
+    <rect
+      width={CARD.w}
+      height={CARD.h}
+      rx={CARD.r}
+      fill="none"
+      strokeWidth="2"
+      className="ooble-art-select stroke-foreground/[0.18] dark:stroke-foreground/30"
+      style={{ animationDelay: `${i * 4}s` }}
+    />
   </g>
 );
 
@@ -236,6 +250,20 @@ const AppFlowArt = ({ className }: { className?: string }) => (
           />
         ))}
       </Card>
+
+      {/*
+        Curseur qui parcourt les trois écrans. Il est posé au niveau du SVG, pas
+        dans une carte : il ne doit pas subir le cisaillement, une souris ne
+        penche pas. Le déplacement vient d'une règle CSS — donc pas d'attribut
+        `transform` ici, il l'écraserait.
+      */}
+      <g className="ooble-art-cursor">
+        <circle className="ooble-art-tap" cx="0" cy="0" r="17" />
+        <path
+          d="M0 0 L0 28 L7 21.5 L12 33 L17 30.5 L12 19.5 L22 19 Z"
+          className="fill-foreground/[0.32] dark:fill-foreground/[0.45]"
+        />
+      </g>
     </svg>
   </div>
 );

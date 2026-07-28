@@ -284,7 +284,62 @@
     pointer-events: none;
   }
 
+  /*
+   * Illustration du héros — un curseur parcourt les trois écrans et
+   * « sélectionne » chacun à son tour.
+   *
+   * Cycle de 12 s découpé en trois tiers de 4 s. Les arrêts du curseur et les
+   * fenêtres de sélection tombent sur les mêmes tiers, ce qui permet de
+   * n'écrire qu'une seule règle de sélection : les trois cartes la partagent et
+   * se décalent avec `animation-delay` (0 s, 4 s, 8 s).
+   *
+   * Les coordonnées sont en unités de la `viewBox` du SVG, pas en pixels
+   * d'écran : un `translate` en `px` sur un élément SVG s'exprime dans l'espace
+   * utilisateur, donc l'animation suit l'échelle de l'illustration.
+   *
+   * Chaque arrêt tombe dans la bande de sa carte restée visible (0–280 pour la
+   * première, 280–560 pour la deuxième, 560–1180 pour la troisième) : posé sur
+   * une couture, le curseur semblerait désigner la carte voisine.
+   */
+  @keyframes ooble-art-cursor {
+    0%, 25% { transform: translate(180px, 107px); }
+    33.3%, 58.3% { transform: translate(450px, 147px); }
+    66.6%, 91.6% { transform: translate(730px, 162px); }
+    100% { transform: translate(180px, 107px); }
+  }
+  .ooble-art-cursor {
+    /* Position de repli : sans animation le curseur reste sur le premier écran. */
+    transform: translate(180px, 107px);
+    animation: ooble-art-cursor 12s cubic-bezier(0.55, 0, 0.2, 1) infinite;
+  }
+
+  /* Onde au point de clic. Sa boucle de 4 s se recale d'elle-même sur les
+     arrêts du curseur, espacés eux aussi de 4 s. */
+  @keyframes ooble-art-tap {
+    0% { opacity: 0; transform: scale(0.3); }
+    12% { opacity: 0.5; }
+    55%, 100% { opacity: 0; transform: scale(1.8); }
+  }
+  .ooble-art-tap {
+    opacity: 0;
+    fill: hsl(var(--foreground) / 0.14);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ooble-art-tap 4s ease-out infinite;
+  }
+
+  @keyframes ooble-art-select {
+    0%, 2% { opacity: 0; }
+    7%, 25% { opacity: 1; }
+    31%, 100% { opacity: 0; }
+  }
+  .ooble-art-select {
+    opacity: 0;
+    animation: ooble-art-select 12s ease-in-out infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-up, .animate-marquee, .animate-page { animation: none; }
+    .ooble-art-cursor, .ooble-art-tap, .ooble-art-select { animation: none; }
   }
 }
