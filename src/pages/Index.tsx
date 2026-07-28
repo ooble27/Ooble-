@@ -179,13 +179,13 @@ const Index = () => {
               />
             </h1>
 
-            <p className="animate-up mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.6] text-muted-foreground [animation-delay:140ms] sm:text-[17px]">
+            <p className="animate-up mx-auto mt-8 max-w-[480px] text-[14px] leading-[1.65] text-muted-foreground [animation-delay:140ms] sm:text-[15px]">
               Réglé directement vers votre wallet ou votre compte Interac.
               Ooble ne conserve aucun solde.
             </p>
 
             <div className="animate-up mt-10 flex flex-wrap justify-center gap-3 [animation-delay:260ms]">
-              <Button asChild variant="appSolid" shape="rounded" size="lg" className="btn-depth px-7">
+              <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/inscription">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
                   Acheter

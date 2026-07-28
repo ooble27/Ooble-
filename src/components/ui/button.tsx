@@ -10,7 +10,7 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-primary text-primary-foreground shadow-teal hover:-translate-y-0.5",
         deep: "bg-deep text-deep-foreground hover:opacity-90",
-        secondary: "border bg-card text-foreground hover:bg-secondary",
+        secondary: "bg-secondary text-foreground hover:shadow-sm",
         ghost: "text-foreground hover:bg-secondary",
         white: "bg-white text-primary shadow-soft hover:-translate-y-0.5",
         outlineOnDark: "border border-white/25 text-white hover:bg-white/10",
@@ -19,7 +19,7 @@ const buttonVariants = cva(
         appOnDark: "bg-white text-deep hover:bg-white/90 active:bg-white/80",
         appOutline: "border border-border bg-card text-foreground hover:bg-secondary",
         /* Action pleine (back-office) : contraste fort — blanc sur sombre, sombre sur clair. */
-        appSolid: "bg-foreground text-background hover:opacity-90 active:opacity-80",
+        appSolid: "bg-foreground text-background hover:opacity-90 active:opacity-80 btn-depth",
       },
       size: {
         sm: "h-9 px-4 text-sm",
