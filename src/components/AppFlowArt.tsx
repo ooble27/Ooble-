@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Trois écrans de l'app en projection isométrique (Acheter / Vendre /
- * Transactions).
+ * Transactions), traités comme une trame de fond plutôt que comme une image.
  *
  * Rendu en SVG avec `viewBox` : l'illustration se met à l'échelle exactement de
  * la même façon sur mobile, tablette et grand écran (texte, filets et rayons
@@ -12,35 +12,33 @@ import { cn } from "@/lib/utils";
  * parallélogramme obtenu par un cisaillement vertical, donc les bords
  * gauche/droit restent verticaux et les bords haut/bas montent vers la droite.
  *
- * Le bas de l'illustration est fondu dans la page par un masque en dégradé :
- * les cartes ne se terminent pas sur un bord net, elles se dissolvent dans le
- * fond (clair comme sombre, puisqu'un masque joue sur la transparence).
+ * Deux partis pris de composition :
+ * — les cartes sont larges et basses, et s'étalent en longueur, pour occuper la
+ *   largeur d'une page desktop sans gagner en hauteur ;
+ * — tout est très peu contrasté et fondu sur les quatre bords, pour qu'on
+ *   devine l'illustration incrustée dans le fond plutôt qu'on la regarde.
  */
 
 /** Inclinaison des cartes, en degrés. Plus la valeur est basse, plus c'est droit. */
-const SKEW_DEG = 13;
-const K = Math.tan((SKEW_DEG * Math.PI) / 180); // ≈ 0.2309
+const SKEW_DEG = 9;
+const K = Math.tan((SKEW_DEG * Math.PI) / 180); // ≈ 0.1584
 const SKEW = `matrix(1 ${(-K).toFixed(4)} 0 1 0 0)`;
 
-/** Taille d'une carte et décalage constant d'une carte à la suivante. */
-const CARD = { w: 550, h: 575, r: 30 };
-const STEP = { x: 222, y: 43 };
-const ORIGINS = [0, 1, 2].map((i) => ({ x: 165 + i * STEP.x, y: 340 + i * STEP.y }));
+/** Carte large et basse ; le pas horizontal étale la série en longueur. */
+const CARD = { w: 620, h: 420, r: 26 };
+const STEP = { x: 280, y: 24 };
+const ORIGINS = [0, 1, 2].map((i) => ({ x: i * STEP.x, y: i * STEP.y }));
 
 /**
- * Cadre visible. La hauteur est volontairement plus courte que les cartes : le
- * bas est coupé, mais le fondu rend la coupe invisible et évite à
- * l'illustration d'occuper un écran entier en hauteur.
+ * Cadre visible. Il est nettement plus large que haut (rapport ≈ 2,2) : c'est
+ * lui qui donne l'allure étirée. La hauteur coupe le bas de la dernière carte,
+ * mais le fondu rend la coupe invisible.
  */
-const VIEW_BOX = "140 190 1044 720";
+const VIEW_BOX = "-28 -126 1236 560";
 
-/**
- * Dégradé de fondu. Il reste franc sur les deux premiers tiers pour que la
- * flèche de flux et le bas des cartes restent lisibles ; seule la dernière
- * bande se dissout vraiment dans le fond.
- */
-const FADE =
-  "linear-gradient(to bottom, #000 0%, #000 68%, rgba(0,0,0,0.55) 88%, transparent 100%)";
+/* Fondus : vertical puis horizontal, croisés pour estomper les quatre bords. */
+const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 12%, #000 60%, transparent 100%)";
+const FADE_X = "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)";
 
 const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
   <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
@@ -48,8 +46,8 @@ const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
       width={CARD.w}
       height={CARD.h}
       rx={CARD.r}
-      className="fill-card stroke-foreground/[0.09]"
-      strokeWidth="1.6"
+      className="fill-card stroke-foreground/[0.07]"
+      strokeWidth="1.5"
       filter="url(#ooble-card-shadow)"
     />
     {children}
@@ -60,11 +58,11 @@ const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
 const Title = ({ children }: { children: string }) => (
   <text
     x="50"
-    y="80"
-    className="fill-foreground font-display"
-    fontSize="44"
+    y="72"
+    className="fill-foreground/[0.42] font-display"
+    fontSize="40"
     fontWeight="500"
-    letterSpacing="-1.2"
+    letterSpacing="-1"
   >
     {children}
   </text>
@@ -72,7 +70,7 @@ const Title = ({ children }: { children: string }) => (
 
 /** Barre pleine (contenu « fantôme » d'une liste). */
 const Bar = ({ x, y, w, h = 24 }: { x: number; y: number; w: number; h?: number }) => (
-  <rect x={x} y={y} width={w} height={h} rx={h / 2} className="fill-foreground/[0.055]" />
+  <rect x={x} y={y} width={w} height={h} rx={h / 2} className="fill-foreground/[0.04]" />
 );
 
 /** Bloc au filet fin (champ ou ligne de tableau vide). */
@@ -82,10 +80,10 @@ const Outline = ({ x, y, w, h }: { x: number; y: number; w: number; h: number })
     y={y}
     width={w}
     height={h}
-    rx="20"
+    rx="18"
     fill="none"
-    className="stroke-foreground/[0.09]"
-    strokeWidth="1.6"
+    className="stroke-foreground/[0.06]"
+    strokeWidth="1.5"
   />
 );
 
@@ -96,22 +94,22 @@ const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) 
     y={y}
     width={w}
     height={h}
-    rx="18"
+    rx="16"
     fill="none"
-    className="stroke-foreground/[0.16]"
-    strokeWidth="1.8"
+    className="stroke-foreground/[0.11]"
+    strokeWidth="1.6"
     strokeDasharray="11 10"
   />
 );
 
 /* Étapes de l'écran « Acheter », de la plus lisible à la plus effacée. */
 const STEPS: [string, string][] = [
-  ["montant", "0.70"],
-  ["méthode", "0.58"],
-  ["réseau", "0.47"],
-  ["frais", "0.37"],
-  ["disponible", "0.28"],
-  ["confirmer", "0.20"],
+  ["montant", "0.40"],
+  ["méthode", "0.33"],
+  ["réseau", "0.26"],
+  ["frais", "0.20"],
+  ["disponible", "0.15"],
+  ["confirmer", "0.10"],
 ];
 
 const AppFlowArt = ({ className }: { className?: string }) => (
@@ -121,15 +119,25 @@ const AppFlowArt = ({ className }: { className?: string }) => (
   <div className={cn("flex w-full justify-center", className)}>
     <svg
       viewBox={VIEW_BOX}
-      className="h-auto w-full max-w-[460px] sm:max-w-[640px] lg:max-w-[880px] xl:max-w-[1040px] 2xl:max-w-[1120px]"
-      style={{ maskImage: FADE, WebkitMaskImage: FADE }}
+      /* Le cadre est taillé pour le desktop, très étiré. Sur mobile un rapport
+         plus haut est imposé et `slice` recadre l'illustration au lieu de la
+         réduire — sinon la bande deviendrait minuscule sur un petit écran. Les
+         bords de la coupe sont mangés par le fondu. */
+      preserveAspectRatio="xMinYMid slice"
+      className="aspect-[1.6/1] h-auto w-full sm:aspect-auto sm:max-w-[760px] lg:max-w-[1040px] xl:max-w-[1120px]"
+      style={{
+        maskImage: `${FADE_Y}, ${FADE_X}`,
+        WebkitMaskImage: `${FADE_Y}, ${FADE_X}`,
+        maskComposite: "intersect",
+        WebkitMaskComposite: "source-in",
+      }}
       fill="none"
       role="img"
       aria-label="Aperçu de l'application Ooble : acheter, vendre et suivre ses transactions USDT"
     >
       <defs>
         <filter id="ooble-card-shadow" x="-15%" y="-15%" width="130%" height="130%">
-          <feDropShadow dx="0" dy="7" stdDeviation="15" floodColor="#0b1b1f" floodOpacity="0.05" />
+          <feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="#0b1b1f" floodOpacity="0.035" />
         </filter>
       </defs>
 
@@ -139,11 +147,11 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         {STEPS.map(([label, opacity], k) => (
           <text
             key={label}
-            x="50"
-            y={162 + k * 48}
+            x="52"
+            y={140 + k * 40}
             className="fill-foreground"
             fillOpacity={opacity}
-            fontSize="34"
+            fontSize="30"
             fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
           >
             {label}
@@ -156,19 +164,19 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <Title>Vendre USDT</Title>
 
         {/* Montant à saisir + zone secondaire qui dépasse en haut à droite */}
-        <Dashed x={44} y={118} w={430} h={92} />
-        <Dashed x={300} y={58} w={212} h={74} />
+        <Dashed x={44} y={110} w={470} h={76} />
+        <Dashed x={330} y={52} w={240} h={62} />
 
-        {/* Flux vers la confirmation : petite fourche puis longue courbe */}
-        <g className="stroke-foreground/20" strokeWidth="2.4" strokeLinecap="round" fill="none">
-          <path d="M196 212 C 196 252 214 262 250 272" />
-          <path d="M196 212 C 196 268 140 292 124 348 C 114 382 112 402 112 428" />
-          <path d="M100 412 L 112 442 L 124 412" strokeLinejoin="round" />
+        {/* Flux vers le règlement : petite fourche puis longue courbe */}
+        <g className="stroke-foreground/[0.13]" strokeWidth="2.2" strokeLinecap="round" fill="none">
+          <path d="M200 188 C 200 218 216 226 250 234" />
+          <path d="M200 188 C 200 232 148 250 132 292 C 124 316 122 330 122 348" />
+          <path d="M110 334 L 122 360 L 134 334" strokeLinejoin="round" />
         </g>
 
         {/* Blocs de règlement en bas */}
-        <rect x="60" y="430" width="100" height="110" rx="16" className="fill-foreground/[0.05]" />
-        <rect x="174" y="406" width="92" height="108" rx="16" className="fill-foreground/[0.05]" />
+        <rect x="60" y="300" width="110" height="95" rx="14" className="fill-foreground/[0.038]" />
+        <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038]" />
       </Card>
 
       {/* ---------- Transactions (au premier plan, à droite) ---------- */}
@@ -176,24 +184,23 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <Title>Transactions</Title>
 
         {/* Colonne de gauche */}
-        <Outline x={44} y={118} w={235} h={66} />
-        <Bar x={52} y={206} w={195} />
-        <Bar x={52} y={247} w={130} />
-        <Outline x={44} y={301} w={205} h={64} />
-        <Bar x={52} y={387} w={215} />
-        <Outline x={44} y={456} w={185} h={60} />
+        <Outline x={44} y={112} w={250} h={58} />
+        <Bar x={52} y={192} w={205} />
+        <Bar x={52} y={228} w={140} />
+        <Outline x={44} y={272} w={220} h={56} />
+        <Bar x={52} y={348} w={225} />
 
         {/* Colonne de droite */}
-        <Outline x={330} y={92} w={160} h={58} />
-        <Bar x={330} y={169} w={175} h={26} />
-        <Bar x={330} y={211} w={150} h={26} />
-        <Outline x={315} y={316} w={225} h={64} />
-        <Bar x={325} y={402} w={200} />
-        <Outline x={325} y={471} w={175} h={58} />
+        <Outline x={350} y={86} w={180} h={54} />
+        <Bar x={350} y={158} w={190} />
+        <Bar x={350} y={194} w={160} />
+        <Outline x={340} y={248} w={245} h={58} />
+        <Bar x={350} y={326} w={215} />
+        <Outline x={350} y={372} w={190} h={52} />
 
         {/* Séparateur en trois points */}
-        {[222, 262, 302].map((cy) => (
-          <circle key={cy} cx="296" cy={cy} r="9" className="fill-foreground/[0.09]" />
+        {[196, 230, 264].map((cy) => (
+          <circle key={cy} cx="316" cy={cy} r="8" className="fill-foreground/[0.07]" />
         ))}
       </Card>
     </svg>
