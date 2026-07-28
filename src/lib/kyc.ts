@@ -39,8 +39,17 @@ export async function getMyKyc(): Promise<MyKyc | null> {
 export interface KycInput {
   legalName: string;
   dob: string;
+  address: string;
   docType: string;
   docNumber: string;
+}
+
+/** Pièces à téléverser. `back` est absent pour un passeport ; `video` = vivacité. */
+export interface KycFiles {
+  front?: File | null;
+  back?: File | null;
+  selfie?: File | null;
+  video?: File | null;
 }
 
 /**
@@ -48,17 +57,14 @@ export interface KycInput {
  * ligne `kyc_verifications` en `pending`. Une seule vérification par client :
  * on remplace la précédente si elle n'est pas déjà approuvée.
  */
-export async function submitKyc(
-  input: KycInput,
-  files: { front?: File | null; selfie?: File | null },
-): Promise<{ error?: string }> {
+export async function submitKyc(input: KycInput, files: KycFiles): Promise<{ error?: string }> {
   const { data: sess } = await supabase.auth.getSession();
   const uid = sess.session?.user?.id;
   if (!uid) return { error: "Vous devez être connecté." };
 
   const ts = Date.now();
   const uploadOne = async (file: File, kind: string) => {
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const ext = (file.name.split(".").pop() || "bin").toLowerCase();
     const path = `${uid}/${ts}-${kind}.${ext}`;
     const { error } = await supabase.storage.from("kyc").upload(path, file, {
       upsert: true,
@@ -68,10 +74,18 @@ export async function submitKyc(
     return path;
   };
 
-  const paths: { front_path?: string; selfie_path?: string } = {};
+  const paths: Record<string, string> = {};
+  const toUpload: [keyof KycFiles, string][] = [
+    ["front", "recto"],
+    ["back", "verso"],
+    ["selfie", "selfie"],
+    ["video", "vivacite"],
+  ];
   try {
-    if (files.front) paths.front_path = await uploadOne(files.front, "recto");
-    if (files.selfie) paths.selfie_path = await uploadOne(files.selfie, "selfie");
+    for (const [key, kind] of toUpload) {
+      const f = files[key];
+      if (f) paths[`${kind}_path`] = await uploadOne(f, kind);
+    }
   } catch {
     return { error: "Échec du téléversement des pièces. Réessayez." };
   }
@@ -80,6 +94,7 @@ export async function submitKyc(
     doc_type: input.docType,
     legal_name: input.legalName.trim(),
     dob: input.dob,
+    address: input.address.trim(),
     doc_number: input.docNumber.trim(),
     ...paths,
   };
