@@ -5,13 +5,16 @@ interface Props {
 }
 
 const CoinStrip = ({ className }: Props) => (
-  <div className={cn("flex justify-center", className)}>
-    <div className="relative w-full max-w-[420px] sm:max-w-[480px]">
-      {/* Subtle glow behind */}
-      <div className="absolute inset-x-8 top-4 bottom-0 rounded-[28px] bg-primary/[0.06] blur-2xl" aria-hidden />
+  <div className={cn("flex justify-center", className)} style={{ perspective: "1200px" }}>
+    <div
+      className="relative w-full max-w-[380px] sm:max-w-[440px]"
+      style={{ transform: "rotateY(-18deg) rotateX(8deg) rotateZ(2deg)", transformStyle: "preserve-3d" }}
+    >
+      {/* Subtle shadow underneath the tilted card */}
+      <div className="absolute inset-x-4 bottom-0 top-8 rounded-[28px] bg-foreground/[0.04] blur-xl" aria-hidden />
 
       {/* Main card — buy interface mockup */}
-      <div className="relative overflow-hidden rounded-[24px] border border-border/60 bg-card shadow-soft">
+      <div className="relative overflow-hidden rounded-[24px] border border-border/40 bg-card/90 shadow-[0_4px_40px_-12px_rgba(0,0,0,0.1),0_1px_3px_rgba(0,0,0,0.04)] backdrop-blur-sm">
         {/* Header */}
         <div className="px-5 pb-3 pt-5">
           <div className="flex items-center gap-2">
@@ -23,32 +26,32 @@ const CoinStrip = ({ className }: Props) => (
         </div>
 
         {/* Amount card */}
-        <div className="mx-4 rounded-[16px] border border-border/50 bg-secondary/30 p-4">
+        <div className="mx-4 rounded-[16px] border border-border/40 bg-secondary/25 p-4">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">Montant</span>
-            <div className="inline-flex gap-0.5 rounded-lg bg-background/80 p-[2px]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50">Montant</span>
+            <div className="inline-flex gap-0.5 rounded-lg bg-background/60 p-[2px]">
               <span className="rounded-md bg-card px-2.5 py-1 text-[10px] font-semibold text-foreground shadow-sm">CAD</span>
-              <span className="rounded-md px-2.5 py-1 text-[10px] text-muted-foreground/50">USDT</span>
+              <span className="rounded-md px-2.5 py-1 text-[10px] text-muted-foreground/40">USDT</span>
             </div>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="font-display text-[32px] leading-none tracking-[-1.5px]">500</span>
-            <span className="text-sm text-muted-foreground/50">CAD</span>
+            <span className="text-sm text-muted-foreground/40">CAD</span>
           </div>
         </div>
 
         {/* Summary rows */}
-        <div className="mx-4 mt-2.5 divide-y divide-border/40 rounded-[14px] border border-border/50 bg-secondary/20">
+        <div className="mx-4 mt-2.5 divide-y divide-border/30 rounded-[14px] border border-border/40 bg-secondary/15">
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-[12px] text-muted-foreground/60">Vous recevez</span>
+            <span className="text-[12px] text-muted-foreground/50">Vous recevez</span>
             <div className="flex items-center gap-1.5">
               <span className="text-[13px] font-semibold">357,14 USDT</span>
               <img src="/coins/usdt.svg" alt="" className="h-4 w-4" draggable={false} />
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3">
-            <span className="text-[12px] text-muted-foreground/60">Taux</span>
-            <span className="text-[12px] text-muted-foreground/60">1 USDT = 1,40 CAD</span>
+            <span className="text-[12px] text-muted-foreground/50">Taux</span>
+            <span className="text-[12px] text-muted-foreground/50">1 USDT = 1,40 CAD</span>
           </div>
         </div>
 
@@ -64,7 +67,7 @@ const CoinStrip = ({ className }: Props) => (
               key={n.id}
               className={cn(
                 "flex items-center gap-1.5 rounded-lg border py-1.5 pl-1.5 pr-2.5",
-                n.sel ? "border-foreground/20 bg-secondary/60" : "border-border/40 opacity-50",
+                n.sel ? "border-foreground/15 bg-secondary/50" : "border-border/30 opacity-40",
               )}
             >
               <img src={`/coins/${n.id}.svg`} alt="" className="h-5 w-5 rounded-full" draggable={false} />
