@@ -8,39 +8,18 @@ import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { useUsdtHistory } from "@/hooks/useUsdtHistory";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
 import { ActivityRow } from "@/components/app/ActivityList";
+import { useAuth } from "@/lib/auth";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
-/**
- * Signe animé du « Bonjour » — un petit personnage stylisé qui fait coucou
- * de la main, aux couleurs Ooble. SVG autonome (animation SMIL).
- */
-const HeroMark = () => (
-  <svg viewBox="0 0 48 48" className="inline-block h-9 w-9 shrink-0" aria-hidden="true">
-    {/* Épaules / t-shirt teal */}
-    <path d="M8 47 C 8 35.5, 14.5 31, 24 31 C 33.5 31, 40 35.5, 40 47 Z" fill="hsl(var(--primary))" />
-    {/* Cou */}
-    <rect x="20.5" y="23" width="7" height="9" rx="3" fill="#E9C1A0" />
-    {/* Tête */}
-    <circle cx="24" cy="16.5" r="9" fill="#E9C1A0" />
-    {/* Cheveux */}
-    <path d="M15 16 C 15 10, 19 7, 24 7 C 29 7, 33 10, 33 16 C 31 13.5, 28.5 12.5, 24 12.5 C 19.5 12.5, 17 13.5, 15 16 Z" fill="hsl(var(--deep))" />
-    {/* Yeux */}
-    <circle cx="21" cy="17" r="1.05" fill="hsl(var(--deep))" />
-    <circle cx="27" cy="17" r="1.05" fill="hsl(var(--deep))" />
-    {/* Sourire */}
-    <path d="M21 20 Q 24 22.5, 27 20" fill="none" stroke="hsl(var(--deep))" strokeWidth="1.2" strokeLinecap="round" />
-    {/* Bras qui fait coucou (pivot à l'épaule) */}
-    <g>
-      <animateTransform attributeName="transform" type="rotate"
-        values="-16 35 33; 14 35 33; -16 35 33" keyTimes="0;0.5;1"
-        calcMode="spline" keySplines="0.45 0 0.55 1; 0.45 0 0.55 1"
-        dur="1.3s" repeatCount="indefinite" />
-      <path d="M34 33 L 40.5 15" stroke="hsl(var(--primary))" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="41" cy="13" r="4" fill="#E9C1A0" />
-    </g>
-  </svg>
-);
+/** Salutation selon l'heure — sobre, sans illustration. */
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 5) return "Bonne nuit";
+  if (h < 12) return "Bonjour";
+  if (h < 18) return "Bon après-midi";
+  return "Bonsoir";
+}
 
 /** Activité récente — 3 derniers ordres, épuré. Détail complet sur /app/activite. */
 const RecentActivity = () => {
@@ -90,13 +69,16 @@ const RecentActivity = () => {
 const Dashboard = () => {
   const rate = useUsdtRate();
   const history = useUsdtHistory();
+  const { user } = useAuth();
+  const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
 
   return (
     <AppShell
       wide
       header={
-        <h1 className="flex items-center gap-2 font-display text-[22px] font-semibold leading-tight tracking-tight">
-          Bonjour <HeroMark />
+        <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
+          {greeting()}
+          {firstName && <span className="text-muted-foreground">, {firstName}</span>}
         </h1>
       }
     >
@@ -161,7 +143,7 @@ const Dashboard = () => {
                 {NETWORKS.map((n) => (
                   <div
                     key={n.id}
-                    className="flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card py-2 pl-2 pr-3.5"
+                    className="flex shrink-0 items-center gap-2.5 rounded-[10px] border border-border bg-card py-2 pl-2 pr-3.5"
                   >
                     <img src={`/coins/${n.id}.svg`} alt="" className="h-7 w-7 rounded-full" draggable={false} />
                     <span className="whitespace-nowrap text-sm font-normal">{n.name}</span>

@@ -247,7 +247,7 @@ const AppVendre = () => {
                 type="button"
                 onClick={() => setNet(n.id)}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-xl border py-2 pl-2 pr-3.5 transition-colors active:scale-[0.98]",
+                  "flex items-center gap-2.5 rounded-[10px] border py-2 pl-2 pr-3.5 transition-colors active:scale-[0.98]",
                   sel ? "border-foreground bg-secondary" : "border-border bg-card",
                 )}
               >
