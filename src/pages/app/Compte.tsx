@@ -7,17 +7,27 @@ import CopyRow from "@/components/app/CopyRow";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { getMyProfile, type MyProfile } from "@/lib/profile";
+import { getMyKyc, type KycDbStatus } from "@/lib/kyc";
 import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+
+const KYC_META: Record<KycDbStatus, { label: string; tone: string }> = {
+  not_started: { label: "À faire", tone: "bg-secondary text-muted-foreground" },
+  pending: { label: "En cours", tone: "bg-secondary text-foreground" },
+  approved: { label: "Vérifié", tone: "bg-primary/10 text-primary" },
+  rejected: { label: "Refusé", tone: "bg-destructive/10 text-destructive" },
+};
 
 const Compte = () => {
   const navigate = useNavigate();
   const { user, signOut, isStaff } = useAuth();
   const [theme, setThemeState] = useState<Theme>(getTheme);
   const [profile, setProfile] = useState<MyProfile | null>(null);
+  const [kyc, setKyc] = useState<KycDbStatus | null>(null);
 
   useEffect(() => {
     getMyProfile().then(setProfile);
+    getMyKyc().then((k) => setKyc(k?.status ?? "not_started"));
   }, []);
 
   const chooseTheme = (t: Theme) => {
@@ -129,13 +139,16 @@ const Compte = () => {
       </div>
 
       <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
-        <div className="flex items-center gap-3 px-5 py-4">
+        <Link to="/app/verification" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">
           <ShieldCheck className="h-5 w-5 text-muted-foreground" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Vérification d'identité</span>
-          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-            Bientôt
-          </span>
-        </div>
+          {kyc && (
+            <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", KYC_META[kyc].tone)}>
+              {KYC_META[kyc].label}
+            </span>
+          )}
+          <ChevronRight className="h-[18px] w-[18px] text-muted-foreground" />
+        </Link>
         <div className="flex items-center gap-3 px-5 py-4">
           <KeyRound className="h-5 w-5 text-muted-foreground" strokeWidth={1.9} />
           <span className="flex-1 text-sm font-medium">Non-custodial — vos clés, vos USDT</span>

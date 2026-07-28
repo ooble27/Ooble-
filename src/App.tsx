@@ -16,6 +16,7 @@ import AppOTC from "./pages/app/AppOTC";
 import Compte from "./pages/app/Compte";
 import Activite from "./pages/app/Activite";
 import OrderDetail from "./pages/app/OrderDetail";
+import Verification from "./pages/app/Verification";
 import AdminPortal from "./pages/admin/AdminPortal";
 import RequireAuth from "./components/app/RequireAuth";
 import RequireStaff from "./components/app/RequireStaff";
@@ -48,6 +49,7 @@ const App = () => (
         <Route path="/app/activite" element={<RequireAuth><Activite /></RequireAuth>} />
         <Route path="/app/activite/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
         <Route path="/app/compte" element={<RequireAuth><Compte /></RequireAuth>} />
+        <Route path="/app/verification" element={<RequireAuth><Verification /></RequireAuth>} />
 
         {/* Back-office — réservé à l'équipe (rôles dans user_roles) */}
         <Route path="/admin" element={<RequireStaff><AdminPortal /></RequireStaff>} />
