@@ -1,3 +1,4 @@
+import { Pointer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -34,49 +35,59 @@ const ORIGINS = [0, 1, 2].map((i) => ({ x: i * STEP.x, y: i * STEP.y }));
  * lui qui donne l'allure étirée. La hauteur coupe le bas de la dernière carte,
  * mais le fondu rend la coupe invisible.
  */
-const VIEW_BOX = "-5 -126 1200 560";
+const VIEW_BOX = "-5 -158 1200 592";
 
 /*
  * Fondus : vertical puis horizontal, croisés pour estomper les quatre bords.
  * Le bord gauche ne part pas de zéro — il reste un fond de teinte — pour qu'on
  * devine le flanc de la première carte au lieu de le voir disparaître net.
  */
-const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 12%, #000 60%, transparent 100%)";
+/* Le palier haut est court (7 %) : le cadre garde une marge pour la carte qui se
+   soulève, et un fondu plus long y mangerait son coin supérieur. */
+const FADE_Y = "linear-gradient(to bottom, transparent 0%, #000 7%, #000 60%, transparent 100%)";
 const FADE_X =
   "linear-gradient(to right, rgba(0,0,0,0.32) 0%, #000 6%, #000 90%, transparent 100%)";
 
 const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
-  <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
-    {/*
+  /*
+    Deux groupes imbriqués, et pas un seul : l'extérieur porte le soulèvement,
+    qui est une animation CSS, l'intérieur porte la position et le cisaillement,
+    qui sont un attribut `transform`. Sur un même élément la règle CSS écraserait
+    l'attribut et la carte reviendrait à l'origine.
+  */
+  <g className="ooble-art-lift" style={{ animationDelay: `${i * 4}s` }}>
+    <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
+      {/*
       Le remplissage suit `--background`, pas `--card` : il ne sert qu'à masquer
       la carte du dessous. En clair les deux jetons valent blanc, mais en sombre
       `--card` est 3 % plus clair que la page — la carte devenait alors une dalle
       grise, impossible à fondre dans le fond. Avec `--background` la carte n'est
       dessinée que par son filet, dans les deux thèmes.
-    */}
-    <rect
-      width={CARD.w}
-      height={CARD.h}
-      rx={CARD.r}
-      className="fill-background stroke-foreground/[0.07] dark:stroke-foreground/[0.13]"
-      strokeWidth="1.5"
-      filter="url(#ooble-card-shadow)"
-    />
-    {children}
-    {/*
-      Liseré de sélection, peint après le contenu pour ne pas passer sous le
-      remplissage opaque. Il s'allume quand le curseur atteint cet écran : les
-      trois cartes partagent la même règle et se décalent d'un tiers de cycle.
-    */}
-    <rect
-      width={CARD.w}
-      height={CARD.h}
-      rx={CARD.r}
-      fill="none"
-      strokeWidth="2"
-      className="ooble-art-select stroke-foreground/[0.18] dark:stroke-foreground/30"
-      style={{ animationDelay: `${i * 4}s` }}
-    />
+      */}
+      <rect
+        width={CARD.w}
+        height={CARD.h}
+        rx={CARD.r}
+        className="fill-background stroke-foreground/[0.07] dark:stroke-foreground/[0.13]"
+        strokeWidth="1.5"
+        filter="url(#ooble-card-shadow)"
+      />
+      {children}
+      {/*
+        Liseré de sélection, peint après le contenu pour ne pas passer sous le
+        remplissage opaque. Il accompagne le soulèvement — il ne suffisait pas
+        seul, notamment en thème sombre où il se voyait à peine.
+      */}
+      <rect
+        width={CARD.w}
+        height={CARD.h}
+        rx={CARD.r}
+        fill="none"
+        strokeWidth="2"
+        className="ooble-art-select stroke-foreground/[0.18] dark:stroke-foreground/30"
+        style={{ animationDelay: `${i * 4}s` }}
+      />
+    </g>
   </g>
 );
 
@@ -258,11 +269,24 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         `transform` ici, il l'écraserait.
       */}
       <g className="ooble-art-cursor">
-        <circle className="ooble-art-tap" cx="0" cy="0" r="17" />
-        <path
-          d="M0 0 L0 28 L7 21.5 L12 33 L17 30.5 L12 19.5 L22 19 Z"
-          className="fill-foreground/[0.32] dark:fill-foreground/[0.45]"
-        />
+        {/*
+          Léger enfoncement de la main à l'arrivée sur chaque écran, à la place
+          de l'ancienne onde ronde. Groupe séparé : le groupe parent occupe déjà
+          son `transform` avec le déplacement.
+          `Pointer` est repositionné pour que le bout de l'index tombe sur le
+          point visé plutôt que le coin de l'icône.
+        */}
+        <g className="ooble-art-press">
+          <Pointer
+            x={-11}
+            y={-3}
+            width={34}
+            height={34}
+            strokeWidth={1.7}
+            fill="none"
+            className="stroke-foreground/[0.38] dark:stroke-foreground/[0.52]"
+          />
+        </g>
       </g>
     </svg>
   </div>
