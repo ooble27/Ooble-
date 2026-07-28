@@ -1,7 +1,42 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import BottomNav from "./BottomNav";
+
+/**
+ * Marque <html> pendant que l'app est montée pour que la racine, le <body> et
+ * la barre d'état (meta theme-color) prennent la teinte de la page de l'app.
+ * Corrige la couture de couleur visible tout en haut. Suit la bascule de thème.
+ */
+function useAppScope() {
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.add("app-scope");
+
+    const meta =
+      (document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null) ??
+      (() => {
+        const m = document.createElement("meta");
+        m.name = "theme-color";
+        document.head.appendChild(m);
+        return m;
+      })();
+    const previous = meta.getAttribute("content");
+    const sync = () => meta.setAttribute("content", html.classList.contains("dark") ? "#171717" : "#fafafa");
+    sync();
+
+    // La bascule clair/sombre change la classe de <html> : on resynchronise.
+    const obs = new MutationObserver(sync);
+    obs.observe(html, { attributes: true, attributeFilter: ["class"] });
+
+    return () => {
+      html.classList.remove("app-scope");
+      obs.disconnect();
+      if (previous !== null) meta.setAttribute("content", previous);
+    };
+  }, []);
+}
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -23,7 +58,9 @@ interface AppShellProps {
  * largeur ; les pages de saisie gardent une colonne un peu plus large que le
  * mobile (600px, alignée à gauche) pour respirer sans être trop grosses.
  */
-const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => (
+const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => {
+  useAppScope();
+  return (
   <div className="app-surface app-type min-h-screen bg-background">
     <div className="mx-auto flex min-h-screen max-w-[400px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] lg:max-w-[960px]">
       {/* Barre du haut — largeur constante, avatar toujours au même endroit */}
@@ -63,6 +100,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
 
     <BottomNav />
   </div>
-);
+  );
+};
 
 export default AppShell;

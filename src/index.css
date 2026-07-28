@@ -160,6 +160,22 @@
     --ring: 0 0% 90%;
   }
 
+  /*
+   * Quand l'app est montée (`app-scope` posé par AppShell sur <html>), la racine
+   * et le <body> prennent la MÊME teinte que la page de l'app. Sans ça, le body
+   * garde le `--background` de :root (blanc pur / 10 %), plus clair que la page
+   * de l'app (98 % / 9 %) : une couture de couleur apparaissait tout en haut,
+   * dans la zone de la barre d'état et au rebond de défilement.
+   */
+  html.app-scope,
+  html.app-scope body {
+    background-color: hsl(0 0% 98%);
+  }
+  html.dark.app-scope,
+  html.dark.app-scope body {
+    background-color: hsl(0 0% 9%);
+  }
+
   * {
     @apply border-border;
   }

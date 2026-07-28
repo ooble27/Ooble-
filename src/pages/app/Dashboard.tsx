@@ -76,10 +76,20 @@ const Dashboard = () => {
     <AppShell
       wide
       header={
-        <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
-          {greeting()}
-          {firstName && <span className="text-muted-foreground">, {firstName}</span>}
-        </h1>
+        firstName ? (
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              {greeting()}
+            </p>
+            <h1 className="mt-0.5 truncate font-display text-[26px] font-semibold leading-tight tracking-tight">
+              {firstName}
+            </h1>
+          </div>
+        ) : (
+          <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
+            {greeting()}
+          </h1>
+        )
       }
     >
       <div className="space-y-4">

@@ -39,8 +39,8 @@ export async function listRecipients(
   kind: RecipientKind,
   network?: NetId | null,
 ): Promise<SavedRecipient[]> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
   if (!uid) return [];
 
   let query = supabase
@@ -64,8 +64,8 @@ export async function findRecipient(
   value: string,
   network?: NetId | null,
 ): Promise<SavedRecipient | null> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
   if (!uid) return null;
 
   let query = supabase
@@ -95,8 +95,8 @@ export async function saveRecipient(input: {
   value: string;
   network?: NetId | null;
 }): Promise<{ id: string } | { error: string }> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
   if (!uid) return { error: "Session expirée. Reconnectez-vous." };
 
   const value = input.value.trim();

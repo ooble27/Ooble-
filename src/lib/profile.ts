@@ -17,8 +17,8 @@ export interface MyProfile {
 }
 
 export async function getMyProfile(): Promise<MyProfile | null> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
   if (!uid) return null;
   const { data, error } = await supabase
     .from("profiles")

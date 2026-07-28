@@ -47,8 +47,8 @@ export interface CreateOrderInput {
 
 /** Crée un ordre pour l'utilisateur connecté. Renvoie l'id ou une erreur. */
 export async function createOrder(input: CreateOrderInput): Promise<{ id: string } | { error: string }> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
   if (!uid) return { error: "Vous devez être connecté." };
 
   const rateLockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();

@@ -72,8 +72,8 @@ export async function deleteOrder(id: string): Promise<{ error?: string }> {
 
 /** Lit toutes les commandes (le staff les voit toutes via RLS). */
 export async function fetchAdminOrders(): Promise<AdminOrder[]> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id ?? null;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id ?? null;
 
   const { data, error } = await supabase
     .from("orders")
@@ -92,8 +92,8 @@ export async function persistOrderPatch(
   id: string,
   changes: Partial<Pick<AdminOrder, "status" | "assignedTo">>,
 ): Promise<{ error?: string }> {
-  const { data: auth } = await supabase.auth.getUser();
-  const uid = auth.user?.id ?? null;
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id ?? null;
 
   const update: Partial<OrderRow> = {};
   if (changes.status) update.status = DEMO_TO_DB[changes.status];
