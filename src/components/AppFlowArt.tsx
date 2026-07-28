@@ -4,25 +4,43 @@ import { cn } from "@/lib/utils";
  * Trois écrans de l'app en projection isométrique (Acheter / Vendre /
  * Transactions).
  *
- * Le rendu est en SVG avec `viewBox` : l'illustration se met à l'échelle
- * exactement de la même façon sur mobile, tablette et grand écran (texte,
- * filets et rayons compris) — seule la largeur maximale change.
+ * Rendu en SVG avec `viewBox` : l'illustration se met à l'échelle exactement de
+ * la même façon sur mobile, tablette et grand écran (texte, filets et rayons
+ * compris) — seule la largeur maximale change selon la brèche.
  *
- * Projection parallèle (pas de perspective) : chaque carte est un
- * parallélogramme obtenu par un cisaillement vertical de 21°, donc les bords
+ * Projection parallèle (aucune perspective) : chaque carte est un
+ * parallélogramme obtenu par un cisaillement vertical, donc les bords
  * gauche/droit restent verticaux et les bords haut/bas montent vers la droite.
+ *
+ * Le bas de l'illustration est fondu dans la page par un masque en dégradé :
+ * les cartes ne se terminent pas sur un bord net, elles se dissolvent dans le
+ * fond (clair comme sombre, puisqu'un masque joue sur la transparence).
  */
 
-/** tan(21°) — cisaillement appliqué à chaque carte. */
-const SKEW = "matrix(1 -0.3839 0 1 0 0)";
+/** Inclinaison des cartes, en degrés. Plus la valeur est basse, plus c'est droit. */
+const SKEW_DEG = 13;
+const K = Math.tan((SKEW_DEG * Math.PI) / 180); // ≈ 0.2309
+const SKEW = `matrix(1 ${(-K).toFixed(4)} 0 1 0 0)`;
 
-/** Géométrie commune : taille de carte et décalage d'une carte à l'autre. */
+/** Taille d'une carte et décalage constant d'une carte à la suivante. */
 const CARD = { w: 550, h: 575, r: 30 };
-const ORIGINS = [
-  { x: 165, y: 340 },
-  { x: 387, y: 383 },
-  { x: 609, y: 426 },
-];
+const STEP = { x: 222, y: 43 };
+const ORIGINS = [0, 1, 2].map((i) => ({ x: 165 + i * STEP.x, y: 340 + i * STEP.y }));
+
+/**
+ * Cadre visible. La hauteur est volontairement plus courte que les cartes : le
+ * bas est coupé, mais le fondu rend la coupe invisible et évite à
+ * l'illustration d'occuper un écran entier en hauteur.
+ */
+const VIEW_BOX = "140 190 1044 720";
+
+/**
+ * Dégradé de fondu. Il reste franc sur les deux premiers tiers pour que la
+ * flèche de flux et le bas des cartes restent lisibles ; seule la dernière
+ * bande se dissout vraiment dans le fond.
+ */
+const FADE =
+  "linear-gradient(to bottom, #000 0%, #000 68%, rgba(0,0,0,0.55) 88%, transparent 100%)";
 
 const Card = ({ i, children }: { i: number; children: React.ReactNode }) => (
   <g transform={`translate(${ORIGINS[i].x} ${ORIGINS[i].y}) ${SKEW}`}>
@@ -88,12 +106,12 @@ const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) 
 
 /* Étapes de l'écran « Acheter », de la plus lisible à la plus effacée. */
 const STEPS: [string, string][] = [
-  ["montant", "0.62"],
-  ["méthode", "0.50"],
-  ["réseau", "0.40"],
-  ["frais", "0.30"],
-  ["disponible", "0.21"],
-  ["confirmer", "0.13"],
+  ["montant", "0.70"],
+  ["méthode", "0.58"],
+  ["réseau", "0.47"],
+  ["frais", "0.37"],
+  ["disponible", "0.28"],
+  ["confirmer", "0.20"],
 ];
 
 const AppFlowArt = ({ className }: { className?: string }) => (
@@ -102,8 +120,9 @@ const AppFlowArt = ({ className }: { className?: string }) => (
      intrinsèque par défaut (300 px). */
   <div className={cn("flex w-full justify-center", className)}>
     <svg
-      viewBox="140 105 1045 925"
-      className="h-auto w-full max-w-[420px] sm:max-w-[560px] lg:max-w-[660px] xl:max-w-[720px]"
+      viewBox={VIEW_BOX}
+      className="h-auto w-full max-w-[460px] sm:max-w-[640px] lg:max-w-[880px] xl:max-w-[1040px] 2xl:max-w-[1120px]"
+      style={{ maskImage: FADE, WebkitMaskImage: FADE }}
       fill="none"
       role="img"
       aria-label="Aperçu de l'application Ooble : acheter, vendre et suivre ses transactions USDT"
