@@ -436,9 +436,36 @@
     animation: ooble-art-select 12s ease-in-out infinite;
   }
 
+  /*
+   * Trajet du curseur pour l'illustration Interac (pile de notifications) :
+   * descend banque → question → bouton « Déposer ». Coordonnées en unités de la
+   * `viewBox`, calées sur la position cisaillée de chaque carte. Réutilise les
+   * animations génériques press/lift/select ; seul ce trajet lui est propre.
+   */
+  @keyframes ooble-pay-cursor {
+    0%, 22% {
+      transform: translate(230px, 114px);
+      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
+    }
+    33.3%, 55.5% {
+      transform: translate(295px, 258px);
+      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
+    }
+    66.6%, 88.8% {
+      transform: translate(473px, 402px);
+      animation-timing-function: cubic-bezier(0.6, 0, 0.18, 1);
+    }
+    100% { transform: translate(230px, 114px); }
+  }
+  .ooble-pay-cursor {
+    transform: translate(230px, 114px);
+    animation: ooble-pay-cursor 12s linear infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-up, .animate-marquee, .animate-page { animation: none; }
-    .ooble-art-cursor, .ooble-art-press, .ooble-art-lift, .ooble-art-select {
+    .ooble-art-cursor, .ooble-art-press, .ooble-art-lift, .ooble-art-select,
+    .ooble-pay-cursor {
       animation: none;
     }
   }

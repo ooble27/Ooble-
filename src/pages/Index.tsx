@@ -6,9 +6,9 @@ import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import RotatingWord from "@/components/RotatingWord";
 import AppFlowArt from "@/components/AppFlowArt";
+import InteracFlowArt from "@/components/InteracFlowArt";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
-import { InteracWalletArt } from "@/components/illustrations";
 import { RATE_LOCK_MINUTES } from "@/lib/rates";
 import { cn } from "@/lib/utils";
 
@@ -379,7 +379,7 @@ const Index = () => {
                 </p>
               </div>
 
-              <InteracWalletArt className="mx-auto w-full max-w-[420px]" aria-hidden />
+              <InteracFlowArt className="mx-auto w-full max-w-[440px]" aria-hidden />
             </Reveal>
           </Wrap>
         </section>
