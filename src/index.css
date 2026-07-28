@@ -106,6 +106,60 @@
     --ring: 0 0% 96%;
   }
 
+  /*
+   * Surface de l'app connectée (tableau de bord & back-office).
+   *
+   * Problème corrigé : en clair, `--card` valait blanc pur, posé sur un
+   * `--background` blanc pur — aucune élévation, les cartes ne tenaient que sur
+   * un filet à peine visible, teinté teal. Résultat plat, « les couleurs et les
+   * bordures ne sortent pas ».
+   *
+   * Correctif façon dashboard soigné (surfaces empilées, gris neutres) :
+   * — la PAGE passe en gris très clair (#fafafa), les CARTES restent blanches :
+   *   elles ressortent enfin ;
+   * — bordures et surfaces secondaires deviennent des gris strictement neutres
+   *   (plus de teinte teal parasite), nets mais doux ;
+   * — l'accent de marque (teal `--primary`, `--deep`) est conservé tel quel.
+   */
+  .app-surface {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 43%;
+    --border: 0 0% 90%;
+    --input: 0 0% 85%;
+    --ring: 0 0% 9%;
+  }
+
+  /*
+   * En sombre, on garde le rendu actuel (déjà validé) mais avec un cran
+   * d'élévation net : page la plus sombre, carte au-dessus, surface secondaire
+   * encore au-dessus, bordure lisible. Indispensable de le redéclarer : sans ça,
+   * les valeurs claires de `.app-surface` (ancêtre plus proche que `.dark`)
+   * s'appliqueraient aussi en mode sombre.
+   */
+  .dark .app-surface {
+    --background: 0 0% 9%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 12.5%;
+    --card-foreground: 0 0% 96%;
+    --popover: 0 0% 12.5%;
+    --popover-foreground: 0 0% 96%;
+    --secondary: 0 0% 17%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 17%;
+    --muted-foreground: 0 0% 63%;
+    --border: 0 0% 20%;
+    --input: 0 0% 24%;
+    --ring: 0 0% 90%;
+  }
+
   * {
     @apply border-border;
   }

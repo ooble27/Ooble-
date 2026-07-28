@@ -121,7 +121,7 @@ const AdminPortal = () => {
   };
 
   return (
-    <div className="app-type min-h-screen bg-background text-foreground">
+    <div className="app-surface app-type min-h-screen bg-background text-foreground">
       {/* Barre du haut */}
       <div className="border-b border-border">
         <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:px-8">
