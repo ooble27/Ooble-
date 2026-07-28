@@ -105,32 +105,6 @@ const Title = ({ children }: { children: string }) => (
   </text>
 );
 
-/** Barre pleine (contenu « fantôme » d'une liste). */
-const Bar = ({ x, y, w, h = 24 }: { x: number; y: number; w: number; h?: number }) => (
-  <rect
-    x={x}
-    y={y}
-    width={w}
-    height={h}
-    rx={h / 2}
-    className="fill-foreground/[0.04] dark:fill-foreground/[0.07]"
-  />
-);
-
-/** Bloc au filet fin (champ ou ligne de tableau vide). */
-const Outline = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) => (
-  <rect
-    x={x}
-    y={y}
-    width={w}
-    height={h}
-    rx="18"
-    fill="none"
-    className="stroke-foreground/[0.06] dark:stroke-foreground/[0.11]"
-    strokeWidth="1.5"
-  />
-);
-
 /** Bloc en pointillés (zone à remplir). */
 const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) => (
   <rect
@@ -145,6 +119,21 @@ const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) 
     strokeDasharray="11 10"
   />
 );
+
+/** Champ REMPLI (pas un simple contour) : surface claire en clair, sombre en sombre. */
+const Field = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) => (
+  <rect
+    x={x}
+    y={y}
+    width={w}
+    height={h}
+    rx="13"
+    className="fill-foreground/[0.045] stroke-foreground/[0.1] dark:fill-foreground/[0.09] dark:stroke-foreground/[0.17]"
+    strokeWidth="1.4"
+  />
+);
+
+const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
 /* Étapes de l'écran « Acheter », de la plus lisible à la plus effacée. */
 const STEPS: [string, string][] = [
@@ -188,9 +177,9 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         </filter>
       </defs>
 
-      {/* ---------- Acheter USDT (au fond, à gauche) ---------- */}
+      {/* ---------- Passer un ordre (au fond, à gauche) ---------- */}
       <Card i={0}>
-        <Title>Acheter USDT</Title>
+        <Title>Passer un ordre</Title>
         {STEPS.map(([label, opacity], k) => (
           <text
             key={label}
@@ -206,9 +195,9 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         ))}
       </Card>
 
-      {/* ---------- Vendre USDT (au milieu) ---------- */}
+      {/* ---------- Recevoir (au milieu) ---------- */}
       <Card i={1}>
-        <Title>Vendre USDT</Title>
+        <Title>Recevoir</Title>
 
         {/* Montant à saisir + zone secondaire qui dépasse en haut à droite */}
         <Dashed x={44} y={110} w={470} h={76} />
@@ -231,35 +220,37 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <rect x="184" y="282" width="100" height="95" rx="14" className="fill-foreground/[0.038] dark:fill-foreground/[0.07]" />
       </Card>
 
-      {/* ---------- Transactions (au premier plan, à droite) ---------- */}
+      {/* ---------- Envoyer des USDT — formulaire (au premier plan) ---------- */}
       <Card i={2}>
-        <Title>Transactions</Title>
+        <Title>Envoyer des USDT</Title>
 
-        {/* Colonne de gauche */}
-        <Outline x={44} y={112} w={250} h={58} />
-        <Bar x={52} y={192} w={205} />
-        <Bar x={52} y={228} w={140} />
-        <Outline x={44} y={272} w={220} h={56} />
-        <Bar x={52} y={348} w={225} />
+        {/* Montant en USDT */}
+        <text x="46" y="126" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
+          MONTANT
+        </text>
+        <Field x={44} y={140} w={392} h={64} />
+        <text x="66" y="186" className="fill-foreground/[0.72] font-display dark:fill-foreground/[0.85]" fontSize="38" fontWeight="600" letterSpacing="-1.5">
+          500
+        </text>
+        <circle cx={352} cy={172} r={16} className="fill-primary" />
+        <text x={352} y={178} textAnchor="middle" fill="#fff" fontSize="17" fontWeight="700">$</text>
+        <text x={376} y={180} className="fill-foreground/50 dark:fill-foreground/60" fontSize="19" fontWeight="500">USDT</text>
 
-        {/* Colonne de droite */}
-        <Outline x={350} y={86} w={180} h={54} />
-        <Bar x={350} y={158} w={190} />
-        <Bar x={350} y={194} w={160} />
-        <Outline x={340} y={248} w={245} h={58} />
-        <Bar x={350} y={326} w={215} />
-        <Outline x={350} y={372} w={190} h={52} />
+        {/* Adresse de destination */}
+        <text x="46" y="240" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
+          ADRESSE
+        </text>
+        <Field x={44} y={254} w={452} h={56} />
+        <text x="66" y="290" className="fill-foreground/[0.6] dark:fill-foreground/70" fontSize="21" fontFamily={MONO}>
+          0x7a2f4b…9c3d1
+        </text>
 
-        {/* Séparateur en trois points */}
-        {[196, 230, 264].map((cy) => (
-          <circle
-            key={cy}
-            cx="316"
-            cy={cy}
-            r="8"
-            className="fill-foreground/[0.07] dark:fill-foreground/[0.12]"
-          />
-        ))}
+        {/* Bouton Valider — plein, avec une coche. */}
+        <g>
+          <rect x={44} y={340} width={232} height={60} rx={15} className="fill-foreground" />
+          <path d="M104 371 l9 9 l17 -18" fill="none" className="stroke-background" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+          <text x={150} y={379} className="fill-background font-display" fontSize="23" fontWeight="600">Valider</text>
+        </g>
       </Card>
 
       {/*

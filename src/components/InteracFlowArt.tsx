@@ -133,7 +133,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
         </text>
         {/* Bouton « Déposer » — s'enfonce d'un cran quand la main clique. */}
         <g className="ooble-dep-btn">
-          <rect x={280} y={196} width={146} height={44} rx={12} className="fill-foreground/[0.82] dark:fill-foreground/90" />
+          <rect x={280} y={196} width={146} height={44} rx={12} className="fill-foreground" />
           <text x={353} y={224} textAnchor="middle" className="fill-background" fontSize="19" fontWeight="600">
             Déposer
           </text>
