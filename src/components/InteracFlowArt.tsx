@@ -141,10 +141,13 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
       </Card>
 
       {/*
-        Curseur FIXE sur le bouton « Déposer » (position statique, pas de
-        déplacement). Seule la main s'enfonce, en rythme avec le clic du bouton.
+        Curseur : il n'est plus figé. Il glisse vers le bouton « Déposer »
+        (approche depuis le bas-droite), l'atteint, l'enfonce, puis se retire —
+        micro-interaction soignée. Deux groupes imbriqués : le déplacement (et
+        l'apparition) sur l'extérieur, l'enfoncement de la main sur l'intérieur.
+        Il vient se poser sous le bord du bouton, sans masquer le mot « Déposer ».
       */}
-      <g transform="translate(468 404)">
+      <g className="ooble-dep-cursor">
         <g className="ooble-dep-press">
           <Pointer
             x={-11}
@@ -153,7 +156,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
             height={34}
             strokeWidth={1.7}
             fill="none"
-            className="stroke-foreground/[0.4] dark:stroke-foreground/[0.55]"
+            className="stroke-foreground/[0.42] dark:stroke-foreground/[0.58]"
           />
         </g>
       </g>

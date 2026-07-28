@@ -437,10 +437,34 @@
   }
 
   /*
-   * Illustration Interac : la main clique « Déposer », le bouton s'enfonce et la
-   * carte Interac se soulève. Un seul cycle (2,8 s), les trois gestes calés sur
-   * le même instant de clic (~38 %).
+   * Illustration Interac : le curseur glisse vers « Déposer », l'enfonce, le
+   * bouton s'enfonce et la carte Interac se soulève, puis le curseur se retire.
+   * Un seul cycle (2,8 s), les gestes de clic calés pendant le palier où la main
+   * est posée (~30–60 %).
    */
+  @keyframes ooble-dep-cursor {
+    0% {
+      transform: translate(540px, 470px);
+      opacity: 0;
+      animation-timing-function: cubic-bezier(0.22, 0.7, 0.24, 1); /* décélère en arrivant */
+    }
+    14% { opacity: 1; }
+    30%, 60% {
+      transform: translate(478px, 414px);
+      opacity: 1;
+      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); /* repart en douceur */
+    }
+    84%, 100% {
+      transform: translate(540px, 470px);
+      opacity: 0;
+    }
+  }
+  .ooble-dep-cursor {
+    /* Position de repos (mouvement coupé) : posé sur le bouton. */
+    transform: translate(478px, 414px);
+    animation: ooble-dep-cursor 2.8s linear infinite;
+  }
+
   @keyframes ooble-dep-press {
     0%, 30% { transform: scale(1); }
     38% { transform: scale(0.82); }
@@ -479,7 +503,7 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-up, .animate-marquee, .animate-page { animation: none; }
     .ooble-art-cursor, .ooble-art-press, .ooble-art-lift, .ooble-art-select,
-    .ooble-dep-press, .ooble-dep-btn, .ooble-dep-lift {
+    .ooble-dep-cursor, .ooble-dep-press, .ooble-dep-btn, .ooble-dep-lift {
       animation: none;
     }
   }
