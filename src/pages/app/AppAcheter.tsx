@@ -190,7 +190,12 @@ const AppAcheter = () => {
               <button
                 key={n.id}
                 type="button"
-                onClick={() => setNet(n.id)}
+                onClick={() => {
+                  // Changer de réseau repart de zéro : l'adresse dépend du réseau
+                  // choisi, elle ne doit pas rester d'une sélection précédente.
+                  if (n.id !== net) setAddress("");
+                  setNet(n.id);
+                }}
                 className={cn(
                   "flex items-center gap-2.5 rounded-[10px] border py-2 pl-2 pr-3.5 transition-colors active:scale-[0.98]",
                   sel ? "border-foreground bg-secondary" : "border-border bg-card",
