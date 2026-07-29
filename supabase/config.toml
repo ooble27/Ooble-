@@ -1,0 +1,7 @@
+# Configuration des fonctions edge.
+#
+# Le webhook Sumsub est appelé par Sumsub (pas par un client authentifié) : il
+# ne doit donc pas exiger de JWT Supabase. La vérification d'authenticité se fait
+# par la signature `x-payload-digest` (secret partagé), dans la fonction.
+[functions.sumsub-webhook]
+verify_jwt = false
