@@ -120,6 +120,7 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
   const [copied, setCopied] = useState<string | null>(null);
   const [events, setEvents] = useState<OrderEvent[] | null>(null);
   const [confirmDel, setConfirmDel] = useState(false);
+  const lockedByOther = !!order.assignedTo && order.assignedTo !== CURRENT_OPERATOR;
 
   useEffect(() => {
     let active = true;
@@ -265,33 +266,42 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
       </div>
 
       {/* Barre d'actions */}
-      <div className="flex flex-wrap gap-2.5">
-        {order.status === "cours" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
-            <Check className="h-[17px] w-[17px]" /> Marquer reçu
-          </Button>
-        )}
-        {order.status === "recu" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
-            <Check className="h-[17px] w-[17px]" /> Marquer terminé
-          </Button>
-        )}
-        {(order.status === "cours" || order.status === "recu") && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
-            Libérer
-          </Button>
-        )}
-        {order.status !== "termine" && order.status !== "annule" && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
-            <Ban className="h-[17px] w-[17px]" /> Annuler
-          </Button>
-        )}
-        {(order.status === "termine" || order.status === "annule") && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
-            <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
-          </Button>
-        )}
-      </div>
+      {lockedByOther ? (
+        <div className="rounded-2xl border border-border bg-secondary/50 px-5 py-4 text-center">
+          <p className="text-[13px] leading-relaxed text-muted-foreground">
+            Cette commande est en cours de traitement par <span className="font-semibold text-foreground">{order.assignedTo}</span>.<br/>
+            Elle doit être libérée avant que vous puissiez la traiter.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2.5">
+          {order.status === "cours" && (
+            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
+              <Check className="h-[17px] w-[17px]" /> Marquer reçu
+            </Button>
+          )}
+          {order.status === "recu" && (
+            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
+              <Check className="h-[17px] w-[17px]" /> Marquer terminé
+            </Button>
+          )}
+          {(order.status === "cours" || order.status === "recu") && (
+            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
+              Libérer
+            </Button>
+          )}
+          {order.status !== "termine" && order.status !== "annule" && (
+            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
+              <Ban className="h-[17px] w-[17px]" /> Annuler
+            </Button>
+          )}
+          {(order.status === "termine" || order.status === "annule") && (
+            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
+              <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
+            </Button>
+          )}
+        </div>
+      )}
 
       <p className="pt-1 text-center text-[13px] text-muted-foreground">
         Cette commande est <span className="text-foreground">{STATUS_META[order.status].label.toLowerCase()}</span>.
