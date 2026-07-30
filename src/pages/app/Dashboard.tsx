@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Coins, HandCoins, Inbox, ChevronRight } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
-import RateChart from "@/components/app/RateChart";
 import { NETWORKS } from "@/components/app/networks";
-import { useUsdtRate } from "@/hooks/useUsdtRate";
-import { useUsdtHistory } from "@/hooks/useUsdtHistory";
+import { useUsdtRate, OOBLE_MARGIN } from "@/hooks/useUsdtRate";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
 import { ActivityRow } from "@/components/app/ActivityList";
 import { useAuth } from "@/lib/auth";
 
-const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 4, minimumFractionDigits: 4 });
+const nf2 = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+const pct = new Intl.NumberFormat("fr-CA", { style: "percent", maximumFractionDigits: 1 });
 
-/** Salutation selon l'heure — sobre, sans illustration. */
 function greeting(): string {
   const h = new Date().getHours();
   if (h < 5) return "Bonne nuit";
@@ -21,7 +20,6 @@ function greeting(): string {
   return "Bonsoir";
 }
 
-/** Activité récente — 3 derniers ordres, épuré. Détail complet sur /app/activite. */
 const RecentActivity = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
@@ -75,7 +73,6 @@ const RecentActivity = () => {
 
 const Dashboard = () => {
   const rate = useUsdtRate();
-  const history = useUsdtHistory();
   const { user } = useAuth();
   const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
 
@@ -101,21 +98,49 @@ const Dashboard = () => {
     >
       <div className="space-y-4">
         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-          {/* Taux USDT / CAD */}
-          <section className="flex flex-col rounded-2xl border border-border bg-card p-5">
+          {/* Taux USDT / CAD — détails */}
+          <section className="rounded-2xl border border-border bg-card p-5">
             <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Taux USDT / CAD
             </span>
 
             <div className="mt-4 flex items-baseline gap-2">
               <span className="font-display text-[34px] font-light leading-none tracking-tight">
-                {nf.format(rate.buy)}
+                {nf2.format(rate.buy)}
               </span>
               <span className="text-[15px] font-medium text-muted-foreground">CAD</span>
             </div>
-            <p className="mt-2 hidden text-sm font-light text-muted-foreground md:block">1 USDT en dollars canadiens · marché + 2 %</p>
 
-            <RateChart data={history.points} className="hidden w-full text-foreground/55 md:mt-4 md:block md:min-h-[6rem] md:flex-1" />
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+                <p className="text-[13.5px] text-foreground">
+                  1 USDT = <span className="font-semibold text-primary">{nf.format(rate.base)} CAD</span>
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+                <div>
+                  <p className="text-[13.5px] text-foreground">
+                    Frais d'échange : <span className="font-semibold text-primary">{pct.format(OOBLE_MARGIN)}</span>
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    Inclus dans le taux affiché
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
+                <div>
+                  <p className="text-[13.5px] text-foreground">
+                    Achat : <span className="font-semibold">{nf.format(rate.buy)} CAD</span> · Vente : <span className="font-semibold">{nf.format(rate.sell)} CAD</span>
+                  </p>
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    Paiement par Interac e-Transfer
+                  </p>
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Actions + réseaux */}
