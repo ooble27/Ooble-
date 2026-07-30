@@ -37,7 +37,7 @@ const Compte = () => {
 
   const logout = async () => {
     await signOut();
-    navigate("/", { replace: true });
+    navigate("/connexion", { replace: true });
   };
 
   return (
