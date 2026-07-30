@@ -82,21 +82,18 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
   const activeIdx = sections.findIndex((s) => s.id === active);
 
   const measure = useCallback(() => {
-    const box = containerRef.current;
     const el = btnRefs.current[activeIdx];
-    if (!box || !el) return;
-    const boxRect = box.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-    setPill({ left: elRect.left - boxRect.left, width: elRect.width, ready: true });
+    if (!el) return;
+    setPill({ left: el.offsetLeft, width: el.offsetWidth, ready: true });
   }, [activeIdx]);
 
   useEffect(() => { requestAnimationFrame(measure); }, [measure]);
 
   return (
-    <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl border border-border bg-secondary/40 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl bg-secondary/50 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {pill.ready && (
         <div
-          className="absolute top-1 h-[calc(100%-8px)] rounded-[10px] border border-border bg-card shadow-sm transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="absolute top-1 h-[calc(100%-8px)] rounded-[10px] bg-foreground transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{ left: pill.left, width: pill.width }}
         />
       )}
@@ -107,7 +104,7 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
           onClick={() => onSelect(s.id)}
           className={cn(
             "relative z-10 flex-1 whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[13px] font-medium transition-colors duration-200",
-            s.id === active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+            s.id === active ? "text-background" : "text-muted-foreground hover:text-foreground",
           )}
         >
           {s.label}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Send, Handshake, Coins, HandCoins, Inbox, ChevronRight } from "lucide-react";
+import { Coins, HandCoins, Inbox, ChevronRight } from "lucide-react";
 import AppShell from "@/components/app/AppShell";
 import RateChart from "@/components/app/RateChart";
 import { NETWORKS } from "@/components/app/networks";
@@ -100,20 +100,12 @@ const Dashboard = () => {
       }
     >
       <div className="space-y-4">
-        {/*
-          Mobile : une seule colonne (hero, actions, réseaux, envoyer/otc).
-          Tablette/desktop : hero à gauche + le reste empilé à droite, pour
-          occuper la largeur sans laisser de vide entre Acheter/Vendre et
-          Envoyer/Desk OTC.
-        */}
         <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-          {/* Hero éditorial — taux clair et lisible */}
+          {/* Taux USDT / CAD */}
           <section className="flex flex-col rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-start justify-between gap-3">
-              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                Taux USDT / CAD
-              </span>
-            </div>
+            <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Taux USDT / CAD
+            </span>
 
             <div className="mt-4 flex items-baseline gap-2">
               <span className="font-display text-[34px] font-light leading-none tracking-tight">
@@ -121,15 +113,13 @@ const Dashboard = () => {
               </span>
               <span className="text-[15px] font-medium text-muted-foreground">CAD</span>
             </div>
-            {/* Sous-titre masqué sur mobile pour ne pas encombrer */}
             <p className="mt-2 hidden text-sm font-light text-muted-foreground md:block">1 USDT en dollars canadiens · marché + 2 %</p>
 
             <RateChart data={history.points} className="hidden w-full text-foreground/55 md:mt-4 md:block md:min-h-[6rem] md:flex-1" />
           </section>
 
-          {/* Colonne droite (empilée) : actions, réseaux, envoyer/otc */}
+          {/* Actions + réseaux */}
           <div className="space-y-4">
-            {/* Actions principales */}
             <div className="grid grid-cols-2 gap-3">
               <Link
                 to="/app/acheter"
@@ -151,7 +141,6 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            {/* Réseaux */}
             <div>
               <p className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                 Recevez sur 6 réseaux
@@ -168,28 +157,9 @@ const Dashboard = () => {
                 ))}
               </div>
             </div>
-
-            {/* Envoyer / OTC */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link to="/app/envoyer" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-                  <Send className="h-5 w-5" strokeWidth={1.6} />
-                </span>
-                <p className="mt-3 text-sm font-medium">Envoyer</p>
-                <p className="text-xs font-light text-muted-foreground">Vers un wallet</p>
-              </Link>
-              <Link to="/app/otc" className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-secondary/50 active:bg-secondary">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-                  <Handshake className="h-5 w-5" strokeWidth={1.6} />
-                </span>
-                <p className="mt-3 text-sm font-medium">Desk OTC</p>
-                <p className="text-xs font-light text-muted-foreground">Gros volumes</p>
-              </Link>
-            </div>
           </div>
         </div>
 
-        {/* Activité récente — pleine largeur */}
         <RecentActivity />
       </div>
     </AppShell>

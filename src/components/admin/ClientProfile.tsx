@@ -96,41 +96,43 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
         <>
           {/* Carte identité */}
           <div className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-secondary text-[16px] font-semibold text-foreground/70">
+            <div className="flex items-center gap-4">
+              <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-foreground text-[17px] font-semibold text-background">
                 {initials(name)}
               </span>
-              <div className="min-w-0">
-                <p className="truncate text-[17px] font-semibold">{name}</p>
-                <p className="text-[13px] text-muted-foreground">{profile?.email || "—"}</p>
-                {profile?.accountType === "business" && (
-                  <span className="mt-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                    Entreprise{profile.businessName ? ` — ${profile.businessName}` : ""}
-                  </span>
-                )}
-                {profile && (
-                  <p className="mt-0.5 text-[12px] text-muted-foreground">
-                    Client depuis {dateFmt.format(new Date(profile.createdAt))}
-                  </p>
-                )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[17px] font-semibold tracking-tight">{name}</p>
+                <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{profile?.email || "—"}</p>
               </div>
+              {profile?.accountType === "business" && (
+                <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                  Entreprise
+                </span>
+              )}
             </div>
 
             {profile && (
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <div className="rounded-xl bg-secondary/50 px-3 py-2.5 text-center">
-                  <p className="text-[18px] font-semibold">{profile.orderCount}</p>
-                  <p className="text-[11px] text-muted-foreground">Commandes</p>
+              <div className="mt-5 flex divide-x divide-border">
+                <div className="flex-1 text-center">
+                  <p className="font-display text-[22px] font-semibold tracking-tight">{profile.orderCount}</p>
+                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Commandes</p>
                 </div>
-                <div className="rounded-xl bg-secondary/50 px-3 py-2.5 text-center">
-                  <p className="text-[18px] font-semibold">{nfCad.format(profile.totalCad)}</p>
-                  <p className="text-[11px] text-muted-foreground">Volume CAD</p>
+                <div className="flex-1 text-center">
+                  <p className="font-display text-[22px] font-semibold tracking-tight">{nfCad.format(profile.totalCad)}</p>
+                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Volume CAD</p>
                 </div>
-                <div className="rounded-xl bg-secondary/50 px-3 py-2.5 text-center">
-                  <p className="text-[14px] font-semibold">{KYC_LABEL[profile.kycStatus]}</p>
-                  <p className="text-[11px] text-muted-foreground">KYC</p>
+                <div className="flex-1 text-center">
+                  <p className="text-[15px] font-semibold">{KYC_LABEL[profile.kycStatus]}</p>
+                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">KYC</p>
                 </div>
               </div>
+            )}
+
+            {profile && (
+              <p className="mt-4 text-center text-[12px] text-muted-foreground">
+                Client depuis {dateFmt.format(new Date(profile.createdAt))}
+                {profile.accountType === "business" && profile.businessName ? ` · ${profile.businessName}` : ""}
+              </p>
             )}
           </div>
 
