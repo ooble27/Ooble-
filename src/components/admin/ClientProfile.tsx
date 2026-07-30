@@ -136,30 +136,46 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
             )}
           </div>
 
-          {/* Informations détaillées */}
-          <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
-            <Row label="Nom complet" value={name} />
-            <Row label="E-mail" value={profile?.email} mono copyKey="email" />
-            <Row label="Téléphone" value={profile?.phone} />
-            <Row label="ID utilisateur" value={userId.slice(0, 12) + "…" + userId.slice(-4)} mono copyKey="uid" />
-            <Row label="Statut KYC" value={profile ? KYC_LABEL[profile.kycStatus] : "—"} />
-            <Row label="Limite quotidienne" value={profile ? `${nfCad.format(profile.dailyLimitCad)} CAD` : "—"} />
-            {profile?.interacQuestion && (
-              <Row label="Question Interac" value={profile.interacQuestion} />
-            )}
-            {profile?.interacAnswer && (
-              <Row label="Réponse Interac" value={profile.interacAnswer} />
-            )}
-            <Row label="Type de compte" value={profile?.accountType === "business" ? "Entreprise" : "Individuel"} />
+          {/* Informations — grille 2 colonnes sur desktop */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+              <div className="px-5 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Informations personnelles</p>
+              </div>
+              <Row label="Nom complet" value={name} />
+              <Row label="E-mail" value={profile?.email} mono copyKey="email" />
+              <Row label="Téléphone" value={profile?.phone} />
+              <Row label="ID utilisateur" value={userId.slice(0, 12) + "…" + userId.slice(-4)} mono copyKey="uid" />
+            </div>
+
+            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+              <div className="px-5 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Compte</p>
+              </div>
+              <Row label="Type" value={profile?.accountType === "business" ? "Entreprise" : "Individuel"} />
+              <Row label="Statut KYC" value={profile ? KYC_LABEL[profile.kycStatus] : "—"} />
+              <Row label="Limite quotidienne" value={profile ? `${nfCad.format(profile.dailyLimitCad)} CAD` : "—"} />
+              {profile?.interacQuestion && <Row label="Question Interac" value={profile.interacQuestion} />}
+              {profile?.interacAnswer && <Row label="Réponse Interac" value={profile.interacAnswer} />}
+            </div>
+
             {profile?.accountType === "business" && (
-              <>
-                <Row label="Raison sociale" value={profile.businessName} />
-                {profile.businessNumber && <Row label="NEQ / BN" value={profile.businessNumber} mono />}
-                {profile.businessAddress && <Row label="Adresse entreprise" value={profile.businessAddress} />}
-                {profile.businessPhone && <Row label="Tél. entreprise" value={profile.businessPhone} />}
-              </>
+              <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card md:col-span-2">
+                <div className="px-5 py-2.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Entreprise</p>
+                </div>
+                <div className="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0">
+                  <div className="divide-y divide-border">
+                    <Row label="Raison sociale" value={profile.businessName} />
+                    {profile.businessNumber && <Row label="NEQ / BN" value={profile.businessNumber} mono />}
+                  </div>
+                  <div className="divide-y divide-border">
+                    {profile.businessAddress && <Row label="Adresse" value={profile.businessAddress} />}
+                    {profile.businessPhone && <Row label="Téléphone" value={profile.businessPhone} />}
+                  </div>
+                </div>
+              </div>
             )}
-            <Row label="Inscription" value={profile ? dateFmt.format(new Date(profile.createdAt)) : "—"} />
           </div>
 
           {/* Historique des commandes */}

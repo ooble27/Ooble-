@@ -43,9 +43,9 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
     .filter((o) => o.status === "attente" || o.status === "recu" || o.status === "cours")
     .sort((a, b) => b.createdMinsAgo - a.createdMinsAgo);
 
-  const unassigned = active.filter((o) => o.status === "attente" || o.status === "recu");
-  const mine = active.filter((o) => o.status === "cours" && o.assignedTo === CURRENT_OPERATOR);
-  const others = active.filter((o) => o.status === "cours" && o.assignedTo !== CURRENT_OPERATOR);
+  const unassigned = active.filter((o) => !o.assignedTo);
+  const mine = active.filter((o) => o.assignedTo === CURRENT_OPERATOR);
+  const others = active.filter((o) => o.assignedTo && o.assignedTo !== CURRENT_OPERATOR);
 
   const TABS: { id: SubTab; label: string; count: number; empty: string }[] = [
     { id: "queue",  label: "File d'attente", count: unassigned.length, empty: "File vide — aucune commande à traiter pour le moment." },
@@ -106,17 +106,7 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
 
             {/* Action (à droite) */}
             <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-              {tab === "queue" && o.status === "attente" && (
-                <Button
-                  variant="appSolid"
-                  shape="rounded"
-                  className="h-auto gap-1.5 rounded-[9px] px-3 py-[7px] text-[12.5px] font-bold"
-                  onClick={() => onPatch(o.id, { status: "recu" })}
-                >
-                  <Check className="h-[13px] w-[13px]" /> Marquer reçu
-                </Button>
-              )}
-              {tab === "queue" && o.status === "recu" && (
+              {tab === "queue" && (
                 <Button
                   variant="appSolid"
                   shape="rounded"

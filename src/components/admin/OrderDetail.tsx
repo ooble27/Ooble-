@@ -90,10 +90,10 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
   useEffect(() => { requestAnimationFrame(measure); }, [measure]);
 
   return (
-    <div ref={containerRef} className="relative flex gap-1 overflow-x-auto rounded-xl bg-secondary/50 p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div ref={containerRef} className="relative flex gap-0.5 overflow-x-auto rounded-xl bg-secondary p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {pill.ready && (
         <div
-          className="absolute top-1 h-[calc(100%-8px)] rounded-[10px] bg-foreground transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="absolute top-1 h-[calc(100%-8px)] rounded-[9px] bg-card transition-[left,width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{ left: pill.left, width: pill.width }}
         />
       )}
@@ -103,8 +103,8 @@ const SegmentedTabs = ({ sections, active, onSelect }: { sections: { id: Section
           ref={(el) => { btnRefs.current[i] = el; }}
           onClick={() => onSelect(s.id)}
           className={cn(
-            "relative z-10 flex-1 whitespace-nowrap rounded-[10px] px-4 py-2.5 text-[13px] font-medium transition-colors duration-200",
-            s.id === active ? "text-background" : "text-muted-foreground hover:text-foreground",
+            "relative z-10 flex-1 whitespace-nowrap rounded-[9px] px-3.5 py-2 text-[13.5px] transition-colors duration-200",
+            s.id === active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
           )}
         >
           {s.label}
@@ -266,25 +266,20 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
 
       {/* Barre d'actions */}
       <div className="flex flex-wrap gap-2.5">
-        {order.status === "attente" && (
+        {order.status === "cours" && (
           <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "recu" })}>
             <Check className="h-[17px] w-[17px]" /> Marquer reçu
           </Button>
         )}
         {order.status === "recu" && (
-          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "cours", assignedTo: CURRENT_OPERATOR })}>
-            <Hand className="h-[17px] w-[17px]" /> Prendre en charge
+          <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
+            <Check className="h-[17px] w-[17px]" /> Marquer terminé
           </Button>
         )}
-        {order.status === "cours" && (
-          <>
-            <Button variant="appSolid" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm font-bold" onClick={() => onPatch(order.id, { status: "termine" })}>
-              <Check className="h-[17px] w-[17px]" /> Marquer terminé
-            </Button>
-            <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
-              Libérer
-            </Button>
-          </>
+        {(order.status === "cours" || order.status === "recu") && (
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
+            Libérer
+          </Button>
         )}
         {order.status !== "termine" && order.status !== "annule" && (
           <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
@@ -292,7 +287,7 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
           </Button>
         )}
         {(order.status === "termine" || order.status === "annule") && (
-          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "recu", assignedTo: null })}>
+          <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
             <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
           </Button>
         )}
