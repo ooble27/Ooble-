@@ -113,8 +113,6 @@ const Dashboard = () => {
               </span>
               <span className="text-[15px] font-medium text-muted-foreground">CAD</span>
             </div>
-            <p className="mt-2 hidden text-sm font-light text-muted-foreground md:block">1 USDT en dollars canadiens · marché + 2 %</p>
-
             <RateChart data={history.points} className="hidden w-full text-foreground/55 md:mt-4 md:block md:min-h-[6rem] md:flex-1" />
           </section>
 
