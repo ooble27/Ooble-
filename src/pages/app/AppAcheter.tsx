@@ -14,7 +14,7 @@ import { OOBLE_INTERAC_EMAIL } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 type Unit = "CAD" | "USDT";
-type Step = "amount" | "network" | "address" | "done";
+type Step = "amount" | "network" | "address" | "recap" | "done";
 const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 const short = (a: string) => (a.length > 16 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
@@ -241,11 +241,40 @@ const AppAcheter = () => {
 
         <RecipientBook kind="wallet" network={net} value={address} onPick={setAddress} />
 
+        <div className="mt-6 flex justify-end">
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={address.length < 12} onClick={() => setStep("recap")}>
+            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+          </Button>
+        </div>
+      </AppShell>
+    );
+  }
+
+  /* ---------- Récapitulatif ---------- */
+  if (step === "recap") {
+    return (
+      <AppShell center>
+        <StepHeader title="Récapitulatif" sub="Vérifiez les détails avant de valider" onBack={() => setStep("address")} />
+        <div className="overflow-hidden rounded-[16px] border border-border bg-card">
+          {[
+            { label: "Vous payez", value: `${nfCad.format(cad)} CAD` },
+            { label: "Vous recevez", value: `${nfUsdt.format(usdt)} USDT` },
+            { label: "Taux", value: `1 USDT = ${nfCad.format(rate.buy)} CAD` },
+            { label: "Réseau", value: `${network?.name} · ${network?.tag}` },
+            { label: "Adresse", value: short(address), mono: true },
+          ].map((r, i, arr) => (
+            <div key={r.label} className={cn("flex items-center justify-between px-4 py-[14px]", i < arr.length - 1 && "border-b border-border")}>
+              <span className="text-[13px] text-muted-foreground">{r.label}</span>
+              <span className={cn("max-w-[60%] break-all text-right text-[13px] font-medium", r.mono && "font-mono text-[11px]")}>{r.value}</span>
+            </div>
+          ))}
+        </div>
+
         {err && <p className="mt-3 text-[13px] text-destructive">{err}</p>}
 
         <div className="mt-6 flex justify-end">
-          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={address.length < 12 || saving} onClick={submit}>
-            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Création…" : "Continuer"}
+          <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={saving} onClick={submit}>
+            <Check className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Validation…" : "Valider"}
           </Button>
         </div>
       </AppShell>
