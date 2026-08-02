@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
-  BadgeCheck, UserRound, Megaphone, Headphones,
+  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -16,19 +16,21 @@ import KycPanel from "@/components/admin/KycPanel";
 import AccountingPanel from "@/components/admin/AccountingPanel";
 import TeamPanel from "@/components/admin/TeamPanel";
 import ClientProfile from "@/components/admin/ClientProfile";
+import CompliancePanel from "@/components/admin/CompliancePanel";
 
-type TabId = "queue" | "orders" | "kyc" | "accounting" | "team";
+type TabId = "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
   { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique.", icon: ShoppingCart },
   { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: ScanFace },
-  { id: "accounting", label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
-  { id: "team",       label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
+  { id: "accounting",  label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
+  { id: "compliance",  label: "Conformité",     desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité.", icon: ShieldCheck },
+  { id: "team",        label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["queue", "orders", "kyc", "accounting", "team"],
+  admin:        ["queue", "orders", "kyc", "accounting", "compliance", "team"],
   operator:     ["queue", "orders"],
   kyc_reviewer: ["kyc"],
   support:      ["queue", "orders"],
@@ -190,7 +192,7 @@ const AdminPortal = () => {
 
             {/* Vue active */}
             <div className="mt-5">
-              {loading && (tab === "queue" || tab === "orders" || tab === "accounting") ? (
+              {loading && (tab === "queue" || tab === "orders" || tab === "accounting" || tab === "compliance") ? (
                 <div className="rounded-2xl border border-border bg-card py-16 text-center text-[13px] text-muted-foreground">
                   Chargement des commandes…
                 </div>
@@ -200,6 +202,7 @@ const AdminPortal = () => {
                   {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
                   {tab === "kyc" && <KycPanel />}
                   {tab === "accounting" && <AccountingPanel orders={orders} />}
+                  {tab === "compliance" && <CompliancePanel orders={orders} />}
                   {tab === "team" && <TeamPanel />}
                 </>
               )}
