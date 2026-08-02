@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeft, Check, ChevronRight, Clock, FileText, Shield,
+  ArrowLeft, Check, ChevronDown, ChevronRight, Clock, FileText, Shield,
   AlertTriangle, Send, Save, UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,12 @@ import {
 } from "@/lib/compliance";
 import { SubTabs } from "./AdminBits";
 
-// ──────────────── Shared helpers ────────────────
+// ──────────────── Design tokens ────────────────
+
+const inputCn =
+  "w-full rounded-xl border border-border bg-card px-4 py-3 text-[14px] leading-tight outline-none ring-offset-background transition-colors placeholder:text-muted-foreground/50 focus:border-foreground focus:ring-2 focus:ring-foreground/10";
+
+// ──────────────── Shared components ────────────────
 
 const SummaryCard = ({ label, value, sub, urgent }: {
   label: string; value: string; sub?: string; urgent?: boolean;
@@ -48,70 +53,142 @@ const TypeBadge = ({ type }: { type: AlertType | DeclarationType }) => {
   );
 };
 
-const inputCn = "w-full rounded-xl border border-border bg-secondary/40 px-4 py-3 text-[14px] outline-none placeholder:text-muted-foreground/60 focus:border-foreground";
-
-const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
+const Field = ({ label, hint, required, children }: {
+  label: string; hint?: string; required?: boolean; children: React.ReactNode;
+}) => (
   <div>
-    <label className="mb-1.5 block text-[12px] font-medium">
-      {label}{required && <span className="ml-0.5 text-destructive">*</span>}
+    <label className="mb-1.5 flex items-baseline justify-between gap-2">
+      <span className="text-[12px] font-medium">
+        {label}{required && <span className="ml-0.5 text-destructive">*</span>}
+      </span>
+      {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
     </label>
     {children}
   </div>
 );
 
-const BackButton = ({ onClick, label }: { onClick: () => void; label?: string }) => (
+const SelectWrap = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative">
+    {children}
+    <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+  </div>
+);
+
+const FormSection = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div>
+    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{label}</p>
+    <div className="space-y-3">{children}</div>
+  </div>
+);
+
+const BackButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
-    aria-label={label ?? "Retour"}
+    aria-label="Retour"
   >
     <ArrowLeft className="h-[18px] w-[18px]" />
+  </button>
+);
+
+const TogglePill = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
+      active
+        ? "border-foreground bg-foreground text-background"
+        : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
+    )}
+  >
+    {label}
+  </button>
+);
+
+const RadioCard = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-colors",
+      active ? "border-foreground bg-foreground/5" : "border-border hover:bg-secondary/30",
+    )}
+  >
+    <span className={cn(
+      "mt-px flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+      active ? "border-foreground" : "border-muted-foreground/30",
+    )}>
+      {active && <span className="h-2 w-2 rounded-full bg-foreground" />}
+    </span>
+    <span className="text-[13px] leading-snug">{label}</span>
+  </button>
+);
+
+const CheckCard = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) => (
+  <button
+    type="button"
+    onClick={onChange}
+    className={cn(
+      "flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-left transition-colors",
+      checked ? "border-foreground/20 bg-foreground/5" : "border-border hover:bg-secondary/30",
+    )}
+  >
+    <span className={cn(
+      "mt-px flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border-2 transition-colors",
+      checked ? "border-foreground bg-foreground text-background" : "border-muted-foreground/30",
+    )}>
+      {checked && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
+    </span>
+    <span className="text-[13px] leading-snug">{label}</span>
   </button>
 );
 
 const initials = (name: string) =>
   name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
+const SuccessBanner = ({ message }: { message: string }) => (
+  <div className="flex items-center gap-2.5 rounded-xl border border-foreground/10 bg-foreground/5 px-4 py-3">
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
+      <Check className="h-3 w-3" strokeWidth={3} />
+    </span>
+    <p className="text-[13px] font-medium">{message}</p>
+  </div>
+);
+
 // ──────────────── Step Indicator ────────────────
 
 const DECL_STEPS = ["Opération", "Client", "Justification", "Récapitulatif"] as const;
 
 const StepIndicator = ({ current }: { current: number }) => (
-  <div className="flex items-center gap-1 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+  <div className="flex items-center gap-0">
     {DECL_STEPS.map((label, i) => {
       const done = i < current;
       const active = i === current;
       return (
-        <div key={label} className="flex shrink-0 items-center gap-1">
-          {i > 0 && <div className={cn("h-px w-4 md:w-6", done || active ? "bg-foreground" : "bg-border")} />}
+        <Fragment key={label}>
+          {i > 0 && <div className={cn("h-px flex-1", done ? "bg-foreground" : "bg-border")} />}
           <div className={cn(
-            "flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors",
-            active ? "bg-foreground text-background" : done ? "text-foreground" : "text-muted-foreground",
+            "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-colors",
+            active ? "bg-foreground text-background" : done ? "text-foreground" : "text-muted-foreground/50",
           )}>
             <span className={cn(
-              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-              active ? "bg-background text-foreground" : done ? "bg-foreground text-background" : "bg-secondary text-muted-foreground",
+              "flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors",
+              active ? "bg-background/20 text-background"
+                : done ? "bg-foreground text-background"
+                : "bg-border text-muted-foreground/50",
             )}>
-              {done ? <Check className="h-3 w-3" /> : i + 1}
+              {done ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}
             </span>
-            <span className="hidden sm:inline">{label}</span>
+            <span className="hidden md:inline">{label}</span>
           </div>
-        </div>
+        </Fragment>
       );
     })}
   </div>
 );
 
-// ──────────────── Success Banner ────────────────
-
-const SuccessBanner = ({ message }: { message: string }) => (
-  <div className="flex items-center gap-2 rounded-xl border border-foreground/10 bg-foreground/5 px-4 py-3">
-    <Check className="h-4 w-4 shrink-0 text-foreground" />
-    <p className="text-[13px] font-medium">{message}</p>
-  </div>
-);
-
-// ──────────────── Classer sans suite — Form ────────────────
+// ──────────────── Classer sans suite ────────────────
 
 const ClasserView = ({ alert, onSubmit, onBack }: {
   alert: ComplianceAlert;
@@ -150,29 +227,19 @@ const ClasserView = ({ alert, onSubmit, onBack }: {
           </div>
           <span className="shrink-0 text-[14px] font-semibold tabular-nums">{nfCad.format(alert.amount)} $</span>
         </div>
-        <p className="mt-2 text-[12px] text-muted-foreground">{alert.reason}</p>
       </div>
 
-      {/* Reason selection */}
+      {/* Reason */}
       <div className="rounded-2xl border border-border bg-card p-5">
-        <Field label="Motif du classement" required>
-          <div className="mt-1 space-y-2">
+        <FormSection label="Motif du classement">
+          <div className="space-y-2">
             {CLASSIFICATION_REASONS.map((r) => (
-              <label key={r} className="flex cursor-pointer items-start gap-3 rounded-lg px-1 py-1 transition-colors hover:bg-secondary/50">
-                <input
-                  type="radio"
-                  name="classReason"
-                  checked={reason === r}
-                  onChange={() => setReason(r)}
-                  className="mt-0.5 h-4 w-4 accent-foreground"
-                />
-                <span className="text-[13px]">{r}</span>
-              </label>
+              <RadioCard key={r} label={r} active={reason === r} onClick={() => setReason(r)} />
             ))}
           </div>
-        </Field>
+        </FormSection>
 
-        <div className="mt-5">
+        <div className="mt-6">
           <Field label="Notes justificatives" required>
             <textarea
               value={notes}
@@ -182,19 +249,14 @@ const ClasserView = ({ alert, onSubmit, onBack }: {
               className={cn(inputCn, "resize-none")}
             />
           </Field>
-        </div>
-
-        <div className="mt-2">
-          <p className="text-[11.5px] text-muted-foreground">
-            Le motif et les notes seront conservés dans le dossier de l'alerte pendant {RECORD_RETENTION_YEARS} ans,
-            conformément aux obligations de tenue de dossiers (LRPCFAT).
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Conservé au dossier pendant {RECORD_RETENTION_YEARS} ans (LRPCFAT).
           </p>
         </div>
       </div>
 
       <Button
-        variant="appSolid"
-        shape="rounded"
+        variant="appSolid" shape="rounded"
         className="h-auto w-full gap-2 rounded-xl px-5 py-3.5 text-[14px] font-bold"
         disabled={!valid}
         onClick={() => onSubmit(reason, notes)}
@@ -206,7 +268,7 @@ const ClasserView = ({ alert, onSubmit, onBack }: {
   );
 };
 
-// ──────────────── Declaration Workflow — 4 steps ────────────────
+// ──────────────── Declaration Workflow ────────────────
 
 const DeclarationWorkflow = ({ alert, form, onChange, onSubmit, onBack }: {
   alert: ComplianceAlert;
@@ -217,7 +279,7 @@ const DeclarationWorkflow = ({ alert, form, onChange, onSubmit, onBack }: {
 }) => {
   const [step, setStep] = useState(0);
   const set = <K extends keyof DeclarationFormData>(k: K, v: DeclarationFormData[K]) =>
-    onChange({ ...form, ...{ [k]: v } });
+    onChange({ ...form, [k]: v });
 
   const canAdvance = (): boolean => {
     if (step === 0) return form.amountCad.length > 0 && form.operationDate.length > 0;
@@ -237,14 +299,35 @@ const DeclarationWorkflow = ({ alert, form, onChange, onSubmit, onBack }: {
     set("suspicionIndicators", cur.includes(ind) ? cur.filter((x) => x !== ind) : [...cur, ind]);
   };
 
+  const navButtons = (
+    <div className="flex gap-3">
+      <Button
+        variant="appOutline" shape="rounded"
+        className="h-auto gap-1.5 rounded-xl px-5 py-3 text-[13px] font-bold"
+        onClick={step > 0 ? () => setStep(step - 1) : onBack}
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        {step > 0 ? "Précédent" : "Annuler"}
+      </Button>
+      <Button
+        variant="appSolid" shape="rounded"
+        className="h-auto flex-1 gap-1.5 rounded-xl px-5 py-3 text-[13px] font-bold"
+        disabled={!canAdvance()}
+        onClick={() => setStep(step + 1)}
+      >
+        Suivant
+        <ChevronRight className="h-3.5 w-3.5" />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-start gap-3">
         <BackButton onClick={step > 0 ? () => setStep(step - 1) : onBack} />
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-[17px] font-semibold tracking-tight">
-            Déclarer au CANAFE
-          </h3>
+          <h3 className="font-display text-[17px] font-semibold tracking-tight">Déclarer au CANAFE</h3>
           <p className="mt-0.5 text-[12px] text-muted-foreground">
             {DECL_TYPE_META[form.type].full} — {alert.id}
           </p>
@@ -253,289 +336,277 @@ const DeclarationWorkflow = ({ alert, form, onChange, onSubmit, onBack }: {
 
       <StepIndicator current={step} />
 
-      {/* ── Step 0: Opération ── */}
+      {/* ── Step 0 : Opération ── */}
       {step === 0 && (
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
-          <p className="text-[12.5px] text-muted-foreground">
-            Vérifiez les détails de l'opération qui a déclenché cette alerte.
-            Les champs pré-remplis proviennent de l'alerte {alert.id}.
-          </p>
-
-          <Field label="Type de déclaration" required>
-            <div className="mt-1 flex flex-wrap gap-2">
-              {(["doimv", "dot", "dbt"] as DeclarationType[]).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => set("type", t)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-[13px] font-medium transition-colors",
-                    form.type === t
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
-                  )}
-                >
-                  {DECL_TYPE_META[t].label}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-[11.5px] text-muted-foreground">{DECL_TYPE_META[form.type].full}</p>
-          </Field>
-
-          <Field label="Type d'opération" required>
-            <div className="mt-1 flex gap-2">
-              {[{ v: "buy", l: "Achat" }, { v: "sell", l: "Vente" }].map(({ v, l }) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => set("operationType", v)}
-                  className={cn(
-                    "rounded-xl border px-3.5 py-2.5 text-[13px] font-medium transition-colors",
-                    form.operationType === v
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
-                  )}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-          </Field>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Montant (CAD)" required>
-              <input type="text" value={form.amountCad} onChange={(e) => set("amountCad", e.target.value)} className={inputCn} />
-            </Field>
-            <Field label="Montant (USDT)">
-              <input type="text" value={form.amountUsdt} onChange={(e) => set("amountUsdt", e.target.value)} placeholder="Facultatif" className={inputCn} />
-            </Field>
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <FormSection label="Type de déclaration">
+              <div className="flex flex-wrap gap-2">
+                {(["doimv", "dot", "dbt"] as DeclarationType[]).map((t) => (
+                  <TogglePill key={t} label={DECL_TYPE_META[t].label} active={form.type === t} onClick={() => set("type", t)} />
+                ))}
+              </div>
+              <p className="mt-1.5 text-[11.5px] text-muted-foreground">{DECL_TYPE_META[form.type].full}</p>
+            </FormSection>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Date de l'opération" required>
-              <input type="date" value={form.operationDate} onChange={(e) => set("operationDate", e.target.value)} className={inputCn} />
-            </Field>
-            <Field label="Mode de paiement">
-              <input type="text" value={form.paymentMethod} onChange={(e) => set("paymentMethod", e.target.value)} className={inputCn} />
-            </Field>
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-6">
+            <FormSection label="Détails de l'opération">
+              <div className="flex flex-wrap gap-2">
+                <TogglePill label="Achat" active={form.operationType === "buy"} onClick={() => set("operationType", "buy")} />
+                <TogglePill label="Vente" active={form.operationType === "sell"} onClick={() => set("operationType", "sell")} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Montant CAD" required>
+                  <input type="text" inputMode="decimal" value={form.amountCad} onChange={(e) => set("amountCad", e.target.value)} className={inputCn} />
+                </Field>
+                <Field label="Montant USDT" hint="Facultatif">
+                  <input type="text" inputMode="decimal" value={form.amountUsdt} onChange={(e) => set("amountUsdt", e.target.value)} placeholder="—" className={inputCn} />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Date de l'opération" required hint="AAAA-MM-JJ">
+                  <input type="text" value={form.operationDate} onChange={(e) => set("operationDate", e.target.value)} placeholder="2026-08-01" className={cn(inputCn, "tabular-nums")} />
+                </Field>
+                <Field label="Mode de paiement">
+                  <input type="text" value={form.paymentMethod} onChange={(e) => set("paymentMethod", e.target.value)} className={inputCn} />
+                </Field>
+              </div>
+            </FormSection>
+
+            <FormSection label="Blockchain">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Réseau">
+                  <input type="text" value={form.network} onChange={(e) => set("network", e.target.value)} placeholder="Tron, Ethereum…" className={inputCn} />
+                </Field>
+                <Field label="Adresse portefeuille">
+                  <input type="text" value={form.walletAddress} onChange={(e) => set("walletAddress", e.target.value)} placeholder="T…" className={cn(inputCn, "font-mono text-[13px]")} />
+                </Field>
+              </div>
+            </FormSection>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Réseau blockchain">
-              <input type="text" value={form.network} onChange={(e) => set("network", e.target.value)} placeholder="Ex. : Tron, Ethereum…" className={inputCn} />
-            </Field>
-            <Field label="Adresse de portefeuille">
-              <input type="text" value={form.walletAddress} onChange={(e) => set("walletAddress", e.target.value)} placeholder="Adresse du client" className={inputCn} />
-            </Field>
-          </div>
+          {navButtons}
         </div>
       )}
 
-      {/* ── Step 1: Client ── */}
+      {/* ── Step 1 : Client ── */}
       {step === 1 && (
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
-          <p className="text-[12.5px] text-muted-foreground">
-            Complétez les informations d'identification du client. Le CANAFE exige
-            l'identité complète pour toute déclaration (art. 64 et 65 RRPCFAT).
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-6">
+            <FormSection label="Identité">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label="Nom complet" required>
+                  <input type="text" value={form.clientName} onChange={(e) => set("clientName", e.target.value)} className={inputCn} />
+                </Field>
+                <Field label="Courriel" required>
+                  <input type="email" value={form.clientEmail} onChange={(e) => set("clientEmail", e.target.value)} className={inputCn} />
+                </Field>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label="Date de naissance" required hint="AAAA-MM-JJ">
+                  <input type="text" value={form.clientDob} onChange={(e) => set("clientDob", e.target.value)} placeholder="1990-01-15" className={cn(inputCn, "tabular-nums")} />
+                </Field>
+                <Field label="Occupation">
+                  <input type="text" value={form.clientOccupation} onChange={(e) => set("clientOccupation", e.target.value)} placeholder="Analyste, Étudiant…" className={inputCn} />
+                </Field>
+              </div>
+            </FormSection>
+
+            <FormSection label="Document d'identité">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Field label="Type de pièce" required>
+                  <SelectWrap>
+                    <select value={form.clientIdType} onChange={(e) => set("clientIdType", e.target.value)} className={cn(inputCn, "appearance-none pr-10")}>
+                      <option value="">Sélectionner…</option>
+                      {ID_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </SelectWrap>
+                </Field>
+                <Field label="Numéro" required>
+                  <input type="text" value={form.clientIdNumber} onChange={(e) => set("clientIdNumber", e.target.value)} placeholder="P1234567" className={inputCn} />
+                </Field>
+              </div>
+            </FormSection>
+
+            <FormSection label="Adresse">
+              <Field label="Adresse" required>
+                <input type="text" value={form.clientAddress} onChange={(e) => set("clientAddress", e.target.value)} placeholder="123 rue Principale" className={inputCn} />
+              </Field>
+              <div className="grid grid-cols-3 gap-3">
+                <Field label="Ville" required>
+                  <input type="text" value={form.clientCity} onChange={(e) => set("clientCity", e.target.value)} className={inputCn} />
+                </Field>
+                <Field label="Province" required>
+                  <SelectWrap>
+                    <select value={form.clientProvince} onChange={(e) => set("clientProvince", e.target.value)} className={cn(inputCn, "appearance-none pr-10")}>
+                      <option value="">—</option>
+                      {PROVINCES.map((p) => <option key={p.code} value={p.code}>{p.code}</option>)}
+                    </select>
+                  </SelectWrap>
+                </Field>
+                <Field label="Code postal" required>
+                  <input type="text" value={form.clientPostalCode} onChange={(e) => set("clientPostalCode", e.target.value)} placeholder="H2X 1Y1" className={cn(inputCn, "uppercase")} />
+                </Field>
+              </div>
+            </FormSection>
+          </div>
+
+          <p className="px-1 text-[11px] text-muted-foreground">
+            Le CANAFE exige l'identité complète du client pour toute déclaration (art. 64–65 RRPCFAT).
           </p>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Nom complet" required>
-              <input type="text" value={form.clientName} onChange={(e) => set("clientName", e.target.value)} className={inputCn} />
-            </Field>
-            <Field label="Courriel" required>
-              <input type="email" value={form.clientEmail} onChange={(e) => set("clientEmail", e.target.value)} className={inputCn} />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Date de naissance" required>
-              <input type="date" value={form.clientDob} onChange={(e) => set("clientDob", e.target.value)} className={inputCn} />
-            </Field>
-            <Field label="Occupation">
-              <input type="text" value={form.clientOccupation} onChange={(e) => set("clientOccupation", e.target.value)} placeholder="Ex. : Analyste, Étudiant…" className={inputCn} />
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Field label="Type de pièce d'identité" required>
-              <select value={form.clientIdType} onChange={(e) => set("clientIdType", e.target.value)} className={cn(inputCn, "appearance-none")}>
-                <option value="">Sélectionner…</option>
-                {ID_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </Field>
-            <Field label="Numéro de pièce d'identité" required>
-              <input type="text" value={form.clientIdNumber} onChange={(e) => set("clientIdNumber", e.target.value)} placeholder="Ex. : P1234567" className={inputCn} />
-            </Field>
-          </div>
-
-          <Field label="Adresse" required>
-            <input type="text" value={form.clientAddress} onChange={(e) => set("clientAddress", e.target.value)} placeholder="123 rue Principale" className={inputCn} />
-          </Field>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Field label="Ville" required>
-              <input type="text" value={form.clientCity} onChange={(e) => set("clientCity", e.target.value)} className={inputCn} />
-            </Field>
-            <Field label="Province" required>
-              <select value={form.clientProvince} onChange={(e) => set("clientProvince", e.target.value)} className={cn(inputCn, "appearance-none")}>
-                <option value="">Sélectionner…</option>
-                {PROVINCES.map((p) => <option key={p.code} value={p.code}>{p.code} — {p.name}</option>)}
-              </select>
-            </Field>
-            <Field label="Code postal" required>
-              <input type="text" value={form.clientPostalCode} onChange={(e) => set("clientPostalCode", e.target.value)} placeholder="H2X 1Y1" className={inputCn} />
-            </Field>
-          </div>
+          {navButtons}
         </div>
       )}
 
-      {/* ── Step 2: Justification ── */}
+      {/* ── Step 2 : Justification ── */}
       {step === 2 && (
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
+        <div className="space-y-4">
           {form.type === "doimv" && (
-            <>
-              <div className="flex items-start gap-3 rounded-xl border border-foreground/10 bg-foreground/5 px-4 py-3">
-                <Shield className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
+            <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
+              <div className="flex items-start gap-3 rounded-xl bg-foreground/5 px-4 py-3">
+                <Shield className="mt-0.5 h-4 w-4 shrink-0" />
                 <div>
                   <p className="text-[13px] font-medium">Seuil DOIMV atteint</p>
-                  <p className="mt-0.5 text-[12px] text-muted-foreground">
-                    Cette opération de {nfCad.format(Number(form.amountCad))} $ CA atteint ou dépasse
-                    le seuil de {nfCad.format(DOIMV_THRESHOLD)} $ CA. En vertu de l'article 12 du RRPCFAT,
-                    une déclaration d'opérations importantes en monnaie virtuelle (DOIMV) doit être
-                    soumise au CANAFE dans un délai de {DOIMV_DEADLINE_DAYS} jours.
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                    L'opération de {nfCad.format(Number(form.amountCad))} $ CA atteint le seuil de{" "}
+                    {nfCad.format(DOIMV_THRESHOLD)} $. Une DOIMV doit être soumise dans les{" "}
+                    {DOIMV_DEADLINE_DAYS} jours (art. 12 RRPCFAT).
                   </p>
                 </div>
               </div>
-              <Field label="Observations (facultatif)">
+              <Field label="Observations" hint="Facultatif">
                 <textarea
                   value={form.observations}
                   onChange={(e) => set("observations", e.target.value)}
                   rows={3}
-                  placeholder="Ajoutez des observations pertinentes si nécessaire…"
+                  placeholder="Notes complémentaires…"
                   className={cn(inputCn, "resize-none")}
                 />
               </Field>
-            </>
+            </div>
           )}
 
           {form.type === "dot" && (
-            <>
-              <p className="text-[12.5px] text-muted-foreground">
-                Sélectionnez les indicateurs de soupçon observés. Le CANAFE exige au moins un indicateur
-                pour toute DOT. Décrivez ensuite vos observations dans le champ ci-dessous.
-              </p>
-
-              <Field label="Indicateurs de soupçon" required>
-                <div className="mt-1 space-y-1.5">
-                  {DOT_INDICATORS.map((ind) => {
-                    const on = form.suspicionIndicators.includes(ind);
-                    return (
-                      <label
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <FormSection label="Indicateurs de soupçon">
+                  <p className="text-[12px] text-muted-foreground -mt-1 mb-2">
+                    Sélectionnez au moins un indicateur observé.
+                  </p>
+                  <div className="space-y-2">
+                    {DOT_INDICATORS.map((ind) => (
+                      <CheckCard
                         key={ind}
-                        className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors",
-                          on ? "border-foreground/20 bg-foreground/5" : "border-transparent hover:bg-secondary/50",
-                        )}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          onChange={() => toggleIndicator(ind)}
-                          className="mt-0.5 h-4 w-4 accent-foreground"
-                        />
-                        <span className="text-[13px]">{ind}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </Field>
+                        label={ind}
+                        checked={form.suspicionIndicators.includes(ind)}
+                        onChange={() => toggleIndicator(ind)}
+                      />
+                    ))}
+                  </div>
+                </FormSection>
+              </div>
 
-              <Field label="Observations détaillées" required>
-                <textarea
-                  value={form.observations}
-                  onChange={(e) => set("observations", e.target.value)}
-                  rows={4}
-                  placeholder="Décrivez les faits et circonstances qui ont éveillé vos soupçons. Soyez précis : dates, montants, comportements observés…"
-                  className={cn(inputCn, "resize-none")}
-                />
-              </Field>
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <Field label="Observations détaillées" required>
+                  <textarea
+                    value={form.observations}
+                    onChange={(e) => set("observations", e.target.value)}
+                    rows={4}
+                    placeholder="Dates, montants, comportements observés…"
+                    className={cn(inputCn, "resize-none")}
+                  />
+                </Field>
+              </div>
 
-              <div className="flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
+              <div className="flex items-start gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 <p className="text-[12px] text-muted-foreground">
-                  <span className="font-semibold text-destructive">Important :</span> les DOT doivent être soumises
-                  dans les {DOT_DEADLINE_DAYS} jours suivant la détection du soupçon (3 jours si lié au financement
-                  du terrorisme). Ne divulguez jamais au client qu'une DOT a été soumise.
+                  <span className="font-semibold text-destructive">Important :</span> délai de{" "}
+                  {DOT_DEADLINE_DAYS} jours (3 jours si terrorisme). Ne divulguez jamais au client
+                  qu'une DOT a été soumise.
                 </p>
               </div>
-            </>
+            </div>
           )}
 
           {form.type === "dbt" && (
-            <>
-              <div className="flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
+            <div className="space-y-4">
+              <div className="flex items-start gap-2.5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                 <div>
                   <p className="text-[13px] font-semibold text-destructive">Déclaration de biens terroristes</p>
                   <p className="mt-1 text-[12px] text-muted-foreground">
-                    Si vous avez des motifs raisonnables de croire que des biens sont la propriété
-                    d'un groupe terroriste ou sont utilisés pour le financement du terrorisme,
-                    cette déclaration est obligatoire et doit être soumise immédiatement.
-                    Gelez les fonds et contactez le CANAFE par téléphone au 1-866-346-8722.
+                    Soumission obligatoire et immédiate. Gelez les fonds et contactez le CANAFE
+                    au 1-866-346-8722.
                   </p>
                 </div>
               </div>
-              <Field label="Observations détaillées" required>
-                <textarea
-                  value={form.observations}
-                  onChange={(e) => set("observations", e.target.value)}
-                  rows={4}
-                  placeholder="Décrivez les motifs de la déclaration de biens terroristes…"
-                  className={cn(inputCn, "resize-none")}
-                />
-              </Field>
-            </>
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <Field label="Observations détaillées" required>
+                  <textarea
+                    value={form.observations}
+                    onChange={(e) => set("observations", e.target.value)}
+                    rows={4}
+                    placeholder="Motifs de la déclaration…"
+                    className={cn(inputCn, "resize-none")}
+                  />
+                </Field>
+              </div>
+            </div>
           )}
+
+          {navButtons}
         </div>
       )}
 
-      {/* ── Step 3: Récapitulatif ── */}
+      {/* ── Step 3 : Récapitulatif ── */}
       {step === 3 && (
         <div className="space-y-3">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Opération</p>
-            <div className="mt-3 space-y-1.5 text-[13px]">
-              <div className="flex justify-between"><span className="text-muted-foreground">Type</span><TypeBadge type={form.type} /></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Opération</span><span className="font-medium">{form.operationType === "buy" ? "Achat" : "Vente"}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Montant CAD</span><span className="font-semibold tabular-nums">{nfCad.format(Number(form.amountCad))} $</span></div>
-              {form.amountUsdt && <div className="flex justify-between"><span className="text-muted-foreground">Montant USDT</span><span className="tabular-nums">{form.amountUsdt} USDT</span></div>}
-              <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span>{form.operationDate}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Paiement</span><span>{form.paymentMethod}</span></div>
-              {form.network && <div className="flex justify-between"><span className="text-muted-foreground">Réseau</span><span>{form.network}</span></div>}
-              {form.walletAddress && <div className="flex justify-between"><span className="text-muted-foreground">Portefeuille</span><span className="max-w-[200px] truncate">{form.walletAddress}</span></div>}
+          <div className="rounded-2xl border border-border bg-card divide-y divide-border">
+            {/* Opération */}
+            <div className="p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Opération</p>
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                <span className="text-muted-foreground">Type</span><span className="text-right"><TypeBadge type={form.type} /></span>
+                <span className="text-muted-foreground">Opération</span><span className="text-right font-medium">{form.operationType === "buy" ? "Achat" : "Vente"}</span>
+                <span className="text-muted-foreground">Montant</span><span className="text-right font-semibold tabular-nums">{nfCad.format(Number(form.amountCad))} $</span>
+                {form.amountUsdt && <><span className="text-muted-foreground">USDT</span><span className="text-right tabular-nums">{form.amountUsdt}</span></>}
+                <span className="text-muted-foreground">Date</span><span className="text-right tabular-nums">{form.operationDate}</span>
+                <span className="text-muted-foreground">Paiement</span><span className="text-right">{form.paymentMethod}</span>
+                {form.network && <><span className="text-muted-foreground">Réseau</span><span className="text-right">{form.network}</span></>}
+                {form.walletAddress && <><span className="text-muted-foreground">Portefeuille</span><span className="max-w-[180px] truncate text-right font-mono text-[12px]">{form.walletAddress}</span></>}
+              </div>
+            </div>
+
+            {/* Client */}
+            <div className="p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Client</p>
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+                <span className="text-muted-foreground">Nom</span><span className="text-right font-medium">{form.clientName}</span>
+                <span className="text-muted-foreground">Courriel</span><span className="text-right">{form.clientEmail}</span>
+                <span className="text-muted-foreground">Naissance</span><span className="text-right tabular-nums">{form.clientDob}</span>
+                {form.clientOccupation && <><span className="text-muted-foreground">Occupation</span><span className="text-right">{form.clientOccupation}</span></>}
+                <span className="text-muted-foreground">Pièce d'identité</span><span className="text-right">{form.clientIdType}</span>
+                <span className="text-muted-foreground">Numéro</span><span className="text-right">{form.clientIdNumber}</span>
+                <span className="text-muted-foreground">Adresse</span><span className="text-right">{form.clientAddress}, {form.clientCity}, {form.clientProvince} {form.clientPostalCode}</span>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Client</p>
-            <div className="mt-3 space-y-1.5 text-[13px]">
-              <div className="flex justify-between"><span className="text-muted-foreground">Nom</span><span className="font-medium">{form.clientName}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Courriel</span><span>{form.clientEmail}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Date de naissance</span><span>{form.clientDob}</span></div>
-              {form.clientOccupation && <div className="flex justify-between"><span className="text-muted-foreground">Occupation</span><span>{form.clientOccupation}</span></div>}
-              <div className="flex justify-between"><span className="text-muted-foreground">Pièce d'identité</span><span>{form.clientIdType} · {form.clientIdNumber}</span></div>
-              <div className="flex justify-between flex-wrap gap-1"><span className="text-muted-foreground">Adresse</span><span className="text-right">{form.clientAddress}, {form.clientCity}, {form.clientProvince} {form.clientPostalCode}</span></div>
-            </div>
-          </div>
-
+          {/* DOT indicators */}
           {form.type === "dot" && form.suspicionIndicators.length > 0 && (
-            <div className="rounded-2xl border border-destructive/20 bg-card p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-destructive">Indicateurs de soupçon</p>
+            <div className="rounded-2xl border border-destructive/15 bg-card p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-destructive">
+                Indicateurs de soupçon · {form.suspicionIndicators.length}
+              </p>
               <ul className="mt-3 space-y-1.5">
                 {form.suspicionIndicators.map((ind, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13px]">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
                     {ind}
                   </li>
                 ))}
@@ -546,71 +617,43 @@ const DeclarationWorkflow = ({ alert, form, onChange, onSubmit, onBack }: {
           {form.observations && (
             <div className="rounded-2xl border border-border bg-card p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Observations</p>
-              <p className="mt-3 text-[13px] leading-relaxed">{form.observations}</p>
+              <p className="mt-3 text-[13px] leading-relaxed whitespace-pre-wrap">{form.observations}</p>
             </div>
           )}
 
-          <div className="rounded-xl border border-foreground/10 bg-foreground/5 px-4 py-3">
-            <p className="text-[12.5px] text-muted-foreground">
-              <span className="font-semibold text-foreground">Échéance de soumission :</span>{" "}
-              {form.type === "dot" ? `${DOT_DEADLINE_DAYS} jours` : `${DOIMV_DEADLINE_DAYS} jours`} après la détection.
-              Après avoir marqué la déclaration comme « soumise » ici, rendez-vous sur le
-              portail F2R du CANAFE pour compléter la soumission officielle avec les informations ci-dessus.
+          <div className="rounded-xl bg-foreground/5 px-4 py-3">
+            <p className="text-[12px] text-muted-foreground">
+              <span className="font-semibold text-foreground">Échéance :</span>{" "}
+              {form.type === "dot" ? `${DOT_DEADLINE_DAYS} jours` : `${DOIMV_DEADLINE_DAYS} jours`}.
+              Après validation ici, soumettez sur le portail F2R du CANAFE.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="grid grid-cols-2 gap-3">
             <Button
-              variant="appOutline"
-              shape="rounded"
-              className="h-auto flex-1 gap-2 rounded-xl px-5 py-3.5 text-[14px] font-bold"
+              variant="appOutline" shape="rounded"
+              className="h-auto gap-2 rounded-xl px-4 py-3.5 text-[13px] font-bold"
               onClick={() => onSubmit(true)}
             >
               <Save className="h-4 w-4" />
-              Enregistrer en brouillon
+              Brouillon
             </Button>
             <Button
-              variant="appSolid"
-              shape="rounded"
-              className="h-auto flex-1 gap-2 rounded-xl px-5 py-3.5 text-[14px] font-bold"
+              variant="appSolid" shape="rounded"
+              className="h-auto gap-2 rounded-xl px-4 py-3.5 text-[13px] font-bold"
               onClick={() => onSubmit(false)}
             >
               <Send className="h-4 w-4" />
-              Marquer comme soumise
+              Soumise
             </Button>
           </div>
-        </div>
-      )}
-
-      {/* Nav buttons for steps 0–2 */}
-      {step < 3 && (
-        <div className="flex justify-between gap-3">
-          <Button
-            variant="appOutline"
-            shape="rounded"
-            className="h-auto gap-2 rounded-xl px-5 py-3 text-[13px] font-bold"
-            onClick={step > 0 ? () => setStep(step - 1) : onBack}
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {step > 0 ? "Précédent" : "Annuler"}
-          </Button>
-          <Button
-            variant="appSolid"
-            shape="rounded"
-            className="h-auto gap-2 rounded-xl px-5 py-3 text-[13px] font-bold"
-            disabled={!canAdvance()}
-            onClick={() => setStep(step + 1)}
-          >
-            Suivant
-            <ChevronRight className="h-4 w-4" />
-          </Button>
         </div>
       )}
     </div>
   );
 };
 
-// ──────────────── Declaration Detail View ────────────────
+// ──────────────── Declaration Detail ────────────────
 
 const DeclarationDetailView = ({ decl, onBack }: {
   decl: ComplianceDeclaration;
@@ -624,34 +667,31 @@ const DeclarationDetailView = ({ decl, onBack }: {
       <div className="flex items-start gap-3">
         <BackButton onClick={onBack} />
         <div>
-          <h3 className="font-display text-[17px] font-semibold tracking-tight">
-            Déclaration {decl.id}
-          </h3>
+          <h3 className="font-display text-[17px] font-semibold tracking-tight">Déclaration {decl.id}</h3>
           <p className="mt-0.5 text-[12px] text-muted-foreground">{DECL_TYPE_META[decl.type].full}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="rounded-2xl border border-border bg-card divide-y divide-border">
+        <div className="flex items-center justify-between px-5 py-3">
           <TypeBadge type={decl.type} />
           <span className={cn("text-[13px] font-semibold", DECL_STATUS_META[decl.status].text)}>
             {DECL_STATUS_META[decl.status].label}
           </span>
         </div>
-
-        <div className="mt-4 space-y-2 text-[13px]">
-          <div className="flex justify-between"><span className="text-muted-foreground">Client</span><span className="font-medium">{decl.clientName}</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Montant</span><span className="font-semibold tabular-nums">{nfCad.format(decl.amount)} $</span></div>
-          <div className="flex justify-between"><span className="text-muted-foreground">Créée le</span><span>{decl.createdAt}</span></div>
-          <div className="flex justify-between">
+        <div className="p-5">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+            <span className="text-muted-foreground">Client</span><span className="text-right font-medium">{decl.clientName}</span>
+            <span className="text-muted-foreground">Montant</span><span className="text-right font-semibold tabular-nums">{nfCad.format(decl.amount)} $</span>
+            <span className="text-muted-foreground">Créée le</span><span className="text-right tabular-nums">{decl.createdAt}</span>
             <span className="text-muted-foreground">Échéance</span>
-            <span className={cn(urgent ? "font-semibold text-destructive" : "")}>
-              {decl.dueDate} {decl.status === "brouillon" && (days > 0 ? `(${days} j restants)` : "(Échue)")}
+            <span className={cn("text-right tabular-nums", urgent && "font-semibold text-destructive")}>
+              {decl.dueDate} {decl.status === "brouillon" && (days > 0 ? `(${days} j)` : "(Échue)")}
             </span>
+            {decl.submittedAt && <><span className="text-muted-foreground">Soumise le</span><span className="text-right tabular-nums">{decl.submittedAt}</span></>}
+            {decl.canafRef && <><span className="text-muted-foreground">Réf. CANAFE</span><span className="text-right font-mono text-[12px]">{decl.canafRef}</span></>}
+            <span className="text-muted-foreground">Alerte source</span><span className="text-right">{decl.alertId}</span>
           </div>
-          {decl.submittedAt && <div className="flex justify-between"><span className="text-muted-foreground">Soumise le</span><span>{decl.submittedAt}</span></div>}
-          {decl.canafRef && <div className="flex justify-between"><span className="text-muted-foreground">Référence CANAFE</span><span className="font-mono text-[12px]">{decl.canafRef}</span></div>}
-          <div className="flex justify-between"><span className="text-muted-foreground">Alerte source</span><span>{decl.alertId}</span></div>
         </div>
       </div>
 
@@ -659,22 +699,22 @@ const DeclarationDetailView = ({ decl, onBack }: {
         <>
           <div className="rounded-2xl border border-border bg-card p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Identification du client</p>
-            <div className="mt-3 space-y-1.5 text-[13px]">
-              <div className="flex justify-between"><span className="text-muted-foreground">Courriel</span><span>{decl.formData.clientEmail}</span></div>
-              {decl.formData.clientDob && <div className="flex justify-between"><span className="text-muted-foreground">Date de naissance</span><span>{decl.formData.clientDob}</span></div>}
-              {decl.formData.clientIdType && <div className="flex justify-between"><span className="text-muted-foreground">Pièce d'identité</span><span>{decl.formData.clientIdType} · {decl.formData.clientIdNumber}</span></div>}
-              {decl.formData.clientAddress && <div className="flex justify-between flex-wrap gap-1"><span className="text-muted-foreground">Adresse</span><span className="text-right">{decl.formData.clientAddress}, {decl.formData.clientCity}, {decl.formData.clientProvince} {decl.formData.clientPostalCode}</span></div>}
-              {decl.formData.clientOccupation && <div className="flex justify-between"><span className="text-muted-foreground">Occupation</span><span>{decl.formData.clientOccupation}</span></div>}
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+              <span className="text-muted-foreground">Courriel</span><span className="text-right">{decl.formData.clientEmail}</span>
+              {decl.formData.clientDob && <><span className="text-muted-foreground">Naissance</span><span className="text-right tabular-nums">{decl.formData.clientDob}</span></>}
+              {decl.formData.clientIdType && <><span className="text-muted-foreground">Pièce</span><span className="text-right">{decl.formData.clientIdType} · {decl.formData.clientIdNumber}</span></>}
+              {decl.formData.clientAddress && <><span className="text-muted-foreground">Adresse</span><span className="text-right">{decl.formData.clientAddress}, {decl.formData.clientCity}, {decl.formData.clientProvince} {decl.formData.clientPostalCode}</span></>}
+              {decl.formData.clientOccupation && <><span className="text-muted-foreground">Occupation</span><span className="text-right">{decl.formData.clientOccupation}</span></>}
             </div>
           </div>
 
           {decl.formData.suspicionIndicators.length > 0 && (
-            <div className="rounded-2xl border border-destructive/20 bg-card p-5">
+            <div className="rounded-2xl border border-destructive/15 bg-card p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-destructive">Indicateurs de soupçon</p>
               <ul className="mt-3 space-y-1.5">
                 {decl.formData.suspicionIndicators.map((ind, i) => (
                   <li key={i} className="flex items-start gap-2 text-[13px]">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive" />
                     {ind}
                   </li>
                 ))}
@@ -685,15 +725,14 @@ const DeclarationDetailView = ({ decl, onBack }: {
           {decl.formData.observations && (
             <div className="rounded-2xl border border-border bg-card p-5">
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Observations</p>
-              <p className="mt-3 text-[13px] leading-relaxed">{decl.formData.observations}</p>
+              <p className="mt-3 text-[13px] leading-relaxed whitespace-pre-wrap">{decl.formData.observations}</p>
             </div>
           )}
         </>
       )}
 
-      <p className="px-1 text-[12px] text-muted-foreground">
-        Conservez cette déclaration et tous les documents justificatifs pendant {RECORD_RETENTION_YEARS} ans
-        conformément à la LRPCFAT. Référez-vous au portail F2R du CANAFE pour la soumission officielle.
+      <p className="px-1 text-[11px] text-muted-foreground">
+        Conservez cette déclaration pendant {RECORD_RETENTION_YEARS} ans (LRPCFAT).
       </p>
     </div>
   );
@@ -740,13 +779,11 @@ const AlertesView = ({ alerts, onPrendreEnCharge, onClasser, onDeclarer }: {
                 <div className="flex items-center gap-2.5">
                   <TypeBadge type={alert.type} />
                   <span className="text-[12px] text-muted-foreground">{alert.id}</span>
-                  {alert.orderRef && (
-                    <span className="text-[12px] text-muted-foreground">· {alert.orderRef}</span>
-                  )}
+                  {alert.orderRef && <span className="text-[12px] text-muted-foreground">· {alert.orderRef}</span>}
                 </div>
                 <div className="flex items-center gap-2">
                   {alert.assignedTo && (
-                    <span className="flex items-center gap-1 text-[12px] text-muted-foreground">
+                    <span className="flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       <UserCheck className="h-3 w-3" /> {alert.assignedTo}
                     </span>
                   )}
@@ -782,27 +819,17 @@ const AlertesView = ({ alerts, onPrendreEnCharge, onClasser, onDeclarer }: {
                 {(alert.status === "nouveau" || alert.status === "en_cours") && (
                   <div className="flex flex-wrap gap-2">
                     {alert.status === "nouveau" && (
-                      <Button
-                        variant="appOutline" shape="rounded"
-                        className="h-auto gap-1.5 rounded-[9px] px-3 py-[6px] text-[12px]"
-                        onClick={() => onPrendreEnCharge(alert.id)}
-                      >
-                        <UserCheck className="h-[13px] w-[13px]" />
-                        Prendre en charge
+                      <Button variant="appOutline" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-[6px] text-[12px]"
+                        onClick={() => onPrendreEnCharge(alert.id)}>
+                        <UserCheck className="h-[13px] w-[13px]" /> Prendre en charge
                       </Button>
                     )}
-                    <Button
-                      variant="appOutline" shape="rounded"
-                      className="h-auto gap-1 rounded-[9px] px-3 py-[6px] text-[12px]"
-                      onClick={() => onClasser(alert.id)}
-                    >
+                    <Button variant="appOutline" shape="rounded" className="h-auto gap-1 rounded-[9px] px-3 py-[6px] text-[12px]"
+                      onClick={() => onClasser(alert.id)}>
                       Classer sans suite
                     </Button>
-                    <Button
-                      variant="appSolid" shape="rounded"
-                      className="h-auto gap-1.5 rounded-[9px] px-3 py-[6px] text-[12px] font-bold"
-                      onClick={() => onDeclarer(alert.id)}
-                    >
+                    <Button variant="appSolid" shape="rounded" className="h-auto gap-1.5 rounded-[9px] px-3 py-[6px] text-[12px] font-bold"
+                      onClick={() => onDeclarer(alert.id)}>
                       <FileText className="h-[13px] w-[13px]" /> Déclarer
                     </Button>
                   </div>
@@ -833,7 +860,6 @@ const DeclarationsView = ({ declarations, onOpen }: {
     { id: "terminees", label: "Terminées", count: terminees.length },
   ];
   const list = filter === "en_cours" ? enCours : terminees;
-
   const cols = "grid grid-cols-[1fr_auto] md:grid-cols-[1.2fr_0.6fr_0.6fr_0.7fr_0.6fr] items-center gap-3";
 
   return (
@@ -842,11 +868,9 @@ const DeclarationsView = ({ declarations, onOpen }: {
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className={cn(cols, "hidden border-b border-border px-4 py-2.5 md:grid")}>
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Déclaration</span>
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Type</span>
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Montant</span>
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Échéance</span>
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">Statut</span>
+          {["Déclaration", "Type", "Montant", "Échéance", "Statut"].map((h) => (
+            <span key={h} className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">{h}</span>
+          ))}
         </div>
 
         {list.map((d, i) => {
@@ -861,19 +885,12 @@ const DeclarationsView = ({ declarations, onOpen }: {
               <div className="min-w-0">
                 <p className="text-[13px] font-medium">{d.id}</p>
                 <p className="truncate text-[11.5px] text-muted-foreground">{d.clientName}</p>
-                {d.canafRef && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{d.canafRef}</p>}
+                {d.canafRef && <p className="mt-0.5 truncate text-[11px] font-mono text-muted-foreground">{d.canafRef}</p>}
               </div>
-              <span className="hidden md:block">
-                <TypeBadge type={d.type} />
-              </span>
+              <span className="hidden md:block"><TypeBadge type={d.type} /></span>
               <span className="hidden tabular-nums text-[13px] md:block">{nfCad.format(d.amount)} $</span>
-              <span className={cn(
-                "hidden text-[12.5px] md:block",
-                urgent ? "font-semibold text-destructive" : "text-muted-foreground",
-              )}>
-                {d.status === "brouillon"
-                  ? (days > 0 ? `${days} j restants` : "Échue")
-                  : d.submittedAt ?? d.dueDate}
+              <span className={cn("hidden text-[12.5px] md:block", urgent ? "font-semibold text-destructive" : "text-muted-foreground")}>
+                {d.status === "brouillon" ? (days > 0 ? `${days} j restants` : "Échue") : d.submittedAt ?? d.dueDate}
               </span>
               <span className={cn("text-[13px] font-semibold", DECL_STATUS_META[d.status].text)}>
                 {DECL_STATUS_META[d.status].label}
@@ -893,9 +910,7 @@ const DeclarationsView = ({ declarations, onOpen }: {
       </div>
 
       <p className="px-1 text-[12px] text-muted-foreground">
-        Les DOIMV doivent être soumises dans les {DOIMV_DEADLINE_DAYS} jours suivant l'opération.
-        Les DOT dans les {DOT_DEADLINE_DAYS} jours (3 jours si financement terroriste).
-        Conservez une copie de chaque déclaration pendant {RECORD_RETENTION_YEARS} ans.
+        DOIMV : {DOIMV_DEADLINE_DAYS} jours · DOT : {DOT_DEADLINE_DAYS} jours (3 j terrorisme) · Conservation : {RECORD_RETENTION_YEARS} ans.
       </p>
     </div>
   );
@@ -905,7 +920,6 @@ const DeclarationsView = ({ declarations, onOpen }: {
 
 const DossiersView = () => {
   const total = RECORD_CATEGORIES.reduce((s, c) => s + c.count, 0);
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -914,20 +928,15 @@ const DossiersView = () => {
         <SummaryCard label="Plus ancien" value="Juin 2026" sub="Destruction en juin 2031" />
         <SummaryCard label="Prochaine purge" value="Aucune" sub="Aucun dossier à détruire" />
       </div>
-
       <div>
-        <p className="mb-2.5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          Catégories de dossiers
-        </p>
+        <p className="mb-2.5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Catégories de dossiers</p>
         <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
           {RECORD_CATEGORIES.map((cat) => (
             <div key={cat.id} className="flex items-center justify-between gap-4 px-5 py-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="text-[13px] font-medium">{cat.label}</p>
-                  <span className="rounded-full bg-secondary px-1.5 py-px text-[11px] font-semibold text-muted-foreground">
-                    {cat.count}
-                  </span>
+                  <span className="rounded-full bg-secondary px-1.5 py-px text-[11px] font-semibold text-muted-foreground">{cat.count}</span>
                 </div>
                 <p className="mt-0.5 text-[12px] text-muted-foreground">{cat.description}</p>
               </div>
@@ -936,10 +945,8 @@ const DossiersView = () => {
           ))}
         </div>
       </div>
-
       <p className="px-1 text-[12px] text-muted-foreground">
-        Tous les dossiers sont conservés pendant {RECORD_RETENTION_YEARS} ans conformément à la LRPCFAT.
-        La destruction automatique est désactivée — chaque suppression nécessite une approbation manuelle.
+        Conservation {RECORD_RETENTION_YEARS} ans (LRPCFAT). Suppression manuelle uniquement.
       </p>
     </div>
   );
@@ -947,10 +954,7 @@ const DossiersView = () => {
 
 // ──────────────── Programme View ────────────────
 
-const ProgrammeView = ({ checklist, onToggle }: {
-  checklist: ChecklistItem[];
-  onToggle: (id: string) => void;
-}) => {
+const ProgrammeView = ({ checklist, onToggle }: { checklist: ChecklistItem[]; onToggle: (id: string) => void }) => {
   const total = checklist.length;
   const done = checklist.filter((c) => c.done).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -965,18 +969,13 @@ const ProgrammeView = ({ checklist, onToggle }: {
       <div className="rounded-2xl border border-border bg-card px-5 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Progression du programme
-            </p>
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Progression du programme</p>
             <p className="mt-1.5 font-display text-[24px] font-light leading-none tracking-tight">{pct} %</p>
           </div>
           <p className="text-[13px] text-muted-foreground">{done} / {total}</p>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
-          <div
-            className="h-full rounded-full bg-foreground transition-all"
-            style={{ width: `${pct}%` }}
-          />
+          <div className="h-full rounded-full bg-foreground transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
 
@@ -985,9 +984,7 @@ const ProgrammeView = ({ checklist, onToggle }: {
         return (
           <div key={category}>
             <div className="mb-2.5 flex items-center justify-between px-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                {category}
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{category}</p>
               <span className="text-[11px] text-muted-foreground">{catDone} / {items.length}</span>
             </div>
             <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
@@ -997,18 +994,14 @@ const ProgrammeView = ({ checklist, onToggle }: {
                     onClick={() => onToggle(item.id)}
                     className={cn(
                       "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors",
-                      item.done
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-foreground/40",
+                      item.done ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground/40",
                     )}
                     aria-label={item.done ? "Décocher" : "Cocher"}
                   >
                     {item.done && <Check className="h-3 w-3" strokeWidth={3} />}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <p className={cn("text-[13px] font-medium", item.done && "text-muted-foreground line-through")}>
-                      {item.label}
-                    </p>
+                    <p className={cn("text-[13px] font-medium", item.done && "text-muted-foreground line-through")}>{item.label}</p>
                     <p className="mt-0.5 text-[12px] leading-[1.5] text-muted-foreground">{item.description}</p>
                     {(item.frequency || item.dueDate) && (
                       <div className="mt-1.5 flex flex-wrap gap-3">
@@ -1018,12 +1011,7 @@ const ProgrammeView = ({ checklist, onToggle }: {
                           </span>
                         )}
                         {item.dueDate && (
-                          <span className={cn(
-                            "text-[11px]",
-                            !item.done && daysUntil(item.dueDate) <= 60
-                              ? "font-semibold text-foreground"
-                              : "text-muted-foreground",
-                          )}>
+                          <span className={cn("text-[11px]", !item.done && daysUntil(item.dueDate) <= 60 ? "font-semibold text-foreground" : "text-muted-foreground")}>
                             Échéance : {item.dueDate}
                           </span>
                         )}
@@ -1038,8 +1026,7 @@ const ProgrammeView = ({ checklist, onToggle }: {
       })}
 
       <p className="px-1 text-[12px] text-muted-foreground">
-        Ce programme couvre les obligations prévues par la LRPCFAT et le RRPCFAT.
-        Son efficacité doit être examinée par un tiers indépendant au moins tous les deux ans.
+        Examen indépendant requis au moins tous les deux ans (LRPCFAT / RRPCFAT).
       </p>
     </div>
   );
@@ -1063,7 +1050,7 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
 
   useEffect(() => {
     if (!successMsg) return;
-    const t = setTimeout(() => setSuccessMsg(null), 3500);
+    const t = setTimeout(() => setSuccessMsg(null), 4000);
     return () => clearTimeout(t);
   }, [successMsg]);
 
@@ -1083,8 +1070,6 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
     return [...pending].sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0];
   }, [declarations]);
 
-  // ── Alert helpers ──
-
   const updateAlert = (id: string, changes: Partial<ComplianceAlert>) => {
     setAlerts((prev) => {
       const exists = prev.some((a) => a.id === id);
@@ -1095,52 +1080,37 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
     });
   };
 
-  const goBack = () => {
-    setView("main");
-    setSelectedAlertId(null);
-    setSelectedDeclId(null);
-    setDeclForm(null);
-  };
+  const goBack = () => { setView("main"); setSelectedAlertId(null); setSelectedDeclId(null); setDeclForm(null); };
 
   const prendreEnCharge = (id: string) => {
     updateAlert(id, { status: "en_cours", assignedTo: CURRENT_OPERATOR });
     setSuccessMsg("Alerte prise en charge — vous en êtes responsable.");
   };
 
-  const openClasser = (id: string) => {
-    setSelectedAlertId(id);
-    setView("classer");
-  };
+  const openClasser = (id: string) => { setSelectedAlertId(id); setView("classer"); };
 
   const submitClasser = (reason: string, notes: string) => {
     if (!selectedAlertId) return;
     updateAlert(selectedAlertId, { status: "classe", notes: `Classée : ${reason}\n${notes}` });
-    goBack();
-    setTab("alertes");
-    setSuccessMsg("Alerte classée sans suite. Le motif est conservé au dossier.");
+    goBack(); setTab("alertes");
+    setSuccessMsg("Alerte classée sans suite.");
   };
 
   const openDeclarer = (id: string) => {
-    const alert = allAlerts.find((a) => a.id === id);
-    if (!alert) return;
-    setSelectedAlertId(id);
-    setDeclForm(initialDeclarationForm(alert));
-    setView("declarer");
+    const a = allAlerts.find((x) => x.id === id);
+    if (!a) return;
+    setSelectedAlertId(id); setDeclForm(initialDeclarationForm(a)); setView("declarer");
   };
 
   const submitDeclaration = (asBrouillon: boolean) => {
     if (!selectedAlertId || !declForm) return;
-
     const now = new Date();
     const deadlineDays = declForm.type === "dot" ? DOT_DEADLINE_DAYS : DOIMV_DEADLINE_DAYS;
-    const dueDate = new Date(now);
-    dueDate.setDate(dueDate.getDate() + deadlineDays);
+    const dueDate = new Date(now); dueDate.setDate(dueDate.getDate() + deadlineDays);
 
     const newDecl: ComplianceDeclaration = {
       id: `DC-${String(declarations.length + 1).padStart(3, "0")}`,
-      type: declForm.type,
-      alertId: selectedAlertId,
-      clientName: declForm.clientName,
+      type: declForm.type, alertId: selectedAlertId, clientName: declForm.clientName,
       amount: Number(declForm.amountCad) || 0,
       createdAt: now.toISOString().split("T")[0],
       dueDate: dueDate.toISOString().split("T")[0],
@@ -1148,32 +1118,14 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
       submittedAt: asBrouillon ? undefined : now.toISOString().split("T")[0],
       formData: declForm,
     };
-
     setDeclarations((prev) => [newDecl, ...prev]);
-
-    if (!asBrouillon) {
-      updateAlert(selectedAlertId, { status: "declare" });
-    }
-
-    goBack();
-    setTab("declarations");
-    setSuccessMsg(
-      asBrouillon
-        ? "Déclaration enregistrée en brouillon. Complétez-la et soumettez-la avant l'échéance."
-        : "Déclaration marquée comme soumise. Rendez-vous sur le portail F2R du CANAFE pour la soumission officielle.",
-    );
+    if (!asBrouillon) updateAlert(selectedAlertId, { status: "declare" });
+    goBack(); setTab("declarations");
+    setSuccessMsg(asBrouillon ? "Brouillon enregistré." : "Déclaration marquée comme soumise — rendez-vous sur le portail F2R.");
   };
 
-  const openDeclDetail = (id: string) => {
-    setSelectedDeclId(id);
-    setView("decl-detail");
-  };
-
-  const toggleChecklist = (id: string) => {
-    setChecklist((prev) => prev.map((c) => (c.id === id ? { ...c, done: !c.done } : c)));
-  };
-
-  // ── Tabs config ──
+  const openDeclDetail = (id: string) => { setSelectedDeclId(id); setView("decl-detail"); };
+  const toggleChecklist = (id: string) => { setChecklist((prev) => prev.map((c) => (c.id === id ? { ...c, done: !c.done } : c))); };
 
   const TABS = [
     { id: "alertes", label: "Alertes", count: activeAlerts || undefined },
@@ -1181,8 +1133,6 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
     { id: "dossiers", label: "Dossiers" },
     { id: "programme", label: "Programme" },
   ];
-
-  // ── Resolved entities for sub-views ──
 
   const selectedAlert = selectedAlertId ? allAlerts.find((a) => a.id === selectedAlertId) : null;
   const selectedDecl = selectedDeclId ? declarations.find((d) => d.id === selectedDeclId) : null;
@@ -1194,17 +1144,9 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
       {view === "classer" && selectedAlert && (
         <ClasserView alert={selectedAlert} onSubmit={submitClasser} onBack={goBack} />
       )}
-
       {view === "declarer" && selectedAlert && declForm && (
-        <DeclarationWorkflow
-          alert={selectedAlert}
-          form={declForm}
-          onChange={setDeclForm}
-          onSubmit={submitDeclaration}
-          onBack={goBack}
-        />
+        <DeclarationWorkflow alert={selectedAlert} form={declForm} onChange={setDeclForm} onSubmit={submitDeclaration} onBack={goBack} />
       )}
-
       {view === "decl-detail" && selectedDecl && (
         <DeclarationDetailView decl={selectedDecl} onBack={goBack} />
       )}
@@ -1212,43 +1154,20 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
       {view === "main" && (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <SummaryCard
-              label="Alertes actives"
-              value={String(activeAlerts)}
-              sub={activeAlerts > 0 ? "Requièrent votre attention" : "Tout est conforme"}
-              urgent={activeAlerts > 0}
-            />
-            <SummaryCard
-              label="Déclarations en attente"
-              value={String(pendingDecl)}
+            <SummaryCard label="Alertes actives" value={String(activeAlerts)}
+              sub={activeAlerts > 0 ? "Requièrent votre attention" : "Tout est conforme"} urgent={activeAlerts > 0} />
+            <SummaryCard label="Déclarations" value={String(pendingDecl)}
               sub={nextDeadline ? `Prochaine : ${daysUntil(nextDeadline.dueDate)} j` : "Tout à jour"}
-              urgent={nextDeadline != null && daysUntil(nextDeadline.dueDate) <= 5}
-            />
-            <SummaryCard
-              label="Seuil DOIMV"
-              value={`${nfCad.format(DOIMV_THRESHOLD)} $`}
-              sub="Détection automatique"
-            />
-            <SummaryCard
-              label="Programme"
-              value={`${checklist.length > 0 ? Math.round((checklistDone / checklist.length) * 100) : 0} %`}
-              sub={`${checklistDone} / ${checklist.length} éléments`}
-            />
+              urgent={nextDeadline != null && daysUntil(nextDeadline.dueDate) <= 5} />
+            <SummaryCard label="Seuil DOIMV" value={`${nfCad.format(DOIMV_THRESHOLD)} $`} sub="Détection automatique" />
+            <SummaryCard label="Programme" value={`${checklist.length > 0 ? Math.round((checklistDone / checklist.length) * 100) : 0} %`}
+              sub={`${checklistDone} / ${checklist.length}`} />
           </div>
 
           <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as ComplianceTab)} />
 
-          {tab === "alertes" && (
-            <AlertesView
-              alerts={allAlerts}
-              onPrendreEnCharge={prendreEnCharge}
-              onClasser={openClasser}
-              onDeclarer={openDeclarer}
-            />
-          )}
-          {tab === "declarations" && (
-            <DeclarationsView declarations={declarations} onOpen={openDeclDetail} />
-          )}
+          {tab === "alertes" && <AlertesView alerts={allAlerts} onPrendreEnCharge={prendreEnCharge} onClasser={openClasser} onDeclarer={openDeclarer} />}
+          {tab === "declarations" && <DeclarationsView declarations={declarations} onOpen={openDeclDetail} />}
           {tab === "dossiers" && <DossiersView />}
           {tab === "programme" && <ProgrammeView checklist={checklist} onToggle={toggleChecklist} />}
         </>
