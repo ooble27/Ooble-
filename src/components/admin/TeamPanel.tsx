@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { UserPlus, Users, UserRound, ScanFace, Megaphone, Headphones, BadgeCheck, ArrowLeft } from "lucide-react";
+import { UserPlus, Users, UserRound, ScanFace, Megaphone, Headphones, BadgeCheck, ArrowLeft, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TEAM_ROLES, type TeamRole } from "@/lib/adminOrders";
 import { fetchTeam, setMemberRole, addRoleByEmail, type LiveTeamMember } from "@/lib/adminTeam";
@@ -13,6 +13,7 @@ const ROLE_ICONS: Record<TeamRole, typeof UserRound> = {
   "KYC": ScanFace,
   "Marketing": Megaphone,
   "Support": Headphones,
+  "Conformité": ShieldCheck,
   "Admin": BadgeCheck,
 };
 

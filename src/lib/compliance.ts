@@ -79,6 +79,7 @@ export interface ComplianceDeclaration {
   submittedAt?: string;
   status: DeclarationStatus;
   canafRef?: string;
+  formData?: DeclarationFormData;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -292,4 +293,121 @@ export function daysUntil(dateStr: string): number {
   now.setHours(0, 0, 0, 0);
   const target = new Date(dateStr + "T00:00:00");
   return Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+// ────────────────────────────────────────────────────────────
+// Classification — clôture d'alerte sans déclaration
+// ────────────────────────────────────────────────────────────
+
+export const CLASSIFICATION_REASONS = [
+  "Faux positif — le client ou l'opération ne présente aucun risque",
+  "Information insuffisante pour soumettre une déclaration",
+  "Doublon — déjà couvert par une autre alerte",
+  "Opération annulée ou non complétée",
+  "Vérification effectuée — aucun comportement suspect",
+] as const;
+
+// ────────────────────────────────────────────────────────────
+// Indicateurs de soupçon DOT — CANAFE / GAFI
+// ────────────────────────────────────────────────────────────
+
+export const DOT_INDICATORS = [
+  "Le client refuse ou hésite à fournir des renseignements d'identification",
+  "Le client fournit des documents d'identification douteux ou falsifiés",
+  "Structuration apparente pour éviter le seuil de déclaration de 10 000 $",
+  "Transactions sans justification économique apparente",
+  "Opérations incohérentes avec le profil financier du client",
+  "Le client effectue des opérations pour le compte d'un tiers non déclaré",
+  "Le client est pressé de compléter l'opération sans se soucier du taux ou des frais",
+  "Le client utilise plusieurs comptes, adresses courriel ou identités",
+  "Provenance des fonds suspecte ou inexpliquée",
+  "Destination des fonds vers une juridiction à haut risque (liste GAFI)",
+  "Le client tente d'annuler l'opération après avoir été questionné",
+  "Le client est lié à des informations médiatiques négatives (adverse media)",
+  "Montant ou fréquence incompatible avec la source de revenus déclarée",
+  "Le client refuse d'expliquer l'objet de la transaction",
+] as const;
+
+// ────────────────────────────────────────────────────────────
+// Référentiels pour le formulaire de déclaration
+// ────────────────────────────────────────────────────────────
+
+export const ID_TYPES = [
+  "Permis de conduire",
+  "Passeport canadien",
+  "Passeport étranger",
+  "Carte de résident permanent",
+  "Carte de citoyenneté",
+  "Certificat de statut d'Indien",
+  "Carte d'identité provinciale",
+] as const;
+
+export const PROVINCES: { code: string; name: string }[] = [
+  { code: "AB", name: "Alberta" },
+  { code: "BC", name: "Colombie-Britannique" },
+  { code: "MB", name: "Manitoba" },
+  { code: "NB", name: "Nouveau-Brunswick" },
+  { code: "NL", name: "Terre-Neuve-et-Labrador" },
+  { code: "NS", name: "Nouvelle-Écosse" },
+  { code: "NT", name: "Territoires du Nord-Ouest" },
+  { code: "NU", name: "Nunavut" },
+  { code: "ON", name: "Ontario" },
+  { code: "PE", name: "Île-du-Prince-Édouard" },
+  { code: "QC", name: "Québec" },
+  { code: "SK", name: "Saskatchewan" },
+  { code: "YT", name: "Yukon" },
+];
+
+// ────────────────────────────────────────────────────────────
+// Données du formulaire de déclaration CANAFE
+// ────────────────────────────────────────────────────────────
+
+export interface DeclarationFormData {
+  type: DeclarationType;
+  clientName: string;
+  clientEmail: string;
+  clientDob: string;
+  clientIdType: string;
+  clientIdNumber: string;
+  clientAddress: string;
+  clientCity: string;
+  clientProvince: string;
+  clientPostalCode: string;
+  clientOccupation: string;
+  operationType: string;
+  amountCad: string;
+  amountUsdt: string;
+  operationDate: string;
+  paymentMethod: string;
+  walletAddress: string;
+  network: string;
+  suspicionIndicators: string[];
+  observations: string;
+}
+
+export function initialDeclarationForm(alert: ComplianceAlert): DeclarationFormData {
+  const declType: DeclarationType =
+    alert.type === "dot" ? "dot" : alert.type === "sanctions" ? "dbt" : "doimv";
+  return {
+    type: declType,
+    clientName: alert.clientName,
+    clientEmail: alert.clientEmail,
+    clientDob: "",
+    clientIdType: "",
+    clientIdNumber: "",
+    clientAddress: "",
+    clientCity: "",
+    clientProvince: "",
+    clientPostalCode: "",
+    clientOccupation: "",
+    operationType: "buy",
+    amountCad: String(alert.amount),
+    amountUsdt: "",
+    operationDate: alert.createdAt,
+    paymentMethod: "Interac e-Transfer",
+    walletAddress: "",
+    network: "",
+    suspicionIndicators: [],
+    observations: "",
+  };
 }

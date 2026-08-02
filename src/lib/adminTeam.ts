@@ -28,6 +28,7 @@ export const TEAM_TO_APP: Record<TeamRole, AppRole> = {
   KYC: "kyc_reviewer",
   Support: "support",
   Marketing: "marketing",
+  Conformité: "admin",
 };
 
 /** Priorité d'affichage si un membre cumule plusieurs rôles. */

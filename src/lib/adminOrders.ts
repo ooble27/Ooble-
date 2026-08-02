@@ -131,15 +131,16 @@ export const SEED_KYC: KycRequest[] = [
 /*  Équipe du back-office (démo)                                       */
 /* ------------------------------------------------------------------ */
 
-export type TeamRole = "Opérateur" | "KYC" | "Support" | "Marketing" | "Admin";
+export type TeamRole = "Opérateur" | "KYC" | "Support" | "Marketing" | "Conformité" | "Admin";
 
 /** Rôles du back-office et ce qu'ils autorisent (façon Terex). */
 export const TEAM_ROLES: { role: TeamRole; desc: string }[] = [
-  { role: "Opérateur", desc: "Traite les commandes : achats, ventes, envois." },
-  { role: "KYC",       desc: "Vérifications d'identité uniquement." },
-  { role: "Support",   desc: "Assistance et messages clients." },
-  { role: "Marketing", desc: "Campagnes email aux clients." },
-  { role: "Admin",     desc: "Accès complet : opérations, finance, équipe." },
+  { role: "Opérateur",   desc: "Traite les commandes : achats, ventes, envois." },
+  { role: "KYC",         desc: "Vérifications d'identité uniquement." },
+  { role: "Support",     desc: "Assistance et messages clients." },
+  { role: "Marketing",   desc: "Campagnes email aux clients." },
+  { role: "Conformité",  desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité." },
+  { role: "Admin",       desc: "Accès complet : opérations, finance, équipe." },
 ];
 
 export interface TeamMember {
