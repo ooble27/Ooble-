@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import RotatingWord from "@/components/RotatingWord";
-import AppFlowArt from "@/components/AppFlowArt";
+import AppDemo from "@/components/AppDemo";
 import InteracFlowArt from "@/components/InteracFlowArt";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
@@ -199,7 +199,7 @@ const Index = () => {
               </Button>
             </div>
 
-            <AppFlowArt className="animate-up mx-auto mt-12 [animation-delay:380ms] sm:mt-14" />
+            <AppDemo className="animate-up mt-14 [animation-delay:380ms] sm:mt-16" />
           </Wrap>
         </section>
 
