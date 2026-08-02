@@ -17,6 +17,7 @@ const columns: { title: string; links: { label: string; to: string }[] }[] = [
       { label: "FAQ", to: "/faq" },
       { label: "Contact", to: "/contact" },
       { label: "Connexion", to: "/connexion" },
+      { label: "Conditions d'utilisation", to: "/conditions-utilisation" },
     ],
   },
 ];
