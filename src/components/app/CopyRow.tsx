@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
 
 interface CopyRowProps {
   label: string;
@@ -10,6 +11,7 @@ interface CopyRowProps {
 
 /** Ligne d'instruction avec copie en un tap (retour visuel). */
 const CopyRow = ({ label, value, mono }: CopyRowProps) => {
+  const [lang] = useLang();
   const [done, setDone] = useState(false);
 
   const copy = async () => {
@@ -31,7 +33,7 @@ const CopyRow = ({ label, value, mono }: CopyRowProps) => {
       <button
         type="button"
         onClick={copy}
-        aria-label={`Copier ${label}`}
+        aria-label={lang === "en" ? `Copy ${label}` : `Copier ${label}`}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted-foreground transition-all hover:bg-secondary active:scale-90"
       >
         {done ? <Check className="h-4 w-4 text-foreground" strokeWidth={2.6} /> : <Copy className="h-4 w-4" strokeWidth={1.9} />}

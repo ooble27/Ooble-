@@ -1,5 +1,6 @@
 import { Pointer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLang } from "@/lib/i18n";
 
 /**
  * Illustration de la section « Payez par virement Interac ».
@@ -78,7 +79,9 @@ const Dashed = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) 
   />
 );
 
-const InteracFlowArt = ({ className }: { className?: string }) => (
+const InteracFlowArt = ({ className }: { className?: string }) => {
+  const lang = getLang();
+  return (
   <div className={cn("flex w-full justify-center", className)}>
     <svg
       viewBox={VIEW_BOX}
@@ -91,7 +94,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
       }}
       fill="none"
       role="img"
-      aria-label="Recevoir un virement Interac : notification, question de sécurité, dépôt en banque"
+      aria-label={lang === "en" ? "Receive an Interac transfer: notification, security question, bank deposit" : "Recevoir un virement Interac : notification, question de sécurité, dépôt en banque"}
     >
       <defs>
         <filter id="ooble-pay-shadow" x="-15%" y="-15%" width="130%" height="130%">
@@ -101,7 +104,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
 
       {/* ---------- Compte bancaire (au fond, immobile) ---------- */}
       <Card i={0}>
-        <Title>Compte bancaire</Title>
+        <Title>{lang === "en" ? "Bank account" : "Compte bancaire"}</Title>
         <Bar x={44} y={104} w={150} h={16} />
         <Bar x={44} y={140} w={300} />
         <Bar x={44} y={176} w={230} />
@@ -110,7 +113,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
 
       {/* ---------- Question de sécurité (au milieu, immobile) ---------- */}
       <Card i={1}>
-        <Title>Question de sécurité</Title>
+        <Title>{lang === "en" ? "Security question" : "Question de sécurité"}</Title>
         <Bar x={44} y={104} w={250} h={16} />
         <Dashed x={44} y={140} w={382} h={70} />
       </Card>
@@ -119,7 +122,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
       <Card i={2} lift>
         <Title>Interac e-Transfer</Title>
         <text x="44" y="112" className="fill-foreground/40 dark:fill-foreground/50" fontSize="20">
-          Virement reçu
+          {lang === "en" ? "Transfer received" : "Virement reçu"}
         </text>
         <text
           x="44"
@@ -135,7 +138,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
         <g className="ooble-dep-btn">
           <rect x={280} y={196} width={146} height={44} rx={12} className="fill-foreground" />
           <text x={353} y={224} textAnchor="middle" className="fill-background" fontSize="19" fontWeight="600">
-            Déposer
+            {lang === "en" ? "Deposit" : "Déposer"}
           </text>
         </g>
       </Card>
@@ -162,6 +165,7 @@ const InteracFlowArt = ({ className }: { className?: string }) => (
       </g>
     </svg>
   </div>
-);
+  );
+};
 
 export default InteracFlowArt;

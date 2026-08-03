@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { NetId } from "@/components/app/networks";
 import { DB_TO_NET, NET_TO_DB } from "@/lib/orders";
+import { getLang } from "@/lib/i18n";
 
 /** Carnet de destinataires : adresses wallet (achat) et courriels Interac (vente). */
 export type RecipientKind = Database["public"]["Enums"]["recipient_kind"];
@@ -97,15 +98,15 @@ export async function saveRecipient(input: {
 }): Promise<{ id: string } | { error: string }> {
   const { data: auth } = await supabase.auth.getSession();
   const uid = auth.session?.user?.id;
-  if (!uid) return { error: "Session expirée. Reconnectez-vous." };
+  if (!uid) return { error: getLang() === "en" ? "Session expired. Please log in again." : "Session expirée. Reconnectez-vous." };
 
   const value = input.value.trim();
   const label = input.label.trim();
-  if (!value) return { error: "Valeur manquante." };
-  if (!label) return { error: "Donnez un nom à ce destinataire." };
+  if (!value) return { error: getLang() === "en" ? "Missing value." : "Valeur manquante." };
+  if (!label) return { error: getLang() === "en" ? "Give this recipient a name." : "Donnez un nom à ce destinataire." };
 
   const netId = input.kind === "wallet" ? (input.network ?? null) : null;
-  if (input.kind === "wallet" && !netId) return { error: "Réseau manquant." };
+  if (input.kind === "wallet" && !netId) return { error: getLang() === "en" ? "Network missing." : "Réseau manquant." };
 
   const existing = await findRecipient(input.kind, value, netId);
   if (existing) {
@@ -126,7 +127,7 @@ export async function saveRecipient(input: {
     .select("id")
     .single();
 
-  if (error || !data) return { error: "Enregistrement impossible." };
+  if (error || !data) return { error: getLang() === "en" ? "Unable to save." : "Enregistrement impossible." };
   return { id: data.id };
 }
 

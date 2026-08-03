@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n";
 import BottomNav from "./BottomNav";
 
 /**
@@ -60,6 +61,7 @@ interface AppShellProps {
  */
 const AppShell = ({ children, header, backTo, wide, center, className }: AppShellProps) => {
   useAppScope();
+  const [lang] = useLang();
   return (
   <div className="app-surface app-type min-h-screen bg-background">
     <div className="mx-auto flex min-h-screen max-w-[400px] flex-col px-5 pb-28 pt-[max(1.25rem,env(safe-area-inset-top))] lg:max-w-[960px]">
@@ -69,7 +71,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
           {backTo && (
             <Link
               to={backTo}
-              aria-label="Retour"
+              aria-label={lang === "en" ? "Back" : "Retour"}
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -79,7 +81,7 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
         </div>
         <Link
           to="/app/compte"
-          aria-label="Mon compte"
+          aria-label={lang === "en" ? "My account" : "Mon compte"}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
         >
           <User className="h-5 w-5" strokeWidth={1.8} />

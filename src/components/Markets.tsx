@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import Coin, { type CoinId } from "./Coin";
+import { T, useLang } from "@/lib/i18n";
 
 interface Row {
   id: CoinId;
@@ -33,15 +34,17 @@ const Spark = ({ up }: { up: boolean }) => (
   </svg>
 );
 
-const Markets = () => (
+const Markets = () => {
+  const [lang] = useLang();
+  return (
   <div className="overflow-x-auto">
     <table className="w-full min-w-[560px] border-collapse text-left">
       <thead>
         <tr className="border-b text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-          <th className="py-3 pr-4 font-semibold">Actif</th>
-          <th className="py-3 pr-4 text-right font-semibold">Cours (CAD)</th>
+          <th className="py-3 pr-4 font-semibold">{lang === "en" ? "Asset" : "Actif"}</th>
+          <th className="py-3 pr-4 text-right font-semibold">{lang === "en" ? "Price (CAD)" : "Cours (CAD)"}</th>
           <th className="py-3 pr-4 text-right font-semibold">24 h</th>
-          <th className="hidden py-3 pr-4 sm:table-cell">7 jours</th>
+          <th className="hidden py-3 pr-4 sm:table-cell">{lang === "en" ? "7 days" : "7 jours"}</th>
           <th className="py-3 text-right font-semibold" />
         </tr>
       </thead>
@@ -57,7 +60,7 @@ const Markets = () => (
                 </div>
                 {r.tradable && (
                   <span className="ml-1 rounded bg-accent-tint px-1.5 py-0.5 text-[10px] font-semibold text-accent-ink">
-                    Disponible
+                    {lang === "en" ? "Available" : "Disponible"}
                   </span>
                 )}
               </div>
@@ -79,10 +82,10 @@ const Markets = () => (
                   to="/inscription"
                   className="inline-flex items-center gap-1 rounded-[var(--radius)] bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-[hsl(174_58%_33%)]"
                 >
-                  Acheter <ArrowUpRight className="h-3.5 w-3.5" />
+                  {lang === "en" ? "Buy" : "Acheter"} <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               ) : (
-                <span className="text-xs text-muted-foreground">à titre indicatif</span>
+                <span className="text-xs text-muted-foreground">{lang === "en" ? "indicative" : "à titre indicatif"}</span>
               )}
             </td>
           </tr>
@@ -90,6 +93,7 @@ const Markets = () => (
       </tbody>
     </table>
   </div>
-);
+  );
+};
 
 export default Markets;

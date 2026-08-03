@@ -5,6 +5,7 @@
  * jeton avec les secrets Sumsub, lié à l'utilisateur connecté.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { getLang } from "@/lib/i18n";
 
 export async function getSumsubToken(): Promise<{ token?: string; error?: string }> {
   const { data, error } = await supabase.functions.invoke<{ token?: string; error?: string }>(
@@ -13,6 +14,6 @@ export async function getSumsubToken(): Promise<{ token?: string; error?: string
   );
   if (error) return { error: error.message };
   if (data?.error) return { error: data.error };
-  if (!data?.token) return { error: "Jeton Sumsub indisponible." };
+  if (!data?.token) return { error: getLang() === "en" ? "Sumsub token unavailable." : "Jeton Sumsub indisponible." };
   return { token: data.token };
 }

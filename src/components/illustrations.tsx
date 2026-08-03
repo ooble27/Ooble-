@@ -1,5 +1,6 @@
 /* Illustrations plates originales (style ligne), palette Ooble. USDT uniquement. */
 import { cn } from "@/lib/utils";
+import { getLang } from "@/lib/i18n";
 
 const INK = "#14201f";
 const HALO = "#EEF2F2"; // fond neutre très clair (pas de vert)
@@ -26,7 +27,7 @@ interface ArtProps {
 export const WalletArt = ({ className }: ArtProps) => (
   /* viewBox recadrée sur le dessin : sans le halo d'origine, la marge vide
      désalignait l'illustration de ce qui l'entoure. */
-  <svg viewBox="64 90 296 234" className={className} fill="none" role="img" aria-label="Portefeuille et USDT">
+  <svg viewBox="64 90 296 234" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Wallet and USDT" : "Portefeuille et USDT"}>
     {/* corps du portefeuille */}
     <rect x="96" y="150" width="248" height="158" rx="22" fill="#0F3A43" stroke={INK} strokeWidth="3.5" />
     {/* poche avant */}
@@ -49,7 +50,7 @@ export const WalletArt = ({ className }: ArtProps) => (
 
 /** Téléphone + bouclier de sécurité + carte (sans étoiles). */
 export const PhoneArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Sécurité et application">
+  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Security and app" : "Sécurité et application"}>
     <circle cx="210" cy="185" r="165" fill={HALO} />
     {/* carte derrière */}
     <g transform="rotate(-14 150 250)">
@@ -75,7 +76,7 @@ export const PhoneArt = ({ className }: ArtProps) => (
 
 /** Grande pièce USDT + échange. */
 export const CoinsArt = ({ className }: ArtProps) => (
-  <svg viewBox="78 62 272 186" className={className} fill="none" role="img" aria-label="USDT en dollars canadiens">
+  <svg viewBox="78 62 272 186" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "USDT in Canadian dollars" : "USDT en dollars canadiens"}>
     <path
       d="M120 160 a 90 90 0 1 1 26 60"
       fill="none"
@@ -107,7 +108,7 @@ function Spark({ cx, cy, s = 14 }: { cx: number; cy: number; s?: number }) {
 
 /** FAQ / aide — grande bulle avec « ? » + bulle « en train d'écrire ». */
 export const FaqArt = ({ className }: ArtProps) => (
-  <svg viewBox="50 54 322 254" className={className} fill="none" role="img" aria-label="Aide et questions">
+  <svg viewBox="50 54 322 254" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Help and questions" : "Aide et questions"}>
     {/* Petite bulle blanche (points de saisie) */}
     <g transform="rotate(-8 118 236)">
       <rect x="66" y="206" width="104" height="62" rx="20" fill="#fff" stroke={INK} strokeWidth="3.5" />
@@ -128,7 +129,7 @@ export const FaqArt = ({ className }: ArtProps) => (
 
 /** Contact — enveloppe + avion en papier qui s'envole. */
 export const ContactArt = ({ className }: ArtProps) => (
-  <svg viewBox="68 58 302 240" className={className} fill="none" role="img" aria-label="Nous écrire">
+  <svg viewBox="68 58 302 240" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Write to us" : "Nous écrire"}>
     {/* Trajectoire pointillée */}
     <path d="M150 236 C 190 150, 262 150, 300 96" fill="none" stroke="#0F3A43" strokeWidth="3.5" strokeLinecap="round" strokeDasharray="2 12" opacity="0.5" />
 
@@ -152,7 +153,7 @@ export const ContactArt = ({ className }: ArtProps) => (
 
 /** e-Transfer Interac : carte Interac + flux vers USDT. */
 export const InteracArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label="Payé par Interac e-Transfer">
+  <svg viewBox="0 0 420 360" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Paid via Interac e-Transfer" : "Payé par Interac e-Transfer"}>
     <circle cx="210" cy="185" r="165" fill={HALO} />
 
     {/* Téléphone avec notification e-Transfer */}
@@ -168,7 +169,7 @@ export const InteracArt = ({ className }: ArtProps) => (
       </text>
       <rect x="104" y="230" width="98" height="30" rx="15" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
       <text x="153" y="250" textAnchor="middle" fontFamily="Manrope, Arial, sans-serif" fontWeight="700" fontSize="13" fill="#fff">
-        Accepter
+        {getLang() === "en" ? "Accept" : "Accepter"}
       </text>
     </g>
 
@@ -196,7 +197,7 @@ export const InteracArt = ({ className }: ArtProps) => (
  * currentColor pour les traits → dark mode.
  */
 export const InteracWalletArt = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 420 260" className={className} fill="none" role="img" aria-label="Paiement vers portefeuille crypto">
+  <svg viewBox="0 0 420 260" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Payment to crypto wallet" : "Paiement vers portefeuille crypto"}>
     {/* Carte bancaire */}
     <g transform="rotate(-3 130 130)">
       <rect x="34" y="66" width="180" height="118" rx="16" fill="#fff" stroke={INK} strokeWidth="3" />
@@ -233,7 +234,7 @@ export const InteracWalletArt = ({ className }: ArtProps) => (
 
 /** Étape 1 — Compte vérifié (carte d'identité + coche). */
 export const StepAccount = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Créez votre compte">
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Create your account" : "Créez votre compte"}>
     <circle cx="60" cy="60" r="54" fill={HALO} />
     <rect x="30" y="42" width="60" height="44" rx="9" fill="#fff" stroke={INK} strokeWidth="3" />
     <circle cx="47" cy="60" r="9" fill="#2FA39B" stroke={INK} strokeWidth="2.5" />
@@ -246,7 +247,7 @@ export const StepAccount = ({ className }: ArtProps) => (
 
 /** Étape 2 — Créez votre ordre (reçu + pièce USDT). */
 export const StepOrder = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Créez votre ordre">
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Create your order" : "Créez votre ordre"}>
     <circle cx="60" cy="60" r="54" fill={HALO} />
     <rect x="34" y="32" width="46" height="56" rx="8" fill="#fff" stroke={INK} strokeWidth="3" />
     <rect x="44" y="46" width="26" height="5" rx="2.5" fill={INK} opacity="0.75" />
@@ -289,7 +290,7 @@ export const NetworkCoin = ({ id, className }: { id: NetId; className?: string }
 
 /** Étape 3 — Réglé directement (portefeuille + pièce). */
 export const StepSettle = ({ className }: ArtProps) => (
-  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label="Réglé directement">
+  <svg viewBox="0 0 120 120" className={className} fill="none" role="img" aria-label={getLang() === "en" ? "Settled directly" : "Réglé directement"}>
     <circle cx="60" cy="60" r="54" fill={HALO} />
     <rect x="30" y="54" width="60" height="38" rx="9" fill="#0F3A43" stroke={INK} strokeWidth="3" />
     <path d="M30 68 h60 v15 a9 9 0 0 1 -9 9 H39 a9 9 0 0 1 -9 -9 Z" fill="#2FA39B" stroke={INK} strokeWidth="3" />

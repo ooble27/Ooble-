@@ -1,6 +1,7 @@
 import { ArrowDown, Check } from "lucide-react";
 import Coin from "./Coin";
 import { TransferMark } from "./marks";
+import { T } from "@/lib/i18n";
 
 /** Maquette d'application Ooble (écran d'achat) — pièce produit du site. */
 const AppMockup = () => (
@@ -16,17 +17,17 @@ const AppMockup = () => (
 
         <div className="px-5 pb-6">
           <div className="flex items-center justify-between">
-            <p className="font-display text-lg font-bold">Acheter</p>
+            <p className="font-display text-lg font-bold"><T en="Buy">Acheter</T></p>
             <span className="flex items-center gap-1.5 rounded-full bg-accent-tint px-2.5 py-1 text-[10px] font-semibold text-accent-ink">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              En direct
+              <T en="Live">En direct</T>
             </span>
           </div>
 
           {/* Vous payez */}
           <div className="relative mt-4">
             <div className="rounded-2xl bg-secondary/70 p-4">
-              <p className="text-[11px] font-medium text-muted-foreground">Vous payez</p>
+              <p className="text-[11px] font-medium text-muted-foreground"><T en="You pay">Vous payez</T></p>
               <div className="mt-1 flex items-center justify-between">
                 <span className="font-display text-2xl font-bold tracking-tight">500,00</span>
                 <span className="rounded-full bg-card px-2.5 py-1 text-xs font-bold shadow-soft">CAD</span>
@@ -38,7 +39,7 @@ const AppMockup = () => (
             </span>
 
             <div className="mt-1.5 rounded-2xl bg-secondary/70 p-4">
-              <p className="text-[11px] font-medium text-muted-foreground">Vous recevez</p>
+              <p className="text-[11px] font-medium text-muted-foreground"><T en="You receive">Vous recevez</T></p>
               <div className="mt-1 flex items-center justify-between">
                 <span className="font-display text-2xl font-bold tracking-tight">351,00</span>
                 <span className="flex items-center gap-1 rounded-full bg-card px-2.5 py-1 text-xs font-bold shadow-soft">
@@ -73,7 +74,7 @@ const AppMockup = () => (
 
           {/* Bouton */}
           <div className="mt-4 rounded-full bg-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-teal">
-            Confirmer l'achat
+            <T en="Confirm purchase">Confirmer l'achat</T>
           </div>
         </div>
       </div>

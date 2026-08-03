@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { NetId } from "@/components/app/networks";
+import { getLang } from "@/lib/i18n";
 
 type DbNetwork = Database["public"]["Enums"]["usdt_network"];
 type DbSide = Database["public"]["Enums"]["order_side"];
@@ -15,16 +16,19 @@ export const DB_TO_NET: Record<DbNetwork, NetId> = {
   trc20: "trx", bep20: "bnb", erc20: "eth", polygon: "matic", spl: "sol", avalanche: "avax",
 };
 
-/** Libellés FR des statuts (côté client). */
-export const ORDER_STATUS_FR: Record<DbStatus, string> = {
-  created: "En attente de paiement",
-  awaiting_payment: "En attente de paiement",
-  payment_received: "Paiement reçu",
-  settling: "En traitement",
-  completed: "Terminée",
-  cancelled: "Annulée",
-  expired: "Expirée",
+const ORDER_STATUS_I18N: Record<DbStatus, { fr: string; en: string }> = {
+  created: { fr: "En attente de paiement", en: "Awaiting payment" },
+  awaiting_payment: { fr: "En attente de paiement", en: "Awaiting payment" },
+  payment_received: { fr: "Paiement reçu", en: "Payment received" },
+  settling: { fr: "En traitement", en: "Processing" },
+  completed: { fr: "Terminée", en: "Completed" },
+  cancelled: { fr: "Annulée", en: "Cancelled" },
+  expired: { fr: "Expirée", en: "Expired" },
 };
+
+export function orderStatusLabel(s: DbStatus): string {
+  return ORDER_STATUS_I18N[s][getLang()];
+}
 
 /** Statut « en cours » (non finalisé) pour l'affichage. */
 export const isOrderOpen = (s: DbStatus) => !["completed", "cancelled", "expired"].includes(s);
@@ -49,7 +53,7 @@ export interface CreateOrderInput {
 export async function createOrder(input: CreateOrderInput): Promise<{ id: string } | { error: string }> {
   const { data: auth } = await supabase.auth.getSession();
   const uid = auth.session?.user?.id;
-  if (!uid) return { error: "Vous devez être connecté." };
+  if (!uid) return { error: getLang() === "en" ? "You must be logged in." : "Vous devez être connecté." };
 
   const rateLockedUntil = new Date(Date.now() + 15 * 60 * 1000).toISOString();
   // Vente : l'adresse de dépôt Ooble sera générée côté serveur plus tard.

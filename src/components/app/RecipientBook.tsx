@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BookmarkPlus, Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { T, useLang } from "@/lib/i18n";
 import {
   listRecipients,
   removeRecipient,
@@ -29,6 +30,7 @@ const short = (v: string) => (v.length > 22 ? `${v.slice(0, 10)}…${v.slice(-8)
  * Interac à chaque ordre.
  */
 const RecipientBook = ({ kind, network, value, onPick }: Props) => {
+  const [lang] = useLang();
   const [items, setItems] = useState<SavedRecipient[] | null>(null);
   const [label, setLabel] = useState("");
   const [adding, setAdding] = useState(false);
@@ -85,7 +87,9 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
       {items && items.length > 0 && (
         <>
           <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-            {isWallet ? "Adresses enregistrées" : "Courriels enregistrés"}
+            {isWallet
+              ? (lang === "en" ? "Saved addresses" : "Adresses enregistrées")
+              : (lang === "en" ? "Saved emails" : "Courriels enregistrés")}
           </p>
           <div className="divide-y divide-border overflow-hidden rounded-[14px] border border-border bg-card">
             {items.map((r) => {
@@ -116,7 +120,7 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
                     type="button"
                     onClick={() => drop(r.id)}
                     disabled={busy}
-                    aria-label={`Supprimer ${r.label}`}
+                    aria-label={lang === "en" ? `Delete ${r.label}` : `Supprimer ${r.label}`}
                     className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-40"
                   >
                     <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -135,7 +139,9 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
           className="mt-3 inline-flex items-center gap-2 px-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
         >
           <BookmarkPlus className="h-4 w-4" strokeWidth={1.8} />
-          {isWallet ? "Enregistrer cette adresse" : "Enregistrer ce courriel"}
+          {isWallet
+            ? (lang === "en" ? "Save this address" : "Enregistrer cette adresse")
+            : (lang === "en" ? "Save this email" : "Enregistrer ce courriel")}
         </button>
       )}
 
@@ -145,7 +151,9 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
             autoFocus
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder={isWallet ? "Nom (ex. Mon Ledger)" : "Nom (ex. Compte principal)"}
+            placeholder={isWallet
+              ? (lang === "en" ? "Name (e.g. My Ledger)" : "Nom (ex. Mon Ledger)")
+              : (lang === "en" ? "Name (e.g. Main account)" : "Nom (ex. Compte principal)")}
             maxLength={60}
             /* 16 px minimum : en dessous, iOS zoome automatiquement sur le champ. */
             className="w-full rounded-[10px] border border-border bg-secondary/40 px-3 py-2.5 text-[16px] outline-none placeholder:text-muted-foreground/60"
@@ -158,7 +166,7 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
               className="h-auto px-3.5 py-2 text-[13px]"
               onClick={() => { setAdding(false); setLabel(""); setErr(null); }}
             >
-              Annuler
+              <T en="Cancel">Annuler</T>
             </Button>
             <Button
               variant="appPrimary"
@@ -167,7 +175,9 @@ const RecipientBook = ({ kind, network, value, onPick }: Props) => {
               disabled={!label.trim() || busy}
               onClick={confirmSave}
             >
-              {busy ? "Enregistrement…" : "Enregistrer"}
+              {busy
+                ? <T en="Saving…">Enregistrement…</T>
+                : <T en="Save">Enregistrer</T>}
             </Button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { getLang } from "@/lib/i18n";
 
 interface RateChartProps {
   data: number[];
@@ -49,7 +50,7 @@ const RateChart = ({ data, className, height = 96 }: RateChartProps) => {
   const last = pts[pts.length - 1];
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={className} role="img" aria-label="Tendance du taux">
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className={className} role="img" aria-label={getLang() === "en" ? "Rate trend" : "Tendance du taux"}>
       <defs>
         <linearGradient id={`fill-${id}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="currentColor" stopOpacity="0.12" />

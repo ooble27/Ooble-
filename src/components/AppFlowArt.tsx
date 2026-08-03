@@ -1,5 +1,6 @@
 import { Pointer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLang } from "@/lib/i18n";
 
 /**
  * Trois écrans de l'app en projection isométrique (Acheter / Vendre /
@@ -123,16 +124,18 @@ const Field = ({ x, y, w, h }: { x: number; y: number; w: number; h: number }) =
 const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 
 /* Étapes de l'écran « Acheter », de la plus lisible à la plus effacée. */
-const STEPS: [string, string][] = [
-  ["montant", "0.40"],
-  ["méthode", "0.33"],
-  ["réseau", "0.26"],
-  ["frais", "0.20"],
-  ["disponible", "0.15"],
-  ["confirmer", "0.10"],
+const STEPS: [string, string, string][] = [
+  ["montant", "amount", "0.40"],
+  ["méthode", "method", "0.33"],
+  ["réseau", "network", "0.26"],
+  ["frais", "fees", "0.20"],
+  ["disponible", "available", "0.15"],
+  ["confirmer", "confirm", "0.10"],
 ];
 
-const AppFlowArt = ({ className }: { className?: string }) => (
+const AppFlowArt = ({ className }: { className?: string }) => {
+  const lang = getLang();
+  return (
   /* `w-full` est indispensable : dans une colonne flex, un `mx-auto` sur cet
      élément l'empêcherait de s'étirer et le SVG retomberait sur sa largeur
      intrinsèque par défaut (300 px). */
@@ -156,7 +159,7 @@ const AppFlowArt = ({ className }: { className?: string }) => (
       }}
       fill="none"
       role="img"
-      aria-label="Aperçu de l'application Ooble : acheter, vendre et suivre ses transactions USDT"
+      aria-label={lang === "en" ? "Ooble app preview: buy, sell and track your USDT transactions" : "Aperçu de l'application Ooble : acheter, vendre et suivre ses transactions USDT"}
     >
       <defs>
         <filter id="ooble-card-shadow" x="-15%" y="-15%" width="130%" height="130%">
@@ -166,10 +169,10 @@ const AppFlowArt = ({ className }: { className?: string }) => (
 
       {/* ---------- Passer un ordre (au fond, à gauche) ---------- */}
       <Card i={0}>
-        <Title>Passer un ordre</Title>
-        {STEPS.map(([label, opacity], k) => (
+        <Title>{lang === "en" ? "Place an order" : "Passer un ordre"}</Title>
+        {STEPS.map(([fr, en, opacity], k) => (
           <text
-            key={label}
+            key={fr}
             x="52"
             y={140 + k * 40}
             className="fill-foreground"
@@ -177,14 +180,14 @@ const AppFlowArt = ({ className }: { className?: string }) => (
             fontSize="30"
             fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
           >
-            {label}
+            {lang === "en" ? en : fr}
           </text>
         ))}
       </Card>
 
       {/* ---------- Recevoir (au milieu) ---------- */}
       <Card i={1}>
-        <Title>Recevoir</Title>
+        <Title>{lang === "en" ? "Receive" : "Recevoir"}</Title>
 
         {/* Montant à saisir + zone secondaire qui dépasse en haut à droite */}
         <Dashed x={44} y={110} w={470} h={76} />
@@ -209,11 +212,11 @@ const AppFlowArt = ({ className }: { className?: string }) => (
 
       {/* ---------- Acheter des USDT — formulaire (au premier plan, se soulève) ---------- */}
       <Card i={2} lift>
-        <Title>Acheter des USDT</Title>
+        <Title>{lang === "en" ? "Buy USDT" : "Acheter des USDT"}</Title>
 
         {/* Montant en USDT */}
         <text x="46" y="126" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
-          MONTANT
+          {lang === "en" ? "AMOUNT" : "MONTANT"}
         </text>
         <Field x={44} y={140} w={392} h={64} />
         <text x="66" y="186" className="fill-foreground/[0.72] font-display dark:fill-foreground/[0.85]" fontSize="38" fontWeight="600" letterSpacing="-1.5">
@@ -225,7 +228,7 @@ const AppFlowArt = ({ className }: { className?: string }) => (
 
         {/* Adresse de destination */}
         <text x="46" y="240" className="fill-foreground/40 dark:fill-foreground/50" fontSize="15" letterSpacing="1.6" fontFamily={MONO}>
-          ADRESSE
+          {lang === "en" ? "ADDRESS" : "ADRESSE"}
         </text>
         <Field x={44} y={254} w={452} h={56} />
         <text x="66" y="290" className="fill-foreground/[0.6] dark:fill-foreground/70" fontSize="21" fontFamily={MONO}>
@@ -236,7 +239,7 @@ const AppFlowArt = ({ className }: { className?: string }) => (
         <g className="ooble-dep-btn">
           <rect x={44} y={340} width={232} height={60} rx={15} className="fill-foreground" />
           <path d="M104 371 l9 9 l17 -18" fill="none" className="stroke-background" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-          <text x={150} y={379} className="fill-background font-display" fontSize="23" fontWeight="600">Valider</text>
+          <text x={150} y={379} className="fill-background font-display" fontSize="23" fontWeight="600">{lang === "en" ? "Submit" : "Valider"}</text>
         </g>
       </Card>
 
@@ -261,6 +264,7 @@ const AppFlowArt = ({ className }: { className?: string }) => (
       </g>
     </svg>
   </div>
-);
+  );
+};
 
 export default AppFlowArt;
