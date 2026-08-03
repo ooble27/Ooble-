@@ -3,19 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
+import LangToggle from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type Mode = "login" | "forgot";
-
-function traduireErreur(message: string): string {
-  const m = message.toLowerCase();
-  if (m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
-  if (m.includes("email not confirmed")) return "Adresse e-mail non confirmée — vérifiez votre boîte mail.";
-  if (m.includes("unable to validate email")) return "Adresse e-mail invalide.";
-  return message;
-}
 
 const Field = ({
   label,
@@ -54,6 +48,7 @@ const Field = ({
 const Connexion = () => {
   const navigate = useNavigate();
   const { signIn, sendPasswordReset } = useAuth();
+  const t = useT();
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +58,14 @@ const Connexion = () => {
   const [notice, setNotice] = useState<string | null>(null);
 
   const isForgot = mode === "forgot";
+
+  const traduireErreur = (message: string): string => {
+    const m = message.toLowerCase();
+    if (m.includes("invalid login")) return t("login.errInvalid");
+    if (m.includes("email not confirmed")) return t("login.errNotConfirmed");
+    if (m.includes("unable to validate email")) return t("login.errBadEmail");
+    return message;
+  };
 
   const switchMode = (m: Mode) => {
     setMode(m);
@@ -80,7 +83,7 @@ const Connexion = () => {
       if (isForgot) {
         const res = await sendPasswordReset(email);
         if (res.error) return setError(traduireErreur(res.error));
-        setNotice("Si un compte existe pour cette adresse, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail.");
+        setNotice(t("login.resetSent"));
         return;
       }
       const res = await signIn(email, password);
@@ -91,16 +94,17 @@ const Connexion = () => {
     }
   };
 
-  const title = isForgot ? "Mot de passe oublié" : "Bon retour";
-  const subtitle = isForgot
-    ? "Entrez votre adresse e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe."
-    : "Connectez-vous pour acheter et vendre vos USDT.";
+  const title = isForgot ? t("login.forgotTitle") : t("login.title");
+  const subtitle = isForgot ? t("login.forgotSub") : t("login.sub");
 
   return (
     <div className="ink-neutral app-type flex min-h-screen flex-col bg-background tracking-[-0.015em]">
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LangToggle className="h-9 w-9 rounded-[10px] text-[12px]" />
+          <ThemeToggle className="h-9 w-9 rounded-[10px]" />
+        </div>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-10">
@@ -111,7 +115,7 @@ const Connexion = () => {
               onClick={() => switchMode("login")}
               className="mb-6 inline-flex items-center gap-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4" /> Retour à la connexion
+              <ArrowLeft className="h-4 w-4" /> {t("login.backToLogin")}
             </button>
           )}
 
@@ -123,7 +127,7 @@ const Connexion = () => {
           <form onSubmit={submit} className="mt-8">
             <div className="overflow-hidden rounded-2xl border border-border bg-card">
               <Field
-                label="Adresse e-mail"
+                label={t("login.email")}
                 icon={Mail}
                 type="email"
                 autoComplete="email"
@@ -135,7 +139,7 @@ const Connexion = () => {
 
               {!isForgot && (
                 <Field
-                  label="Mot de passe"
+                  label={t("login.password")}
                   icon={Lock}
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
@@ -147,7 +151,7 @@ const Connexion = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      aria-label={showPassword ? t("misc.hidePw") : t("misc.showPw")}
                       className="shrink-0 text-muted-foreground/50 transition-colors hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.6} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.6} />}
@@ -164,7 +168,7 @@ const Connexion = () => {
                   onClick={() => switchMode("forgot")}
                   className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Mot de passe oublié ?
+                  {t("login.forgot")}
                 </button>
               </div>
             )}
@@ -182,7 +186,7 @@ const Connexion = () => {
 
             <div className="mt-5 flex justify-end">
               <Button type="submit" variant="appSolid" shape="rounded" size="default" className="px-6" disabled={busy}>
-                {busy ? "Un instant…" : isForgot ? "Envoyer le lien" : "Se connecter"}
+                {busy ? t("misc.wait") : isForgot ? t("login.sendLink") : t("login.submit")}
                 {!busy && <ArrowRight className="h-4 w-4" />}
               </Button>
             </div>
@@ -190,20 +194,20 @@ const Connexion = () => {
 
           {!isForgot && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              Nouveau sur Ooble ?{" "}
+              {t("login.newUser")}{" "}
               <Link
                 to="/inscription"
                 className="text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
               >
-                Créer un compte
+                {t("login.createAccount")}
               </Link>
             </p>
           )}
 
           <p className="mt-8 text-center text-xs leading-relaxed text-muted-foreground">
-            Non-custodial — vos USDT vont directement dans votre wallet.{" "}
+            {t("login.ncNote")}{" "}
             <Link to="/" className="underline hover:text-foreground">
-              Retour à l'accueil
+              {t("login.backHome")}
             </Link>
           </p>
         </div>

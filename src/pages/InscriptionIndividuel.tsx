@@ -3,17 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
+import LangToggle from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-
-function traduireErreur(message: string): string {
-  const m = message.toLowerCase();
-  if (m.includes("already registered") || m.includes("already been registered")) return "Un compte existe déjà avec cet e-mail.";
-  if (m.includes("password should be at least")) return "Le mot de passe doit contenir au moins 6 caractères.";
-  if (m.includes("unable to validate email")) return "Adresse e-mail invalide.";
-  return message;
-}
 
 const Field = ({
   label,
@@ -52,6 +46,7 @@ const Field = ({
 const InscriptionIndividuel = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,6 +54,14 @@ const InscriptionIndividuel = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  function traduireErreur(message: string): string {
+    const m = message.toLowerCase();
+    if (m.includes("already registered") || m.includes("already been registered")) return t("reg.errAlreadyExists");
+    if (m.includes("password should be at least")) return t("reg.errPasswordShort");
+    if (m.includes("unable to validate email")) return t("reg.errBadEmail");
+    return message;
+  }
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +71,7 @@ const InscriptionIndividuel = () => {
       const res = await signUp(email, password, name, { accountType: "individual" });
       if (res.error) return setError(traduireErreur(res.error));
       if (res.needsConfirmation) {
-        setNotice("Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.");
+        setNotice(t("regi.notice"));
         return;
       }
       navigate("/app", { replace: true });
@@ -81,7 +84,10 @@ const InscriptionIndividuel = () => {
     <div className="ink-neutral app-type flex min-h-screen flex-col bg-background tracking-[-0.015em]">
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-10">
@@ -90,14 +96,14 @@ const InscriptionIndividuel = () => {
             to="/inscription"
             className="mb-6 inline-flex items-center gap-2 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="h-4 w-4" /> Type de compte
+            <ArrowLeft className="h-4 w-4" /> {t("regi.back")}
           </Link>
 
           <h1 className="font-display text-[2rem] leading-[1.05] tracking-[-0.04em] sm:text-[2.4rem]">
-            Compte individuel
+            {t("regi.title")}
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-            Achetez et vendez des USDT en dollars canadiens, en gardant vos clés.
+            {t("regi.sub")}
           </p>
 
           {notice ? (
@@ -109,7 +115,7 @@ const InscriptionIndividuel = () => {
                     to="/connexion"
                     className="inline-flex items-center gap-2 text-[13px] text-primary hover:underline"
                   >
-                    Aller à la connexion <ArrowRight className="h-3.5 w-3.5" />
+                    {t("regi.goLogin")} <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
               </div>
@@ -118,7 +124,7 @@ const InscriptionIndividuel = () => {
             <form onSubmit={submit} className="mt-8">
               <div className="overflow-hidden rounded-2xl border border-border bg-card">
                 <Field
-                  label="Nom complet"
+                  label={t("regi.fullName")}
                   icon={User}
                   type="text"
                   autoComplete="name"
@@ -127,7 +133,7 @@ const InscriptionIndividuel = () => {
                   required
                 />
                 <Field
-                  label="Adresse e-mail"
+                  label={t("login.email")}
                   icon={Mail}
                   type="email"
                   autoComplete="email"
@@ -136,7 +142,7 @@ const InscriptionIndividuel = () => {
                   required
                 />
                 <Field
-                  label="Mot de passe"
+                  label={t("login.password")}
                   icon={Lock}
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
@@ -148,7 +154,7 @@ const InscriptionIndividuel = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      aria-label={showPassword ? t("misc.hidePw") : t("misc.showPw")}
                       className="shrink-0 text-muted-foreground/50 transition-colors hover:text-foreground"
                     >
                       {showPassword ? <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.6} /> : <Eye className="h-[18px] w-[18px]" strokeWidth={1.6} />}
@@ -165,7 +171,7 @@ const InscriptionIndividuel = () => {
 
               <div className="mt-5 flex justify-end">
                 <Button type="submit" variant="appSolid" shape="rounded" size="default" className="px-6" disabled={busy}>
-                  {busy ? "Un instant…" : "Créer mon compte"}
+                  {busy ? t("misc.wait") : t("regi.createAccount")}
                   {!busy && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </div>
@@ -173,9 +179,9 @@ const InscriptionIndividuel = () => {
           )}
 
           <p className="mt-10 text-center text-xs leading-relaxed text-muted-foreground">
-            Non-custodial — vos USDT vont directement dans votre wallet.{" "}
+            {t("login.ncNote")}{" "}
             <Link to="/" className="underline hover:text-foreground">
-              Retour à l'accueil
+              {t("login.backHome")}
             </Link>
           </p>
         </div>

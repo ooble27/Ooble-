@@ -2,16 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import ThemeToggle from "./app/ThemeToggle";
-
-const links = [
-  { to: "/", label: "Accueil" },
-  { to: "/#reseaux", label: "Réseaux" },
-  { to: "/faq", label: "FAQ" },
-  { to: "/contact", label: "Contact" },
-];
+import LangToggle from "./app/LangToggle";
 
 /**
  * En-tête public. `inverted` l'adapte à un panneau `bg-foreground` en restant
@@ -21,6 +16,14 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
   const [open, setOpen] = useState(false);
   const { pathname, hash } = useLocation();
   const current = `${pathname}${hash}`;
+  const t = useT();
+
+  const links = [
+    { to: "/", label: t("nav.home") },
+    { to: "/#reseaux", label: t("nav.networks") },
+    { to: "/faq", label: t("nav.faq") },
+    { to: "/contact", label: t("nav.contact") },
+  ];
 
   /* Le panneau mobile occupe tout l'écran : on gèle le défilement dessous. */
   useEffect(() => {
@@ -66,6 +69,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LangToggle className={cn("h-9 w-9 rounded-[10px] text-[12px]", toggleOnDark)} />
           <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
           <Link
             to="/connexion"
@@ -76,7 +80,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            Connexion
+            {t("nav.login")}
           </Link>
           <Button
             asChild
@@ -85,11 +89,12 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
             size="sm"
             className={cn("h-9 rounded-[10px] text-[13.5px]", inverted && "bg-background text-foreground")}
           >
-            <Link to="/inscription">Ouvrir un compte</Link>
+            <Link to="/inscription">{t("nav.signup")}</Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
+          <LangToggle className={cn("h-9 w-9 rounded-[10px] text-[12px]", toggleOnDark)} />
           <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
           <button
             className={cn(
@@ -99,7 +104,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
                 : "border-border bg-card text-foreground hover:bg-secondary",
             )}
             onClick={() => setOpen(true)}
-            aria-label="Ouvrir le menu"
+            aria-label={t("nav.openMenu")}
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -114,7 +119,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
               <Logo />
               <button
                 onClick={close}
-                aria-label="Fermer le menu"
+                aria-label={t("nav.closeMenu")}
                 className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
               >
                 <X className="h-[18px] w-[18px]" />
@@ -137,10 +142,10 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
 
             <div className="flex shrink-0 gap-2.5 px-6 pb-10 pt-6">
               <Button asChild variant="secondary" shape="rounded" size="default" className="flex-1">
-                <Link to="/connexion" onClick={close}>Connexion</Link>
+                <Link to="/connexion" onClick={close}>{t("nav.login")}</Link>
               </Button>
               <Button asChild variant="appSolid" shape="rounded" size="default" className="flex-1">
-                <Link to="/inscription" onClick={close}>Ouvrir un compte</Link>
+                <Link to="/inscription" onClick={close}>{t("nav.signup")}</Link>
               </Button>
             </div>
           </div>

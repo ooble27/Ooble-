@@ -2,14 +2,17 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { House, Coins, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
+import type { TKey } from "@/lib/translations";
 
-const items = [
-  { to: "/app", label: "Accueil", icon: House, end: true },
-  { to: "/app/acheter", label: "Acheter", icon: Coins, end: false },
-  { to: "/app/vendre", label: "Vendre", icon: HandCoins, end: false },
+const items: { to: string; labelKey: TKey; icon: typeof House; end: boolean }[] = [
+  { to: "/app", labelKey: "bnav.home", icon: House, end: true },
+  { to: "/app/acheter", labelKey: "bnav.buy", icon: Coins, end: false },
+  { to: "/app/vendre", labelKey: "bnav.sell", icon: HandCoins, end: false },
 ];
 
 const BottomNav = () => {
+  const t = useT();
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -45,7 +48,7 @@ const BottomNav = () => {
           />
         )}
 
-        {items.map(({ to, label, icon: Icon, end }, i) => {
+        {items.map(({ to, labelKey, icon: Icon, end }, i) => {
           const isActive = i === activeIndex;
           return (
             <NavLink
@@ -69,7 +72,7 @@ const BottomNav = () => {
                   isActive ? "max-w-[80px] opacity-100" : "max-w-0 opacity-0",
                 )}
               >
-                {label}
+                {t(labelKey)}
               </span>
             </NavLink>
           );

@@ -9,20 +9,12 @@ import { useUsdtHistory } from "@/hooks/useUsdtHistory";
 import { listMyOrders, type OrderRow } from "@/lib/orders";
 import { ActivityRow } from "@/components/app/ActivityList";
 import { useAuth } from "@/lib/auth";
+import { useT } from "@/lib/i18n";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
-/** Salutation selon l'heure — sobre, sans illustration. */
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 5) return "Bonne nuit";
-  if (h < 12) return "Bonjour";
-  if (h < 18) return "Bon après-midi";
-  return "Bonsoir";
-}
-
-/** Activité récente — 3 derniers ordres, épuré. Détail complet sur /app/activite. */
 const RecentActivity = () => {
+  const t = useT();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
 
@@ -38,24 +30,24 @@ const RecentActivity = () => {
     <div className="rounded-2xl border border-border bg-card px-5 py-4">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-          Activité récente
+          {t("dash.recent")}
         </p>
         {orders && orders.length > 0 && (
           <Link to="/app/activite" className="inline-flex items-center gap-0.5 text-[12px] font-medium text-foreground transition-opacity hover:opacity-70">
-            Voir tout <ChevronRight className="h-3.5 w-3.5" />
+            {t("dash.viewAll")} <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         )}
       </div>
       {orders === null ? (
-        <div className="py-6 text-center text-[13px] text-muted-foreground">Chargement…</div>
+        <div className="py-6 text-center text-[13px] text-muted-foreground">{t("dash.loading")}</div>
       ) : orders.length === 0 ? (
         <div className="flex flex-col items-center py-7 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
             <Inbox className="h-5 w-5" strokeWidth={1.6} />
           </span>
-          <p className="mt-3 text-[14px] font-medium text-foreground">Aucune transaction</p>
+          <p className="mt-3 text-[14px] font-medium text-foreground">{t("dash.noTx")}</p>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            Votre premier achat ou vente apparaîtra ici.
+            {t("dash.noTxSub")}
           </p>
         </div>
       ) : (
@@ -74,10 +66,19 @@ const RecentActivity = () => {
 };
 
 const Dashboard = () => {
+  const t = useT();
   const rate = useUsdtRate();
   const history = useUsdtHistory();
   const { user } = useAuth();
   const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 5) return t("dash.gn");
+    if (h < 12) return t("dash.gm");
+    if (h < 18) return t("dash.ga");
+    return t("dash.ge");
+  })();
 
   return (
     <AppShell
@@ -86,7 +87,7 @@ const Dashboard = () => {
         firstName ? (
           <div className="min-w-0">
             <p className="text-[12px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-              {greeting()}
+              {greeting}
             </p>
             <h1 className="mt-0.5 truncate font-display text-[26px] font-semibold leading-tight tracking-tight">
               {firstName}
@@ -94,7 +95,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight">
-            {greeting()}
+            {greeting}
           </h1>
         )
       }
@@ -104,7 +105,7 @@ const Dashboard = () => {
           {/* Taux USDT / CAD */}
           <section className="flex flex-col rounded-2xl border border-border bg-card p-5">
             <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Taux USDT / CAD
+              {t("dash.rate")}
             </span>
 
             <div className="mt-4 flex items-baseline gap-2">
@@ -126,7 +127,7 @@ const Dashboard = () => {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
                   <Coins className="h-5 w-5" strokeWidth={1.6} />
                 </span>
-                <span className="text-[15px] font-medium">Acheter</span>
+                <span className="text-[15px] font-medium">{t("dash.buy")}</span>
               </Link>
               <Link
                 to="/app/vendre"
@@ -135,7 +136,7 @@ const Dashboard = () => {
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
                   <HandCoins className="h-5 w-5" strokeWidth={1.6} />
                 </span>
-                <span className="text-[15px] font-medium">Vendre</span>
+                <span className="text-[15px] font-medium">{t("dash.sell")}</span>
               </Link>
             </div>
 

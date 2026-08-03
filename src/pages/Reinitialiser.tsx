@@ -3,19 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Eye, EyeOff, Lock } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
+import LangToggle from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { T } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 
-/**
- * Définition d'un nouveau mot de passe, après clic sur le lien reçu par courriel.
- * Supabase traite le jeton présent dans l'URL (detectSessionInUrl) et émet un
- * évènement PASSWORD_RECOVERY : on n'autorise le formulaire qu'une fois ce
- * contexte de récupération établi.
- */
 const Reinitialiser = () => {
   const navigate = useNavigate();
   const { updatePassword } = useAuth();
+  const t = useT();
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
@@ -24,8 +22,6 @@ const Reinitialiser = () => {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Le lien ouvre la page avec un jeton de récupération : on attend que
-    // Supabase l'ait échangé contre une session avant d'ouvrir le formulaire.
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
     });
@@ -38,7 +34,7 @@ const Reinitialiser = () => {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+      setError(t("reg.errPasswordShort"));
       return;
     }
     setBusy(true);
@@ -46,7 +42,7 @@ const Reinitialiser = () => {
     const res = await updatePassword(password);
     setBusy(false);
     if (res.error) {
-      setError("Le lien a peut-être expiré. Redemandez un lien de réinitialisation.");
+      setError(t("reset.expired"));
       return;
     }
     setDone(true);
@@ -57,7 +53,10 @@ const Reinitialiser = () => {
     <div className="ink-neutral app-type flex min-h-screen flex-col bg-background tracking-[-0.015em]">
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-10">
@@ -67,18 +66,18 @@ const Reinitialiser = () => {
               <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-background">
                 <Check className="h-6 w-6" strokeWidth={2.2} />
               </span>
-              <h1 className="mt-6 font-display text-[1.8rem] tracking-[-0.03em]">Mot de passe modifié</h1>
+              <h1 className="mt-6 font-display text-[1.8rem] tracking-[-0.03em]"><T en="Password changed">Mot de passe modifié</T></h1>
               <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                Vous allez être redirigé vers votre espace…
+                <T en="You'll be redirected to your dashboard…">Vous allez être redirigé vers votre espace…</T>
               </p>
             </div>
           ) : (
             <>
               <h1 className="font-display text-[2rem] leading-[1.05] tracking-[-0.03em] sm:text-[2.4rem]">
-                Nouveau mot de passe
+                <T en="New password">Nouveau mot de passe</T>
               </h1>
               <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-                Choisissez un nouveau mot de passe pour votre compte Ooble.
+                <T en="Choose a new password for your Ooble account.">Choisissez un nouveau mot de passe pour votre compte Ooble.</T>
               </p>
 
               {ready ? (
@@ -87,7 +86,7 @@ const Reinitialiser = () => {
                     <Lock className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.9} />
                     <input
                       type={show ? "text" : "password"}
-                      placeholder="Nouveau mot de passe"
+                      placeholder={t("reset.newPw")}
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -97,7 +96,7 @@ const Reinitialiser = () => {
                     <button
                       type="button"
                       onClick={() => setShow((v) => !v)}
-                      aria-label={show ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                      aria-label={show ? t("misc.hidePw") : t("misc.showPw")}
                       className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {show ? <EyeOff className="h-5 w-5" strokeWidth={1.9} /> : <Eye className="h-5 w-5" strokeWidth={1.9} />}
@@ -112,17 +111,18 @@ const Reinitialiser = () => {
 
                   <div className="flex justify-end pt-1">
                     <Button type="submit" variant="appSolid" shape="rounded" size="default" className="px-6" disabled={busy}>
-                      {busy ? "Un instant…" : "Enregistrer"}
+                      {busy ? t("misc.wait") : <T en="Save">Enregistrer</T>}
                       {!busy && <ArrowRight className="h-4 w-4" />}
                     </Button>
                   </div>
                 </form>
               ) : (
                 <p className="mt-7 rounded-xl border border-border bg-secondary px-4 py-3 text-[13px] leading-relaxed text-muted-foreground">
-                  Ouvrez cette page depuis le lien reçu par courriel. Si vous y êtes
-                  déjà,{" "}
+                  <T en="Open this page from the link sent to your email. If you're already here,">
+                    Ouvrez cette page depuis le lien reçu par courriel. Si vous y êtes déjà,
+                  </T>{" "}
                   <Link to="/connexion" className="text-foreground underline underline-offset-2">
-                    redemandez un lien
+                    <T en="request a new link">redemandez un lien</T>
                   </Link>
                   .
                 </p>

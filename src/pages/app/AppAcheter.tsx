@@ -11,6 +11,7 @@ import { createOrder, orderRef } from "@/lib/orders";
 import { sendEmail } from "@/lib/email";
 import { useAuth } from "@/lib/auth";
 import { OOBLE_INTERAC_EMAIL } from "@/lib/config";
+import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type Unit = "CAD" | "USDT";
@@ -19,14 +20,13 @@ const nfCad = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimum
 const nfUsdt = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2 });
 const short = (a: string) => (a.length > 16 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
 
-/** En-tête d'étape (structure Terex : rond retour + titre + description). */
-const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack?: () => void }) => (
+const StepHeader = ({ title, sub, onBack, backLabel }: { title: string; sub: string; onBack?: () => void; backLabel?: string }) => (
   <div className="mb-4 flex items-start gap-3">
     {onBack && (
       <button
         type="button"
         onClick={onBack}
-        aria-label="Retour"
+        aria-label={backLabel ?? "Back"}
         className="mt-0.5 flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-secondary/70 active:scale-95"
       >
         <ArrowLeft className="h-[18px] w-[18px]" />
@@ -42,6 +42,7 @@ const StepHeader = ({ title, sub, onBack }: { title: string; sub: string; onBack
 const AppAcheter = () => {
   const rate = useUsdtRate();
   const { user } = useAuth();
+  const t = useT();
   const [step, setStep] = useState<Step>("amount");
   const [unit, setUnit] = useState<Unit>("CAD");
   const [amount, setAmount] = useState("");
@@ -61,7 +62,6 @@ const AppAcheter = () => {
     else setAmount(kind === "min" ? "15" : "7000");
   };
 
-  /** Crée l'ordre côté Supabase puis passe à la confirmation. */
   const submit = async () => {
     if (saving) return;
     setSaving(true);
@@ -83,8 +83,6 @@ const AppAcheter = () => {
     setSavedRef(ref);
     setStep("done");
 
-    // E-mail de confirmation (best-effort : sans effet tant que Resend n'est
-    // pas configuré / le domaine vérifié).
     if (user?.email) {
       void sendEmail({
         to: user.email,
@@ -101,20 +99,17 @@ const AppAcheter = () => {
     }
   };
 
-  /* ---------- Montant ---------- */
   if (step === "amount") {
     return (
       <AppShell center>
         <div className="mb-5">
-          <h1 className="font-display text-[22px] font-semibold tracking-tight">Acheter USDT</h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">Entrez le montant que vous souhaitez dépenser</p>
+          <h1 className="font-display text-[22px] font-semibold tracking-tight">{t("buy.title")}</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">{t("buy.sub")}</p>
         </div>
-        {/* Carte montant (radius 20, padding 20) */}
         <div className="rounded-[20px] border border-border bg-card p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Montant</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{t("buy.amount")}</span>
             <div className="flex items-center gap-3">
-              {/* Bascule devise (10px / 7px) */}
               <div className="inline-flex gap-0.5 rounded-[10px] bg-secondary/70 p-[3px]">
                 {(["CAD", "USDT"] as Unit[]).map((u) => (
                   <button
@@ -137,7 +132,6 @@ const AppAcheter = () => {
             </div>
           </div>
 
-          {/* Champ nombre (box interne, radius 14) */}
           <div className="relative">
             <input
               inputMode="decimal"
@@ -153,36 +147,33 @@ const AppAcheter = () => {
           </div>
         </div>
 
-        {/* Récapitulatif (radius 16) */}
         <div className="mt-3 flex flex-col gap-2.5 rounded-[16px] border border-border bg-card px-5 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] text-muted-foreground">{unit === "CAD" ? "Vous recevez" : "Vous payez"}</span>
+            <span className="text-[13px] text-muted-foreground">{unit === "CAD" ? t("buy.youReceive") : t("buy.youPay")}</span>
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-semibold">{unit === "CAD" ? `${nfUsdt.format(usdt)} USDT` : `${nfCad.format(cad)} CAD`}</span>
               {unit === "CAD" && <img src="/coins/usdt.svg" alt="" className="h-[18px] w-[18px]" />}
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[13px] text-muted-foreground">Taux</span>
+            <span className="text-[13px] text-muted-foreground">{t("buy.rate")}</span>
             <span className="text-[13px] text-muted-foreground">1 USDT = {nfCad.format(rate.buy)} CAD</span>
           </div>
         </div>
 
-        {/* Continuer — à DROITE (Acheter) */}
         <div className="mt-3 flex justify-end">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={value <= 0} onClick={() => setStep("network")}>
-            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> {t("buy.continue")}
           </Button>
         </div>
       </AppShell>
     );
   }
 
-  /* ---------- Réseau (pastilles en ligne, style Terex) ---------- */
   if (step === "network") {
     return (
       <AppShell center>
-        <StepHeader title="Destination" sub="Choisissez où recevoir vos USDT" onBack={() => setStep("amount")} />
+        <StepHeader title={t("buy.dest")} sub={t("buy.destSub")} onBack={() => setStep("amount")} backLabel={t("misc.back")} />
         <div className="flex flex-wrap gap-2">
           {NETWORKS.map((n) => {
             const sel = net === n.id;
@@ -191,8 +182,6 @@ const AppAcheter = () => {
                 key={n.id}
                 type="button"
                 onClick={() => {
-                  // Changer de réseau repart de zéro : l'adresse dépend du réseau
-                  // choisi, elle ne doit pas rester d'une sélection précédente.
                   if (n.id !== net) setAddress("");
                   setNet(n.id);
                 }}
@@ -210,18 +199,17 @@ const AppAcheter = () => {
 
         <div className="mt-6 flex justify-end">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={!net} onClick={() => setStep("address")}>
-            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> {t("buy.continue")}
           </Button>
         </div>
       </AppShell>
     );
   }
 
-  /* ---------- Adresse (field-group, radius 14) ---------- */
   if (step === "address") {
     return (
       <AppShell center>
-        <StepHeader title="Adresse de réception" sub={`Entrez votre adresse ${network?.tag}`} onBack={() => setStep("network")} />
+        <StepHeader title={t("buy.recvAddr")} sub={`${t("buy.yourAddr")} ${network?.tag}`} onBack={() => setStep("network")} backLabel={t("misc.back")} />
         <div className="overflow-hidden rounded-[14px] border border-border bg-card">
           <div className="flex items-center gap-2.5 border-b border-border px-4 py-2.5">
             <img src={`/coins/${network?.id}.svg`} alt="" className="h-[26px] w-[26px] rounded-full" draggable={false} />
@@ -232,7 +220,7 @@ const AppAcheter = () => {
             type="text"
             spellCheck={false}
             autoCapitalize="none"
-            placeholder={`Votre adresse ${network?.tag}`}
+            placeholder={`${t("buy.yourAddr")} ${network?.tag}`}
             value={address}
             onChange={(e) => setAddress(e.target.value.trim())}
             className="w-full bg-transparent px-4 py-4 font-mono text-base leading-relaxed outline-none placeholder:text-muted-foreground/60"
@@ -243,25 +231,24 @@ const AppAcheter = () => {
 
         <div className="mt-6 flex justify-end">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={address.length < 12} onClick={() => setStep("recap")}>
-            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> Continuer
+            <Coins className="h-[17px] w-[17px]" strokeWidth={2} /> {t("buy.continue")}
           </Button>
         </div>
       </AppShell>
     );
   }
 
-  /* ---------- Récapitulatif ---------- */
   if (step === "recap") {
     return (
       <AppShell center>
-        <StepHeader title="Récapitulatif" sub="Vérifiez les détails avant de valider" onBack={() => setStep("address")} />
+        <StepHeader title={t("buy.recap")} sub={t("buy.recapSub")} onBack={() => setStep("address")} backLabel={t("misc.back")} />
         <div className="overflow-hidden rounded-[16px] border border-border bg-card">
           {[
-            { label: "Vous payez", value: `${nfCad.format(cad)} CAD` },
-            { label: "Vous recevez", value: `${nfUsdt.format(usdt)} USDT` },
-            { label: "Taux", value: `1 USDT = ${nfCad.format(rate.buy)} CAD` },
-            { label: "Réseau", value: `${network?.name} · ${network?.tag}` },
-            { label: "Adresse", value: short(address), mono: true },
+            { label: t("buy.youPay"), value: `${nfCad.format(cad)} CAD` },
+            { label: t("buy.youReceive"), value: `${nfUsdt.format(usdt)} USDT` },
+            { label: t("buy.rate"), value: `1 USDT = ${nfCad.format(rate.buy)} CAD` },
+            { label: t("buy.network"), value: `${network?.name} · ${network?.tag}` },
+            { label: t("buy.address"), value: short(address), mono: true },
           ].map((r, i, arr) => (
             <div key={r.label} className={cn("flex items-center justify-between px-4 py-[14px]", i < arr.length - 1 && "border-b border-border")}>
               <span className="text-[13px] text-muted-foreground">{r.label}</span>
@@ -274,23 +261,21 @@ const AppAcheter = () => {
 
         <div className="mt-6 flex justify-end">
           <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" disabled={saving} onClick={submit}>
-            <Check className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? "Validation…" : "Valider"}
+            <Check className="h-[17px] w-[17px]" strokeWidth={2} /> {saving ? t("buy.validating") : t("buy.validate")}
           </Button>
         </div>
       </AppShell>
     );
   }
 
-  /* ---------- Confirmation ---------- */
   return (
-    <AppShell header={<StepHeader title="Ordre créé" sub="Payez par Interac e-Transfer" />}>
-      {/* Récapitulatif en lignes (radius 16, séparateurs) */}
+    <AppShell header={<StepHeader title={t("buy.created")} sub={t("buy.payInterac")} />}>
       <div className="overflow-hidden rounded-[16px] border border-border bg-card">
         {[
-          { label: "Vous recevez", value: `${nfUsdt.format(usdt)} USDT` },
-          { label: "À payer", value: `${nfCad.format(cad)} CAD` },
-          { label: "Réseau", value: `${network?.name} · ${network?.tag}` },
-          { label: "Adresse", value: short(address), mono: true },
+          { label: t("buy.youReceive"), value: `${nfUsdt.format(usdt)} USDT` },
+          { label: t("buy.toPay"), value: `${nfCad.format(cad)} CAD` },
+          { label: t("buy.network"), value: `${network?.name} · ${network?.tag}` },
+          { label: t("buy.address"), value: short(address), mono: true },
         ].map((r, i, arr) => (
           <div key={r.label} className={cn("flex items-center justify-between px-4 py-[14px]", i < arr.length - 1 && "border-b border-border")}>
             <span className="text-[13px] text-muted-foreground">{r.label}</span>
@@ -299,20 +284,19 @@ const AppAcheter = () => {
         ))}
       </div>
 
-      {/* Instructions Interac */}
-      <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Envoyez votre e-Transfer</p>
+      <p className="mb-2 mt-5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">{t("buy.sendEtransfer")}</p>
       <div className="divide-y divide-border overflow-hidden rounded-[16px] border border-border bg-card">
-        <CopyRow label="Destinataire (e-mail Interac)" value={OOBLE_INTERAC_EMAIL} mono />
-        <CopyRow label="Montant exact" value={`${nfCad.format(cad)} CAD`} />
-        <CopyRow label="Message / référence" value={savedRef} mono />
+        <CopyRow label={t("buy.recipient")} value={OOBLE_INTERAC_EMAIL} mono />
+        <CopyRow label={t("buy.exactAmount")} value={`${nfCad.format(cad)} CAD`} />
+        <CopyRow label={t("buy.reference")} value={savedRef} mono />
       </div>
 
       <div className="mt-6 flex justify-end gap-2.5">
         <Button variant="ghost" shape="soft" className="h-auto px-[22px] py-[13px] text-sm" onClick={() => { setStep("amount"); setAmount(""); setNet(null); setAddress(""); setSavedRef(""); setErr(null); }}>
-          Nouvel ordre
+          {t("buy.newOrder")}
         </Button>
         <Button variant="appPrimary" shape="soft" className="h-auto gap-2 px-[22px] py-[13px] text-sm" asChild>
-          <Link to="/app"><Check className="h-[17px] w-[17px]" strokeWidth={2} /> Terminé</Link>
+          <Link to="/app"><Check className="h-[17px] w-[17px]" strokeWidth={2} /> {t("buy.done")}</Link>
         </Button>
       </div>
     </AppShell>

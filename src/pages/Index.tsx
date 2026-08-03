@@ -9,89 +9,9 @@ import AppFlowArt from "@/components/AppFlowArt";
 import InteracFlowArt from "@/components/InteracFlowArt";
 import { Button } from "@/components/ui/button";
 import { InteracLogo } from "@/components/marks";
-import { RATE_LOCK_MINUTES } from "@/lib/rates";
 import { cn } from "@/lib/utils";
-
-const networks = [
-  { id: "trx", tick: "TRC20", name: "Tron", note: "frais les plus bas" },
-  { id: "eth", tick: "ERC20", name: "Ethereum", note: "compatibilité maximale" },
-  { id: "bnb", tick: "BEP20", name: "BNB Chain", note: "rapide et économique" },
-  { id: "matic", tick: "POL", name: "Polygon", note: "frais très bas" },
-  { id: "sol", tick: "SOL", name: "Solana", note: "règlement quasi instantané" },
-  { id: "avax", tick: "AVAX-C", name: "Avalanche", note: "C-Chain" },
-];
-
-const essentials = [
-  {
-    t: "Une seule paire, USDT / CAD",
-    d: "Pas de catalogue de cent jetons : une paire, un prix, exécutée correctement.",
-  },
-  {
-    t: "Un prix, pas une grille tarifaire",
-    d: "Cours du marché + 2 %, marge incluse. Rien à calculer avant de valider.",
-  },
-  {
-    t: "Aucune garde de fonds",
-    d: "Ooble n'ouvre pas de compte-portefeuille : chaque ordre est réglé et se termine.",
-  },
-  {
-    t: "Interac e-Transfer, dans les deux sens",
-    d: "Depuis et vers votre compte bancaire canadien, sans carte ni virement international.",
-  },
-];
-
-const steps = [
-  {
-    n: "01",
-    t: "Vérifiez votre compte",
-    d: "Courriel, pièce d'identité, selfie. Une seule fois, jamais à refaire.",
-  },
-  {
-    n: "02",
-    t: "Créez votre ordre",
-    d: `Montant, réseau, adresse. Le taux se verrouille ${RATE_LOCK_MINUTES} minutes.`,
-  },
-  {
-    n: "03",
-    t: "Règlement direct",
-    d: "Vos USDT vers votre wallet, ou vos dollars vers votre compte Interac.",
-  },
-];
-
-const specs = [
-  { k: "Solde conservé chez Ooble", v: "Aucun" },
-  { k: "Portefeuille interne", v: "Aucun" },
-  { k: "Vérification d'identité", v: "Une seule fois" },
-  { k: "Taux verrouillé", v: `${RATE_LOCK_MINUTES} minutes` },
-  { k: "Paiement", v: "Interac e-Transfer" },
-];
-
-const faqs = [
-  {
-    q: "Quels sont les frais ?",
-    a: "Le prix affiché correspond au cours du marché USDT/CAD plus une marge de 2 %, déjà incluse. Aucun autre frais.",
-  },
-  {
-    q: "Combien de temps le taux est-il garanti ?",
-    a: `Le taux est verrouillé ${RATE_LOCK_MINUTES} minutes à la création de l'ordre.`,
-  },
-  {
-    q: "Ooble garde-t-il mes fonds ?",
-    a: "Non. Ooble est non-custodial : aucun solde client, aucun portefeuille interne. Chaque ordre est réglé directement vers votre wallet ou votre compte Interac.",
-  },
-  {
-    q: "Quels réseaux sont pris en charge ?",
-    a: "Tron (TRC20), Ethereum (ERC20), BNB Chain (BEP20), Polygon, Solana et Avalanche (C-Chain).",
-  },
-  {
-    q: "Pourquoi une vérification d'identité ?",
-    a: "C'est une exigence réglementaire canadienne. Elle se fait une seule fois : courriel, pièce d'identité, selfie.",
-  },
-  {
-    q: "Comment payer ou être payé ?",
-    a: "Par Interac e-Transfer, dans les deux sens, depuis votre compte bancaire canadien.",
-  },
-];
+import { useT } from "@/lib/i18n";
+import type { TKey } from "@/lib/translations";
 
 const Wrap = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <div className={`mx-auto max-w-[1200px] px-6 sm:px-10 ${className}`}>{children}</div>
@@ -127,7 +47,47 @@ const Soft = ({ children }: { children: React.ReactNode }) => (
 );
 
 const Index = () => {
+  const t = useT();
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+
+  const networks = [
+    { id: "trx", tick: "TRC20", name: "Tron", note: t("net.trx") },
+    { id: "eth", tick: "ERC20", name: "Ethereum", note: t("net.eth") },
+    { id: "bnb", tick: "BEP20", name: "BNB Chain", note: t("net.bnb") },
+    { id: "matic", tick: "POL", name: "Polygon", note: t("net.matic") },
+    { id: "sol", tick: "SOL", name: "Solana", note: t("net.sol") },
+    { id: "avax", tick: "AVAX-C", name: "Avalanche", note: t("net.avax") },
+  ];
+
+  const essentials: { tKey: TKey; dKey: TKey }[] = [
+    { tKey: "ess.1t", dKey: "ess.1d" },
+    { tKey: "ess.2t", dKey: "ess.2d" },
+    { tKey: "ess.3t", dKey: "ess.3d" },
+    { tKey: "ess.4t", dKey: "ess.4d" },
+  ];
+
+  const steps: { n: string; tKey: TKey; dKey: TKey }[] = [
+    { n: "01", tKey: "how.1t", dKey: "how.1d" },
+    { n: "02", tKey: "how.2t", dKey: "how.2d" },
+    { n: "03", tKey: "how.3t", dKey: "how.3d" },
+  ];
+
+  const specs: { kKey: TKey; vKey: TKey }[] = [
+    { kKey: "nc.s1k", vKey: "nc.s1v" },
+    { kKey: "nc.s2k", vKey: "nc.s2v" },
+    { kKey: "nc.s3k", vKey: "nc.s3v" },
+    { kKey: "nc.s4k", vKey: "nc.s4v" },
+    { kKey: "nc.s5k", vKey: "nc.s5v" },
+  ];
+
+  const faqs: { qKey: TKey; aKey: TKey }[] = [
+    { qKey: "faq.1q", aKey: "faq.1a" },
+    { qKey: "faq.2q", aKey: "faq.2a" },
+    { qKey: "faq.3q", aKey: "faq.3a" },
+    { qKey: "faq.4q", aKey: "faq.4a" },
+    { qKey: "faq.5q", aKey: "faq.5a" },
+    { qKey: "faq.6q", aKey: "faq.6a" },
+  ];
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
@@ -170,31 +130,30 @@ const Index = () => {
               pour que la deuxième ligne tienne, sinon elle se scinde.
             */}
             <h1 className="animate-up mx-auto max-w-[1120px] font-display text-[2.6rem] leading-[0.98] tracking-[-0.05em] sm:text-[4rem] lg:text-[5.75rem]">
-              Achetez et vendez
+              {t("hero.title1")}
               <br />
-              des USDT{" "}
+              {t("hero.title2")}
               <RotatingWord
-                words={["en dollars", "par Interac", "sans dépôt", "en sécurité"]}
+                words={t("hero.words").split("|")}
                 className="text-foreground/35"
               />
             </h1>
 
             <p className="animate-up mx-auto mt-8 max-w-[480px] text-[14px] leading-[1.65] text-muted-foreground [animation-delay:140ms] sm:text-[15px]">
-              Réglé directement vers votre wallet ou votre compte Interac.
-              Ooble ne conserve aucun solde.
+              {t("hero.sub")}
             </p>
 
             <div className="animate-up mt-10 flex flex-wrap justify-center gap-3 [animation-delay:260ms]">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/inscription">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
-                  Acheter
+                  {t("hero.buy")}
                 </Link>
               </Button>
               <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
                 <Link to="/inscription">
                   <HandCoins className="h-4 w-4" strokeWidth={1.8} />
-                  Vendre
+                  {t("hero.sell")}
                 </Link>
               </Button>
             </div>
@@ -209,31 +168,30 @@ const Index = () => {
             <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-20">
               <Reveal>
                 <H2>
-                  Un service
+                  {t("ess.title1")}
                   <br />
-                  volontairement
+                  {t("ess.title2")}
                   <br />
-                  <Soft>réduit à l'essentiel</Soft>
+                  <Soft>{t("ess.title3")}</Soft>
                 </H2>
 
-                {/* La seule donnée chiffrée de la page, à sa place logique */}
                 <div className="mt-12 border-t pt-7">
-                  <Kicker>Marge Ooble</Kicker>
+                  <Kicker>{t("ess.margin")}</Kicker>
                   <p className="mt-3 font-display text-[3rem] leading-none tracking-[-0.05em] sm:text-[3.6rem]">
                     + 2 %
                   </p>
                   <p className="mt-4 max-w-[320px] text-[14px] leading-[1.6] text-muted-foreground">
-                    Déjà comprise dans le prix affiché. Aucun autre frais.
+                    {t("ess.marginSub")}
                   </p>
                 </div>
               </Reveal>
 
               <div>
                 {essentials.map((e, i) => (
-                  <Reveal key={e.t} delay={i * 90}>
+                  <Reveal key={e.tKey} delay={i * 90}>
                     <div className={cn("border-t py-6", i === essentials.length - 1 && "border-b")}>
-                      <p className="font-display text-[20px] tracking-[-0.02em]">{e.t}</p>
-                      <p className="mt-2 text-[15px] leading-[1.6] text-muted-foreground">{e.d}</p>
+                      <p className="font-display text-[20px] tracking-[-0.02em]">{t(e.tKey)}</p>
+                      <p className="mt-2 text-[15px] leading-[1.6] text-muted-foreground">{t(e.dKey)}</p>
                     </div>
                   </Reveal>
                 ))}
@@ -248,12 +206,11 @@ const Index = () => {
             <Reveal>
               <div className="mb-4 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
                 <div>
-                  <Kicker>Comment ça marche</Kicker>
-                  <H2 className="mt-4">Trois étapes, aucun dépôt</H2>
+                  <Kicker>{t("how.kicker")}</Kicker>
+                  <H2 className="mt-4">{t("how.title")}</H2>
                 </div>
                 <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
-                  Vous gardez le contrôle de vos fonds du début à la fin de chaque
-                  ordre.
+                  {t("how.sub")}
                 </p>
               </div>
             </Reveal>
@@ -270,10 +227,10 @@ const Index = () => {
                     {s.n}
                   </p>
                   <h3 className="font-display text-[1.35rem] tracking-[-0.03em] sm:text-[1.625rem]">
-                    {s.t}
+                    {t(s.tKey)}
                   </h3>
                   <p className="text-[15px] leading-[1.7] text-muted-foreground sm:col-start-2 lg:col-start-3 lg:row-start-1">
-                    {s.d}
+                    {t(s.dKey)}
                   </p>
                 </div>
               </Reveal>
@@ -287,12 +244,11 @@ const Index = () => {
             <Reveal>
               <div className="mb-10 flex flex-col justify-between gap-6 sm:flex-row sm:items-end sm:gap-12">
                 <div>
-                  <Kicker>Recevez sur 6 réseaux</Kicker>
-                  <H2 className="mt-4">La chaîne de votre choix</H2>
+                  <Kicker>{t("net.kicker")}</Kicker>
+                  <H2 className="mt-4">{t("net.title")}</H2>
                 </div>
                 <p className="max-w-[300px] text-[15px] leading-[1.6] text-muted-foreground">
-                  Le réseau se choisit à la création de l'ordre. Les frais de réseau
-                  varient, le taux ne change pas.
+                  {t("net.sub")}
                 </p>
               </div>
             </Reveal>
@@ -325,30 +281,29 @@ const Index = () => {
         <section data-dark className="mt-24 bg-foreground py-20 text-background lg:mt-28 lg:py-24">
           <Wrap className="grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-20">
             <Reveal>
-              <Kicker inverted>Non-custodial</Kicker>
+              <Kicker inverted>{t("nc.kicker")}</Kicker>
               <h2 className="mt-5 font-display text-[2.1rem] leading-[1.04] tracking-[-0.045em] text-background sm:text-[2.9rem] lg:text-[3.5rem]">
-                Rien à retirer,
+                {t("nc.title1")}
                 <br />
-                <span className="text-background/50">rien à geler</span>
+                <span className="text-background/50">{t("nc.title2")}</span>
               </h2>
               <p className="mt-7 max-w-[400px] text-[16px] leading-[1.7] text-background/65">
-                Aucun solde client, aucun portefeuille interne. Vos clés restent
-                les vôtres.
+                {t("nc.sub")}
               </p>
             </Reveal>
 
             <dl>
               {specs.map((s, i) => (
                 <Reveal
-                  key={s.k}
+                  key={s.kKey}
                   delay={i * 80}
                   className={cn(
                     "flex justify-between gap-6 border-t border-background/15 py-5 text-[17px]",
                     i === specs.length - 1 && "border-b border-background/15",
                   )}
                 >
-                  <dt>{s.k}</dt>
-                  <dd className="shrink-0 text-background/55">{s.v}</dd>
+                  <dt>{t(s.kKey)}</dt>
+                  <dd className="shrink-0 text-background/55">{t(s.vKey)}</dd>
                 </Reveal>
               ))}
             </dl>
@@ -360,22 +315,21 @@ const Index = () => {
           <Wrap className="pt-24 lg:pt-28">
             <Reveal className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
               <div>
-                <Kicker>Paiement</Kicker>
+                <Kicker>{t("int.kicker")}</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
-                  Payez par
+                  {t("int.title1")}
                   <br />
-                  <span className="text-foreground/35">virement Interac</span>
+                  <span className="text-foreground/35">{t("int.title2")}</span>
                 </h2>
                 <p className="mt-6 max-w-[420px] text-[16px] leading-[1.7] text-muted-foreground">
-                  À l'achat comme à la vente, tout passe par Interac e-Transfer,
-                  depuis votre compte bancaire canadien.
+                  {t("int.sub")}
                 </p>
                 <div className="mt-7 inline-flex items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-1.5">
                   <InteracLogo className="h-7" />
-                  <span className="text-[13px] text-muted-foreground">Moyen de paiement accepté</span>
+                  <span className="text-[13px] text-muted-foreground">{t("int.badge")}</span>
                 </div>
                 <p className="mt-5 max-w-[420px] text-[12px] leading-[1.7] text-muted-foreground">
-                  Ooble accepte Interac e-Transfer comme moyen de paiement.
+                  {t("int.note")}
                 </p>
               </div>
 
@@ -389,16 +343,16 @@ const Index = () => {
           <Wrap className="pt-24 lg:pt-28">
             <Reveal className="grid gap-8 border-b pb-8 lg:grid-cols-2 lg:items-end lg:gap-20">
               <div>
-                <Kicker>Gros volumes</Kicker>
+                <Kicker>{t("otc.kicker")}</Kicker>
                 <h2 className="mt-4 font-display text-[1.9rem] leading-[1.06] tracking-[-0.04em] sm:text-[2.4rem] lg:text-[2.75rem]">
-                  Un ordre important ?
+                  {t("otc.title1")}
                   <br />
-                  Passez par notre desk
+                  {t("otc.title2")}
                 </h2>
               </div>
               <div>
                 <p className="text-[16px] leading-[1.7] text-muted-foreground">
-                  Pour les gros volumes, écrivez-nous avant de créer l'ordre.
+                  {t("otc.sub")}
                 </p>
                 <Button
                   asChild
@@ -407,7 +361,7 @@ const Index = () => {
                   size="default"
                   className="mt-6 px-6"
                 >
-                  <Link to="/contact">Écrire au desk</Link>
+                  <Link to="/contact">{t("otc.cta")}</Link>
                 </Button>
               </div>
             </Reveal>
@@ -418,21 +372,21 @@ const Index = () => {
         <section id="faq" className="scroll-mt-24">
           <Wrap className="pt-24 lg:pt-28">
             <Reveal>
-              <Kicker>FAQ</Kicker>
-              <H2 className="mb-10 mt-4">Questions fréquentes</H2>
+              <Kicker>{t("faq.kicker")}</Kicker>
+              <H2 className="mb-10 mt-4">{t("faq.title")}</H2>
             </Reveal>
 
             {faqs.map((item, i) => {
               const open = faqOpen === i;
               return (
-                <Reveal key={item.q} delay={i * 60} className="border-t">
+                <Reveal key={item.qKey} delay={i * 60} className="border-t">
                   <button
                     onClick={() => setFaqOpen(open ? null : i)}
                     aria-expanded={open}
                     className="flex w-full items-center justify-between gap-6 py-6 text-left"
                   >
                     <span className="font-display text-[17px] tracking-[-0.02em] sm:text-[20px]">
-                      {item.q}
+                      {t(item.qKey)}
                     </span>
                     <span
                       className={cn(
@@ -446,7 +400,7 @@ const Index = () => {
                   </button>
                   {open && (
                     <p className="mb-7 max-w-[680px] text-[15px] leading-[1.7] text-muted-foreground">
-                      {item.a}
+                      {t(item.aKey)}
                     </p>
                   )}
                 </Reveal>
@@ -461,20 +415,20 @@ const Index = () => {
           <Wrap className="pt-28 text-center lg:pt-32">
             <Reveal>
               <h2 className="mx-auto max-w-[760px] text-balance font-display text-[2.6rem] leading-[0.98] tracking-[-0.05em] sm:text-[3.6rem] lg:text-[5rem]">
-                Ouvrez un compte
+                {t("cta.title1")}
                 <br />
-                <Soft>en cinq minutes</Soft>
+                <Soft>{t("cta.title2")}</Soft>
               </h2>
             </Reveal>
             <Reveal delay={140} className="mt-10 flex flex-wrap justify-center gap-3">
               <Button asChild variant="appSolid" shape="rounded" size="lg" className="px-7">
                 <Link to="/inscription">
                   <Coins className="h-4 w-4" strokeWidth={1.8} />
-                  Ouvrir un compte
+                  {t("cta.signup")}
                 </Link>
               </Button>
               <Button asChild variant="secondary" shape="rounded" size="lg" className="px-7">
-                <Link to="/faq">Consulter la FAQ</Link>
+                <Link to="/faq">{t("cta.faq")}</Link>
               </Button>
             </Reveal>
           </Wrap>
