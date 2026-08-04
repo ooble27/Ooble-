@@ -7,6 +7,7 @@ import {
   fetchClientProfile, fetchClientOrders, KYC_LABEL,
   type ClientProfile as ClientProfileData, type ClientOrder,
 } from "@/lib/adminClient";
+import { C, FONT, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
 
 interface Props {
   userId: string;
@@ -94,45 +95,73 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
         </div>
       ) : (
         <>
-          {/* Carte identité */}
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center gap-4">
-              <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-foreground text-[17px] font-semibold text-background">
+          {/* Héro client — volume mis en avant, identité en bandeau */}
+          <div style={{ ...heroCard, fontFamily: FONT }}>
+            {/* Bandeau identité */}
+            <div style={{ display: "flex", alignItems: "center", gap: 13, marginBottom: 22 }}>
+              <span style={{
+                width: 40, height: 40, borderRadius: 11, flexShrink: 0,
+                background: "rgba(255,255,255,0.08)", border: `1px solid ${C.bds}`,
+                color: C.t1, display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 14, fontWeight: 400,
+              }}>
                 {initials(name)}
               </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[17px] font-semibold tracking-tight">{name}</p>
-                <p className="mt-0.5 truncate text-[13px] text-muted-foreground">{profile?.email || "—"}</p>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{
+                  color: C.t1, fontSize: 15, fontWeight: 400, margin: 0,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {name}
+                </p>
+                <p style={{
+                  color: C.t3, fontSize: 11.5, margin: "2px 0 0",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {profile?.email || "—"}
+                </p>
               </div>
               {profile?.accountType === "business" && (
-                <span className="shrink-0 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                <span style={{
+                  flexShrink: 0, borderRadius: 999, padding: "4px 10px",
+                  background: "rgba(255,255,255,0.06)", border: `1px solid ${C.bds}`,
+                  color: C.t2, fontSize: 10.5,
+                }}>
                   Entreprise
                 </span>
               )}
             </div>
 
-            {profile && (
-              <div className="mt-5 flex divide-x divide-border">
-                <div className="flex-1 text-center">
-                  <p className="font-display text-[22px] font-semibold tracking-tight">{profile.orderCount}</p>
-                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Commandes</p>
-                </div>
-                <div className="flex-1 text-center">
-                  <p className="font-display text-[22px] font-semibold tracking-tight">{nfCad.format(profile.totalCad)}</p>
-                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Volume CAD</p>
-                </div>
-                <div className="flex-1 text-center">
-                  <p className="text-[15px] font-semibold">{KYC_LABEL[profile.kycStatus]}</p>
-                  <p className="mt-0.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">KYC</p>
-                </div>
-              </div>
-            )}
+            {/* Volume — le grand chiffre */}
+            <p style={{ ...sH, marginBottom: 10 }}>Volume traité</p>
+            <p style={heroNumber(40)}>
+              {profile ? nfCad.format(profile.totalCad) : "—"}
+              <span style={heroUnit}>CAD</span>
+            </p>
 
             {profile && (
-              <p className="mt-4 text-center text-[12px] text-muted-foreground">
-                Client depuis {dateFmt.format(new Date(profile.createdAt))}
-                {profile.accountType === "business" && profile.businessName ? ` · ${profile.businessName}` : ""}
-              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", marginTop: 22 }}>
+                {[
+                  { label: "Commandes", value: String(profile.orderCount) },
+                  { label: "KYC", value: KYC_LABEL[profile.kycStatus] },
+                  { label: "Client depuis", value: dateFmt.format(new Date(profile.createdAt)) },
+                ].map((s, i) => (
+                  <div key={s.label} style={{ display: "flex", alignItems: "stretch" }}>
+                    {i > 0 && <div style={{ width: 1, background: C.bds, marginRight: 20 }} />}
+                    <div style={{ paddingRight: 20 }}>
+                      <p style={{ ...sH, fontSize: 10, letterSpacing: "0.14em", marginBottom: 5 }}>
+                        {s.label}
+                      </p>
+                      <p style={{
+                        color: C.t2, fontSize: 15, fontWeight: 400, margin: 0,
+                        fontVariantNumeric: "tabular-nums",
+                      }}>
+                        {s.value}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 

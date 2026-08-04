@@ -7,6 +7,7 @@ import {
   type AdminOrder,
 } from "@/lib/adminOrders";
 import { ClientCell, StatusBadge, SubTabs } from "./AdminBits";
+import AdminHero from "./AdminHero";
 
 interface Props {
   orders: AdminOrder[];
@@ -56,8 +57,24 @@ const OrdersQueue = ({ orders, onOpen, onPatch }: Props) => {
 
   const cols = "grid grid-cols-[1fr_auto_auto] md:grid-cols-[1.7fr_0.9fr_1fr_0.7fr_auto] items-center gap-3";
 
+  const activeVolume = active.reduce((s, o) => s + o.cad, 0);
+
   return (
     <div className="space-y-4">
+      {/* Héro — charge de travail en cours */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow="File d'attente"
+          value={unassigned.length}
+          unit="à prendre"
+          stats={[
+            { label: "Mes commandes", value: mine.length },
+            { label: "Par l'équipe", value: others.length },
+            { label: "Volume actif", value: nfCad.format(activeVolume), hint: "CAD" },
+          ]}
+        />
+      </div>
+
       {/* Sous-onglets — barre soulignée compacte (modèle Terex) */}
       <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as SubTab)} />
 

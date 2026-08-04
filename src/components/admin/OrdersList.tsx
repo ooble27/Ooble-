@@ -6,6 +6,7 @@ import {
   type AdminOrder, type OrderStatus, type OrderType,
 } from "@/lib/adminOrders";
 import { StatusBadge, SubTabs } from "./AdminBits";
+import AdminHero from "./AdminHero";
 
 interface Props {
   orders: AdminOrder[];
@@ -88,24 +89,30 @@ const OrdersList = ({ orders, onOpen }: Props) => {
 
   const cols = "grid grid-cols-[1fr_auto_auto] md:grid-cols-[1.7fr_0.8fr_1fr_0.7fr_auto] items-center gap-3";
 
+  const baseVolume = base.reduce((s, o) => s + o.cad, 0);
+
   return (
     <div className="space-y-4">
-      {/* Résumé + exports */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13px] text-muted-foreground">
-          {base.length} commande{base.length > 1 ? "s" : ""} · {clientCount} client{clientCount > 1 ? "s" : ""}
-        </p>
-        <div className="flex gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={exportCSV}>
-            <Download className="h-[14px] w-[14px]" /> CSV
-          </button>
-          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={() => window.print()}>
-            <Download className="h-[14px] w-[14px]" /> PDF
-          </button>
-          <button className="inline-flex items-center gap-1.5 rounded-[10px] border border-border bg-transparent px-3 py-[7px] text-[12.5px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/40 hover:text-foreground" onClick={() => { setQ(""); setStatus("all"); }}>
-            <RefreshCw className="h-[14px] w-[14px]" /> Actualiser
-          </button>
-        </div>
+      {/* Héro — volume de commandes */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow="Commandes"
+          value={base.length}
+          unit={base.length > 1 ? "commandes" : "commande"}
+          stats={[
+            { label: "Clients", value: clientCount },
+            { label: "Volume", value: nfCad.format(baseVolume), hint: "CAD" },
+            { label: "Affichées", value: rows.length },
+          ]}
+          actions={[
+            { label: "Exporter CSV", icon: Download, onClick: exportCSV },
+            {
+              label: "Réinitialiser",
+              icon: RefreshCw,
+              onClick: () => { setQ(""); setStatus("all"); },
+            },
+          ]}
+        />
       </div>
 
       {/* Achats / Ventes — onglets soulignés */}

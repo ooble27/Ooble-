@@ -2,10 +2,11 @@
  * Tableau de bord KPI du back-office Ooble.
  *
  * Design monochrome sombre inspiré du back-office Terex : fond `#1a1a1a`,
- * cartes `#212121`, séparateurs subtils, texte en trois niveaux de gris,
- * chiffres en JetBrains Mono avec letter-spacing serré. Aucun accent
- * coloré (vert/rouge/orange) : les tendances utilisent uniquement des
- * flèches monochromes et le blanc pur pour la valeur positive.
+ * cartes `#212121`, séparateurs subtils, texte en trois niveaux de gris.
+ *
+ * Typographie : Poppins partout (la police de la plateforme), les chiffres
+ * s'alignent via `tabular-nums` sans changer de famille. Aucun accent coloré
+ * (vert/rouge/orange) : les tendances sont de simples flèches monochromes.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {

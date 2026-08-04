@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TEAM_ROLES, type TeamRole } from "@/lib/adminOrders";
 import { fetchTeam, setMemberRole, addRoleByEmail, type LiveTeamMember } from "@/lib/adminTeam";
 import { cn } from "@/lib/utils";
+import AdminHero from "./AdminHero";
 
 const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 const roleDesc = (role: TeamRole) => TEAM_ROLES.find((r) => r.role === role)?.desc ?? "";
@@ -130,20 +131,33 @@ const TeamPanel = () => {
     );
   }
 
+  const roleCounts = members.reduce<Record<string, number>>((acc, m) => {
+    acc[m.role] = (acc[m.role] ?? 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-[13px] text-muted-foreground">
-          {loading ? "Chargement…" : `${members.length} membre${members.length > 1 ? "s" : ""}`}
-        </p>
-        <Button
-          variant="appSolid"
-          shape="rounded"
-          className="h-auto gap-1.5 rounded-[9px] px-3.5 py-2 text-[13px] font-bold"
-          onClick={() => { setShowInvite(true); setInviteMsg(null); }}
-        >
-          <UserPlus className="h-4 w-4" /> Inviter
-        </Button>
+      {/* Héro — équipe */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow="Équipe back-office"
+          loading={loading}
+          value={members.length}
+          unit={members.length > 1 ? "membres" : "membre"}
+          stats={Object.entries(roleCounts).slice(0, 4).map(([role, count]) => ({
+            label: role,
+            value: count,
+          }))}
+          actions={[
+            {
+              label: "Inviter un membre",
+              icon: UserPlus,
+              primary: true,
+              onClick: () => { setShowInvite(true); setInviteMsg(null); },
+            },
+          ]}
+        />
       </div>
 
       <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">

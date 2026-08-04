@@ -21,6 +21,7 @@ import {
   type ChecklistItem, type DeclarationFormData,
 } from "@/lib/compliance";
 import { SubTabs } from "./AdminBits";
+import AdminHero from "./AdminHero";
 import { logAdminAction } from "@/lib/audit";
 
 // ──────────────── Design tokens ────────────────
@@ -1186,15 +1187,26 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
 
       {view === "main" && (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <SummaryCard label="Alertes actives" value={String(activeAlerts)}
-              sub={activeAlerts > 0 ? "Requièrent votre attention" : "Tout est conforme"} urgent={activeAlerts > 0} />
-            <SummaryCard label="Déclarations" value={String(pendingDecl)}
-              sub={nextDeadline ? `Prochaine : ${daysUntil(nextDeadline.dueDate)} j` : "Tout à jour"}
-              urgent={nextDeadline != null && daysUntil(nextDeadline.dueDate) <= 5} />
-            <SummaryCard label="Seuil DOIMV" value={`${nfCad.format(DOIMV_THRESHOLD)} $`} sub="Détection automatique" />
-            <SummaryCard label="Programme" value={`${checklist.length > 0 ? Math.round((checklistDone / checklist.length) * 100) : 0} %`}
-              sub={`${checklistDone} / ${checklist.length}`} />
+          {/* Héro — alertes de conformité en cours */}
+          <div className="lg:max-w-[620px]">
+            <AdminHero
+              eyebrow="Conformité CANAFE"
+              value={activeAlerts}
+              unit={activeAlerts > 1 ? "alertes actives" : "alerte active"}
+              stats={[
+                {
+                  label: "Déclarations",
+                  value: pendingDecl,
+                  hint: nextDeadline ? `échéance ${daysUntil(nextDeadline.dueDate)} j` : undefined,
+                },
+                { label: "Seuil DOIMV", value: nfCad.format(DOIMV_THRESHOLD), hint: "CAD" },
+                {
+                  label: "Programme",
+                  value: `${checklist.length > 0 ? Math.round((checklistDone / checklist.length) * 100) : 0} %`,
+                  hint: `${checklistDone}/${checklist.length}`,
+                },
+              ]}
+            />
           </div>
 
           <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as ComplianceTab)} />

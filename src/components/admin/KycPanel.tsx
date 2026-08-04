@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { KYC_STATUS_META, timeAgo, type KycRequest, type KycStatus } from "@/lib/adminOrders";
 import { fetchKyc, setKycStatus } from "@/lib/adminKyc";
 import { ClientCell, SubTabs } from "./AdminBits";
+import AdminHero from "./AdminHero";
 
 const KycBadge = ({ status }: { status: KycStatus }) => {
   const m = KYC_STATUS_META[status];
@@ -45,6 +46,21 @@ const KycPanel = () => {
 
   return (
     <div className="space-y-4">
+      {/* Héro — dossiers à vérifier */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow="Vérifications d'identité"
+          loading={loading}
+          value={counts.attente}
+          unit={counts.attente > 1 ? "en attente" : "en attente"}
+          stats={[
+            { label: "Vérifiés", value: counts.verifie },
+            { label: "Refusés", value: counts.refuse },
+            { label: "Total", value: rows.length },
+          ]}
+        />
+      </div>
+
       <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as Filter)} />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
