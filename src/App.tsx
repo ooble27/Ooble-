@@ -22,6 +22,7 @@ import AdminPortal from "./pages/admin/AdminPortal";
 import RequireAuth from "./components/app/RequireAuth";
 import RequireStaff from "./components/app/RequireStaff";
 import NotFound from "./pages/NotFound";
+import GlobalNotice from "./components/GlobalNotice";
 import { AuthProvider } from "./lib/auth";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <BrowserRouter>
+        <GlobalNotice />
         <Routes>
         {/* Site public */}
         <Route path="/" element={<Index />} />
