@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
-  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText, LayoutDashboard,
+  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText, LayoutDashboard, Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -19,8 +19,9 @@ import ClientProfile from "@/components/admin/ClientProfile";
 import CompliancePanel from "@/components/admin/CompliancePanel";
 import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import KpiDashboard from "@/components/admin/KpiDashboard";
+import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
 
-type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team" | "audit";
+type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "announcements" | "team" | "audit";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "dashboard",  label: "Tableau de bord", desc: "Vue d'ensemble : volumes, marge, alertes et actions à traiter.", icon: LayoutDashboard },
@@ -29,16 +30,17 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: ScanFace },
   { id: "accounting",  label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
   { id: "compliance",  label: "Conformité",     desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité.", icon: ShieldCheck },
+  { id: "announcements", label: "Annonces",     desc: "Bannière publique et mode maintenance côté client.", icon: Bell },
   { id: "team",        label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
   { id: "audit",       label: "Journal d'audit", desc: "Historique immuable de toutes les actions administratives.", icon: ScrollText },
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "team", "audit"],
+  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "announcements", "team", "audit"],
   operator:     ["queue", "orders"],
   kyc_reviewer: ["kyc"],
   support:      ["queue", "orders"],
-  marketing:    ["accounting"],
+  marketing:    ["announcements", "accounting"],
 };
 
 const ROLE_LABEL: Partial<Record<AppRole, string>> = {
@@ -214,6 +216,7 @@ const AdminPortal = () => {
                   {tab === "kyc" && <KycPanel />}
                   {tab === "accounting" && <AccountingPanel orders={orders} />}
                   {tab === "compliance" && <CompliancePanel orders={orders} />}
+                  {tab === "announcements" && <AnnouncementsPanel />}
                   {tab === "team" && <TeamPanel />}
                   {tab === "audit" && <AuditLogPanel />}
                 </>
