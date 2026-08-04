@@ -5,6 +5,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { KycRequest, KycStatus } from "@/lib/adminOrders";
+import { logAdminAction } from "@/lib/audit";
 
 type DbKycStatus = Database["public"]["Enums"]["kyc_status"];
 type KycRow = Database["public"]["Tables"]["kyc_verifications"]["Row"];
@@ -49,9 +50,31 @@ export async function fetchKyc(): Promise<KycRequest[]> {
 
 /** Met à jour le statut d'une vérification. */
 export async function setKycStatus(id: string, status: KycStatus): Promise<{ error?: string }> {
+  // Snapshot avant décision pour l'audit.
+  const { data: before } = await supabase
+    .from("kyc_verifications")
+    .select("id, user_id, status")
+    .eq("id", id)
+    .maybeSingle();
+
+  const newDbStatus = DEMO_TO_DB[status];
   const { error } = await supabase
     .from("kyc_verifications")
-    .update({ status: DEMO_TO_DB[status] })
+    .update({ status: newDbStatus })
     .eq("id", id);
-  return error ? { error: error.message } : {};
+  if (error) return { error: error.message };
+
+  // Audit — approbation / refus.
+  const action = status === "verifie" ? "kyc.approve" : status === "refuse" ? "kyc.reject" : null;
+  if (action) {
+    void logAdminAction({
+      action,
+      entityKind: "kyc",
+      entityId: id,
+      before,
+      after: { ...(before ?? { id }), status: newDbStatus },
+      metadata: { client_user_id: before?.user_id ?? null },
+    });
+  }
+  return {};
 }

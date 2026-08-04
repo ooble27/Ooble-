@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
-  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck,
+  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -17,8 +17,9 @@ import AccountingPanel from "@/components/admin/AccountingPanel";
 import TeamPanel from "@/components/admin/TeamPanel";
 import ClientProfile from "@/components/admin/ClientProfile";
 import CompliancePanel from "@/components/admin/CompliancePanel";
+import AuditLogPanel from "@/components/admin/AuditLogPanel";
 
-type TabId = "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team";
+type TabId = "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team" | "audit";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
@@ -27,10 +28,11 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "accounting",  label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
   { id: "compliance",  label: "Conformité",     desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité.", icon: ShieldCheck },
   { id: "team",        label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
+  { id: "audit",       label: "Journal d'audit", desc: "Historique immuable de toutes les actions administratives.", icon: ScrollText },
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["queue", "orders", "kyc", "accounting", "compliance", "team"],
+  admin:        ["queue", "orders", "kyc", "accounting", "compliance", "team", "audit"],
   operator:     ["queue", "orders"],
   kyc_reviewer: ["kyc"],
   support:      ["queue", "orders"],
@@ -204,6 +206,7 @@ const AdminPortal = () => {
                   {tab === "accounting" && <AccountingPanel orders={orders} />}
                   {tab === "compliance" && <CompliancePanel orders={orders} />}
                   {tab === "team" && <TeamPanel />}
+                  {tab === "audit" && <AuditLogPanel />}
                 </>
               )}
             </div>

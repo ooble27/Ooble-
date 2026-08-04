@@ -5,6 +5,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import type { TeamRole } from "@/lib/adminOrders";
+import { logAdminAction } from "@/lib/audit";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -66,10 +67,27 @@ export async function fetchTeam(): Promise<LiveTeamMember[]> {
 
 /** Remplace le rôle d'un membre (un seul rôle actif à la fois). */
 export async function setMemberRole(userId: string, role: TeamRole): Promise<{ error?: string }> {
+  // Snapshot avant modification pour l'audit.
+  const { data: before } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const previousRoles = (before ?? []).map((r) => r.role);
+
   const { error: delErr } = await supabase.from("user_roles").delete().eq("user_id", userId);
   if (delErr) return { error: delErr.message };
   const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: TEAM_TO_APP[role] });
-  return error ? { error: error.message } : {};
+  if (error) return { error: error.message };
+
+  void logAdminAction({
+    action: "team.role_change",
+    entityKind: "team_member",
+    entityId: userId,
+    before: { roles: previousRoles },
+    after: { roles: [TEAM_TO_APP[role]] },
+    metadata: { display_role: role },
+  });
+  return {};
 }
 
 /**
@@ -85,5 +103,16 @@ export async function addRoleByEmail(email: string, role: TeamRole): Promise<{ e
     .maybeSingle();
   if (pErr) return { error: pErr.message };
   if (!prof) return { error: "Aucun compte Ooble avec cet e-mail. La personne doit d'abord s'inscrire." };
-  return setMemberRole(prof.id, role);
+
+  const res = await setMemberRole(prof.id, role);
+  if (!res.error) {
+    void logAdminAction({
+      action: "team.invite",
+      entityKind: "team_member",
+      entityId: prof.id,
+      after: { email: clean, role: TEAM_TO_APP[role] },
+      metadata: { display_role: role, invited_email: clean },
+    });
+  }
+  return res;
 }
