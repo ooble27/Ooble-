@@ -43,10 +43,54 @@ export const C = {
   t3:   "#565656",
 } as const;
 
-/** Familles de police — Poppins comme le reste de la plateforme Ooble. */
+/**
+ * Familles de police — Poppins partout, exactement comme le reste de la
+ * plateforme Ooble.
+ *
+ * IMPORTANT : ne jamais introduire une police qui n'est pas chargée dans
+ * `index.html` (seule Poppins l'est). Les chiffres n'utilisent PAS de police
+ * monospace : la plateforme les rend en Poppins Light avec `tabular-nums`,
+ * ce qui aligne les colonnes sans changer de famille.
+ */
 export const FONT = "'Poppins', system-ui, sans-serif";
-/** Chiffres et code (montants, IDs, adresses). */
-export const MONO = "'JetBrains Mono', ui-monospace, Consolas, monospace";
+
+/**
+ * Alias conservé pour les chiffres : même famille que le reste, avec
+ * `fontVariantNumeric: "tabular-nums"` appliqué via `numeric` ci-dessous.
+ */
+export const MONO = FONT;
+
+/** À étaler sur tout élément affichant des chiffres alignés. */
+export const numeric: React.CSSProperties = {
+  fontFamily: FONT,
+  fontVariantNumeric: "tabular-nums",
+};
+
+/**
+ * Grand nombre de héro — calqué sur `font-display text-[34px] font-light
+ * tracking-tight` utilisé dans l'app connectée.
+ */
+export function heroNumber(size = 40): React.CSSProperties {
+  return {
+    fontFamily: FONT,
+    fontVariantNumeric: "tabular-nums",
+    fontSize: size,
+    fontWeight: 300,
+    letterSpacing: "-0.02em",
+    lineHeight: 1,
+    color: C.t1,
+    margin: 0,
+  };
+}
+
+/** Unité accolée à un grand nombre (CAD, USDT, « entrées »…). */
+export const heroUnit: React.CSSProperties = {
+  color: C.t3,
+  fontSize: 15,
+  fontWeight: 400,
+  marginLeft: 8,
+  letterSpacing: 0,
+};
 
 /** Carte standard. */
 export const card: React.CSSProperties = {
@@ -65,12 +109,16 @@ export const heroCard: React.CSSProperties = {
   boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
 };
 
-/** Label de section uppercase (au-dessus d'une carte). */
+/**
+ * Label de section uppercase — calqué sur
+ * `text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground`
+ * de l'app connectée.
+ */
 export const sH: React.CSSProperties = {
   color: C.t3,
-  fontSize: 10,
+  fontSize: 11,
   fontWeight: 500,
-  letterSpacing: "0.1em",
+  letterSpacing: "0.18em",
   textTransform: "uppercase",
   margin: 0,
   fontFamily: FONT,

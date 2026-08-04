@@ -23,9 +23,10 @@ import {
   type CustomerFunnel, type DailyVolumePoint, type ComplianceAlertsCount,
 } from "@/lib/kpi";
 import {
-  C, FONT, MONO, card, heroCard, sH, cardHeader, cardHeaderRow, cardTitle, cardSubtitle,
+  C, FONT, card, sH, cardHeader, numeric, heroNumber, heroUnit,
   listRowStyle, listRowHoverIn, listRowHoverOut, pillSmall,
 } from "./adminTheme";
+import AdminHero from "./AdminHero";
 import Sparkline from "./Sparkline";
 
 interface KpiDashboardProps {
@@ -67,7 +68,7 @@ function Trend({ value }: { value: number | null }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 4,
-      fontSize: 11, color: C.t2, fontFamily: MONO, letterSpacing: 0,
+      fontSize: 11, color: C.t2, ...numeric,
     }}>
       <Icon style={{ width: 11, height: 11 }} strokeWidth={2} />
       {txt}
@@ -112,7 +113,7 @@ function StatTile({ label, value, sub, trend, onClick }: StatTileProps) {
       </div>
       <p style={{
         marginTop: 8, marginBottom: 0,
-        fontFamily: MONO, fontSize: 26, fontWeight: 500, color: C.t1,
+        ...numeric, fontSize: 26, fontWeight: 300, color: C.t1,
         letterSpacing: "-0.02em", lineHeight: 1,
       }}>
         {value}
@@ -240,89 +241,42 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
       </div>
 
       {/* ══════════════════ Grille principale ══════════════════ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}
-           className="lg:!grid-cols-[3fr_2fr]">
+      {/* Grille en classes Tailwind uniquement : un `gridTemplateColumns`
+          inline écraserait la variante `lg:` et la 2ᵉ colonne ne sortirait
+          jamais. */}
+      <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-[3fr_2fr] lg:items-start">
 
         {/* ─── Colonne gauche : héro + tuiles + graphique ─── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
           {/* Héro — volume total */}
-          <div style={heroCard}>
-            <p style={{ ...sH, marginBottom: 18 }}><T en={`Volume · last ${periodLabel}`}>{`Volume · ${periodLabel}`}</T></p>
-
-            {loading || !volume ? (
-              <div style={{ height: 60, width: "60%", background: C.l3, borderRadius: 6 }} />
-            ) : (
-              <>
-                <p style={{
-                  fontFamily: MONO, fontSize: 50, fontWeight: 500, color: C.t1, margin: 0,
-                  letterSpacing: "-0.04em", lineHeight: 1,
-                }}>
-                  {compact(volume.totalCad)}
-                  <span style={{ color: C.t3, fontSize: 18, fontWeight: 400, marginLeft: 10, letterSpacing: 0 }}>
-                    CAD
-                  </span>
-                </p>
-
-                <div style={{ display: "flex", gap: 0, marginTop: 22, marginBottom: 24 }}>
-                  <div style={{ paddingRight: 24 }}>
-                    <p style={{ ...sH, marginBottom: 4 }}>USDT</p>
-                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-                      {nfUsdt.format(volume.totalUsdt)}
-                    </p>
-                  </div>
-                  <div style={{ width: 1, background: C.bds, marginRight: 24 }} />
-                  <div style={{ paddingRight: 24 }}>
-                    <p style={{ ...sH, marginBottom: 4 }}><T en="Orders">Commandes</T></p>
-                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-                      {volume.count}
-                    </p>
-                  </div>
-                  <div style={{ width: 1, background: C.bds, marginRight: 24 }} />
-                  <div>
-                    <p style={{ ...sH, marginBottom: 4 }}><T en="Variation">Variation</T></p>
-                    <div style={{ marginTop: 2 }}><Trend value={volume.changePct} /></div>
-                    {volume.changePct === null && (
-                      <p style={{ color: C.t2, fontSize: 14, fontFamily: MONO, margin: 0 }}>—</p>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => onNavigate?.("orders")}
-                style={{
-                  height: 36, paddingLeft: 16, paddingRight: 16,
-                  background: "transparent", border: `1px solid ${C.bd}`,
-                  borderRadius: 9, color: C.t2, fontSize: 12, fontWeight: 500,
-                  cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-                  fontFamily: FONT, transition: "all 0.15s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accentBd; e.currentTarget.style.color = C.accent; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.bd; e.currentTarget.style.color = C.t2; }}
-              >
-                <ClipboardList style={{ width: 13, height: 13 }} />
-                <T en="All orders">Toutes les commandes</T>
-              </button>
-              <button
-                onClick={() => onNavigate?.("queue")}
-                style={{
-                  height: 36, paddingLeft: 18, paddingRight: 18,
-                  background: C.accent, border: "none", borderRadius: 9,
-                  color: "#111", fontSize: 12, fontWeight: 500,
-                  cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-                  fontFamily: FONT, transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = C.accent; }}
-              >
-                <Send style={{ width: 13, height: 13 }} />
-                <T en="Open queue">File d'attente</T>
-              </button>
-            </div>
-          </div>
+          <AdminHero
+            eyebrow={<T en={`Volume · last ${periodLabel}`}>{`Volume · ${periodLabel}`}</T>}
+            loading={loading || !volume}
+            value={volume ? compact(volume.totalCad) : "—"}
+            unit="CAD"
+            stats={volume ? [
+              { label: "USDT", value: nfUsdt.format(volume.totalUsdt) },
+              { label: <T en="Orders">Commandes</T>, value: volume.count },
+              {
+                label: <T en="Variation">Variation</T>,
+                value: signedPct(volume.changePct) ?? "—",
+              },
+            ] : []}
+            actions={[
+              {
+                label: <T en="All orders">Toutes les commandes</T>,
+                icon: ClipboardList,
+                onClick: () => onNavigate?.("orders"),
+              },
+              {
+                label: <T en="Open queue">File d'attente</T>,
+                icon: Send,
+                primary: true,
+                onClick: () => onNavigate?.("queue"),
+              },
+            ]}
+          />
 
           {/* Tuiles KPI secondaires */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -388,7 +342,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               {margin && <Trend value={margin.changePct} />}
             </div>
             <p style={{
-              fontFamily: MONO, fontSize: 34, fontWeight: 500, color: C.t1, margin: 0,
+              ...numeric, fontSize: 32, fontWeight: 300, color: C.t1, margin: 0,
               letterSpacing: "-0.03em", lineHeight: 1,
             }}>
               {loading || !margin ? "—" : compact(margin.marginCad)}
@@ -426,7 +380,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                   onMouseLeave={(e) => listRowHoverOut(e.currentTarget)}
                 >
                   <span style={{ fontSize: 12.5, color: C.t2 }}><T en={r.en}>{r.label}</T></span>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
+                  <span style={{ fontSize: 13, fontWeight: 400, color: C.t1, ...numeric }}>
                     {r.count}
                   </span>
                 </div>
@@ -454,7 +408,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 </div>
                 <p style={sH}><T en="Pending">À traiter</T></p>
               </div>
-              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 500, color: C.t1, margin: 0 }}>
+              <p style={{ ...numeric, fontSize: 24, fontWeight: 300, color: C.t1, margin: 0 }}>
                 {pending}
               </p>
               <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
@@ -479,7 +433,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 </div>
                 <p style={sH}><T en="Compliance">Conformité</T></p>
               </div>
-              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 500, color: C.t1, margin: 0 }}>
+              <p style={{ ...numeric, fontSize: 24, fontWeight: 300, color: C.t1, margin: 0 }}>
                 {complianceCount.open}
               </p>
               <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
@@ -524,7 +478,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <span style={{ fontSize: 12.5, color: C.t2 }}><T en={s.en}>{s.label}</T></span>
-                      <span style={{ fontSize: 12, fontWeight: 500, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
+                      <span style={{ fontSize: 12, fontWeight: 400, color: C.t1, ...numeric }}>
                         {s.count}
                       </span>
                     </div>

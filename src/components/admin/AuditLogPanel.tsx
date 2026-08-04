@@ -10,7 +10,7 @@ import {
   ACTION_LABELS, ENTITY_LABELS,
   type AuditLogEntry,
 } from "@/lib/audit";
-import { C, FONT, MONO, heroCard, sH } from "./adminTheme";
+import AdminHero from "./AdminHero";
 
 const PAGE_SIZE = 50;
 
@@ -264,50 +264,28 @@ const AuditLogPanel = () => {
 
   return (
     <div className="space-y-4">
-      {/* Héro — vue d'ensemble journal d'audit */}
-      <div style={heroCard}>
-        <p style={{ ...sH, marginBottom: 18 }}><T en="Audit log">Journal d'audit</T></p>
-        <p style={{
-          fontFamily: MONO, fontSize: 50, fontWeight: 500, color: C.t1, margin: 0,
-          letterSpacing: "-0.04em", lineHeight: 1,
-        }}>
-          {total}
-          <span style={{ color: C.t3, fontSize: 18, fontWeight: 400, marginLeft: 10, letterSpacing: 0 }}>
-            <T en={total > 1 ? "entries" : "entry"}>{total > 1 ? "entrées" : "entrée"}</T>
-          </span>
-        </p>
-        <div style={{ display: "flex", gap: 0, marginTop: 24, marginBottom: 26, flexWrap: "wrap" }}>
-          <div style={{ paddingRight: 24 }}>
-            <p style={{ ...sH, marginBottom: 4 }}><T en="Page">Page</T></p>
-            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-              {page + 1} / {totalPages}
-            </p>
-          </div>
-          <div style={{ width: 1, background: C.bds, marginRight: 24, alignSelf: "stretch" }} />
-          <div style={{ paddingRight: 24 }}>
-            <p style={{ ...sH, marginBottom: 4 }}><T en="Filters">Filtres</T></p>
-            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-              {hasFilters ? <T en="Active">Actifs</T> : "—"}
-            </p>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button
-            onClick={exportCsv}
-            style={{
-              height: 36, paddingLeft: 16, paddingRight: 16,
-              background: "transparent", border: `1px solid ${C.bd}`,
-              borderRadius: 9, color: C.t2, fontSize: 12, fontWeight: 500,
-              cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-              fontFamily: FONT, transition: "all 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accentBd; e.currentTarget.style.color = C.accent; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.bd; e.currentTarget.style.color = C.t2; }}
-          >
-            <Download style={{ width: 13, height: 13 }} strokeWidth={2} />
-            <T en="Export CSV">Exporter CSV</T>
-          </button>
-        </div>
+      {/* Héro — vue d'ensemble journal d'audit, contenu en colonne */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow={<T en="Audit log">Journal d'audit</T>}
+          loading={loading && rows.length === 0}
+          value={total}
+          unit={<T en={total > 1 ? "entries" : "entry"}>{total > 1 ? "entrées" : "entrée"}</T>}
+          stats={[
+            { label: <T en="Page">Page</T>, value: `${page + 1} / ${totalPages}` },
+            {
+              label: <T en="Filters">Filtres</T>,
+              value: hasFilters ? <T en="Active">Actifs</T> : "—",
+            },
+          ]}
+          actions={[
+            {
+              label: <T en="Export CSV">Exporter CSV</T>,
+              icon: Download,
+              onClick: exportCsv,
+            },
+          ]}
+        />
       </div>
 
       {/* Bandeau de filtres */}

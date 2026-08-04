@@ -15,7 +15,7 @@ import {
   type MaintenanceDraft, type MaintenanceWindow,
 } from "@/lib/announcements";
 import { SubTabs } from "./AdminBits";
-import { C, FONT, MONO, heroCard, sH } from "./adminTheme";
+import AdminHero from "./AdminHero";
 
 // ─────────────────────── Design tokens ───────────────────────
 
@@ -575,52 +575,36 @@ const AnnouncementsPanel = () => {
 
   return (
     <div className="space-y-4">
-      {/* Héro — communications actives */}
-      <div style={heroCard}>
-        <p style={{ ...sH, marginBottom: 18 }}><T en="Announcements">Communications</T></p>
-        <p style={{
-          fontFamily: MONO, fontSize: 50, fontWeight: 500, color: C.t1, margin: 0,
-          letterSpacing: "-0.04em", lineHeight: 1,
-        }}>
-          {currentCount}
-          <span style={{ color: C.t3, fontSize: 18, fontWeight: 400, marginLeft: 10, letterSpacing: 0 }}>
-            <T en="active">actives</T>
-          </span>
-        </p>
-        <div style={{ display: "flex", gap: 0, marginTop: 24, marginBottom: 26, flexWrap: "wrap" }}>
-          <div style={{ paddingRight: 24 }}>
-            <p style={{ ...sH, marginBottom: 4 }}><T en="Banners">Bannières</T></p>
-            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-              {anns.length} <span style={{ color: C.t3, fontSize: 12 }}>({activeBanners} <T en="live">actives</T>)</span>
-            </p>
-          </div>
-          <div style={{ width: 1, background: C.bds, marginRight: 24, alignSelf: "stretch" }} />
-          <div>
-            <p style={{ ...sH, marginBottom: 4 }}><T en="Maintenance">Maintenance</T></p>
-            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
-              {mnts.length} <span style={{ color: C.t3, fontSize: 12 }}>({activeMaintenance} <T en="live">actives</T>)</span>
-            </p>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button
-            onClick={() => setEdit({ kind: tab === "banner" ? "new-ann" : "new-mnt" })}
-            style={{
-              height: 36, paddingLeft: 18, paddingRight: 18,
-              background: C.accent, border: "none", borderRadius: 9,
-              color: "#111", fontSize: 12, fontWeight: 500,
-              cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
-              fontFamily: FONT, transition: "background 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = C.accent; }}
-          >
-            <Plus style={{ width: 13, height: 13 }} strokeWidth={2} />
-            {tab === "banner"
-              ? <T en="New banner">Nouvelle bannière</T>
-              : <T en="Schedule maintenance">Planifier une maintenance</T>}
-          </button>
-        </div>
+      {/* Héro — communications actives, contenu en colonne */}
+      <div className="lg:max-w-[620px]">
+        <AdminHero
+          eyebrow={<T en="Announcements">Communications</T>}
+          loading={loading}
+          value={currentCount}
+          unit={<T en="active">actives</T>}
+          stats={[
+            {
+              label: <T en="Banners">Bannières</T>,
+              value: anns.length,
+              hint: <>({activeBanners} <T en="live">actives</T>)</>,
+            },
+            {
+              label: <T en="Maintenance">Maintenance</T>,
+              value: mnts.length,
+              hint: <>({activeMaintenance} <T en="live">actives</T>)</>,
+            },
+          ]}
+          actions={[
+            {
+              label: tab === "banner"
+                ? <T en="New banner">Nouvelle bannière</T>
+                : <T en="Schedule maintenance">Planifier une maintenance</T>,
+              icon: Plus,
+              primary: true,
+              onClick: () => setEdit({ kind: tab === "banner" ? "new-ann" : "new-mnt" }),
+            },
+          ]}
+        />
       </div>
 
       <SubTabs tabs={TABS} active={tab} onChange={(id) => setTab(id as SubTab)} />
