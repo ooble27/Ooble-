@@ -386,7 +386,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
             <div style={{ padding: "20px 12px 16px" }}>
               {sparks.total.length >= 2 ? (
                 <div style={{ color: C.accent }}>
-                  <Sparkline points={sparks.total} height={140} fill />
+                  <Sparkline data={sparks.total} height={140} fill endDot />
                 </div>
               ) : (
                 <div style={{ padding: "40px 20px", textAlign: "center" }}>
@@ -521,7 +521,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               </div>
             ) : (() => {
               const steps: Array<{ label: string; en: string; count: number }> = [
-                { label: "Inscriptions",         en: "Signups",        count: funnel.signups },
+                { label: "Inscriptions",         en: "Signups",        count: funnel.total },
                 { label: "KYC vérifié",          en: "KYC verified",   count: funnel.verified },
                 { label: "1er achat / vente",    en: "First order",    count: funnel.firstOrder },
                 { label: "Clients récurrents",   en: "Repeat",         count: funnel.repeat },
