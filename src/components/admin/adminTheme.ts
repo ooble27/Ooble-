@@ -158,3 +158,135 @@ export function ghostHoverOut(el: HTMLElement) {
 /** Effet de survol pour bouton primaire. */
 export function primaryHoverIn(el: HTMLElement) { el.style.background = C.accentHover; }
 export function primaryHoverOut(el: HTMLElement) { el.style.background = C.accent; }
+
+// ────────────────────────────────────────────────────────────
+// Textures « liste dans une carte » — inspiré directement de Terex
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Style d'une ligne dans une liste au sein d'une carte.
+ * Applique padding, séparateur du bas (sauf dernière) et transitions.
+ */
+export function listRowStyle(isLast: boolean): React.CSSProperties {
+  return {
+    padding: "14px 18px",
+    borderBottom: isLast ? "none" : `1px solid ${C.bds}`,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    transition: "background 0.12s",
+  };
+}
+
+/** Survol très subtil sur une ligne (imperceptible mais présent). */
+export function listRowHoverIn(el: HTMLElement) { el.style.background = "rgba(255,255,255,0.015)"; }
+export function listRowHoverOut(el: HTMLElement) { el.style.background = "transparent"; }
+
+/** Avatar / icon-box rond utilisé à gauche d'une ligne (34px). */
+export const avatarCircle: React.CSSProperties = {
+  width: 34,
+  height: 34,
+  borderRadius: "50%",
+  border: `1.5px solid ${C.bds}`,
+  background: C.l2,
+  color: C.t2,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+  fontFamily: FONT,
+  fontSize: 12,
+  fontWeight: 600,
+};
+
+/** Bouton d'action carré (26-28px), à droite d'une ligne. */
+export const iconButton: React.CSSProperties = {
+  width: 28,
+  height: 28,
+  borderRadius: 7,
+  background: "transparent",
+  border: `1px solid ${C.bds}`,
+  color: C.t3,
+  cursor: "pointer",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  flexShrink: 0,
+  transition: "all 0.12s",
+};
+
+export function iconButtonHoverIn(el: HTMLElement) {
+  el.style.borderColor = C.accentBd;
+  el.style.color = C.accent;
+}
+export function iconButtonHoverOut(el: HTMLElement) {
+  el.style.borderColor = C.bds;
+  el.style.color = C.t3;
+}
+
+/** Petite pastille 26px pour sélecteurs internes (période, filtre, paire). */
+export function pillSmall(on: boolean): React.CSSProperties {
+  return {
+    height: 26,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 7,
+    border: `1px solid ${on ? C.accentBd : C.bds}`,
+    background: on ? C.accentSoft : "transparent",
+    color: on ? C.accent : C.t3,
+    fontSize: 11,
+    fontWeight: on ? 600 : 400,
+    fontFamily: FONT,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    transition: "all 0.12s",
+    whiteSpace: "nowrap",
+  };
+}
+
+/** Chip d'action dans l'en-tête d'une carte (« Nouvelle », « + Ajouter »…). */
+export const chipAction: React.CSSProperties = {
+  height: 26,
+  paddingLeft: 10,
+  paddingRight: 10,
+  background: C.accentSoft,
+  border: `1px solid ${C.accentBd}`,
+  borderRadius: 7,
+  color: C.accent,
+  fontSize: 11,
+  fontWeight: 500,
+  cursor: "pointer",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  fontFamily: FONT,
+  transition: "opacity 0.15s",
+};
+
+/** En-tête de carte avec titre et action (une ligne flex). */
+export const cardHeaderRow: React.CSSProperties = {
+  padding: "14px 18px",
+  borderBottom: `1px solid ${C.bds}`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+};
+
+/** Titre principal d'une carte (13/600 blanc). */
+export const cardTitle: React.CSSProperties = {
+  color: C.t1,
+  fontSize: 13,
+  fontWeight: 600,
+  margin: 0,
+  fontFamily: FONT,
+};
+
+/** Sous-titre discret sous un titre de carte (10px, t3). */
+export const cardSubtitle: React.CSSProperties = {
+  color: C.t3,
+  fontSize: 10,
+  margin: "3px 0 0",
+  fontFamily: FONT,
+};

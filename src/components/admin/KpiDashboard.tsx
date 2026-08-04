@@ -22,7 +22,10 @@ import {
   type VolumeMetrics, type MarginMetrics, type OrderStatusCounts,
   type CustomerFunnel, type DailyVolumePoint, type ComplianceAlertsCount,
 } from "@/lib/kpi";
-import { C, FONT, MONO, card, heroCard, sH, cardHeader, rowStyle } from "./adminTheme";
+import {
+  C, FONT, MONO, card, heroCard, sH, cardHeader, cardHeaderRow, cardTitle, cardSubtitle,
+  listRowStyle, listRowHoverIn, listRowHoverOut, pillSmall,
+} from "./adminTheme";
 import Sparkline from "./Sparkline";
 
 interface KpiDashboardProps {
@@ -140,36 +143,12 @@ function SkeletonTile() {
 function PeriodSwitcher({ value, onChange }: { value: Period; onChange: (v: Period) => void }) {
   const periods: Period[] = [1, 7, 30];
   return (
-    <div style={{
-      display: "inline-flex",
-      background: C.l1,
-      border: `1px solid ${C.bds}`,
-      borderRadius: 10,
-      padding: 3,
-    }}>
-      {periods.map((p) => {
-        const on = value === p;
-        return (
-          <button
-            key={p}
-            onClick={() => onChange(p)}
-            style={{
-              padding: "5px 12px",
-              borderRadius: 7,
-              border: "none",
-              background: on ? C.l3 : "transparent",
-              color: on ? C.t1 : C.t2,
-              fontSize: 11,
-              fontWeight: on ? 600 : 500,
-              fontFamily: FONT,
-              cursor: "pointer",
-              transition: "all 0.15s",
-            }}
-          >
-            {PERIOD_LABELS[p].fr}
-          </button>
-        );
-      })}
+    <div style={{ display: "inline-flex", gap: 4 }}>
+      {periods.map((p) => (
+        <button key={p} onClick={() => onChange(p)} style={pillSmall(value === p)}>
+          {PERIOD_LABELS[p].fr}
+        </button>
+      ))}
     </div>
   );
 }
@@ -440,12 +419,14 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 { label: "Annulées / expirées", en: "Cancelled / expired", count: statuses.cancelled + statuses.expired },
               ];
               return rows.map((r, i) => (
-                <div key={r.label} style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  ...rowStyle(i === rows.length - 1),
-                }}>
-                  <span style={{ fontSize: 12, color: C.t2 }}><T en={r.en}>{r.label}</T></span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.t1, fontFamily: MONO }}>
+                <div
+                  key={r.label}
+                  style={{ ...listRowStyle(i === rows.length - 1), justifyContent: "space-between" }}
+                  onMouseEnter={(e) => listRowHoverIn(e.currentTarget)}
+                  onMouseLeave={(e) => listRowHoverOut(e.currentTarget)}
+                >
+                  <span style={{ fontSize: 12.5, color: C.t2 }}><T en={r.en}>{r.label}</T></span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
                     {r.count}
                   </span>
                 </div>
@@ -529,15 +510,25 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               const max = Math.max(1, ...steps.map((s) => s.count));
               return steps.map((s, i) => {
                 const pct = (s.count / max) * 100;
+                const isLast = i === steps.length - 1;
                 return (
-                  <div key={s.label} style={rowStyle(i === steps.length - 1)}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 12, color: C.t2 }}><T en={s.en}>{s.label}</T></span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: C.t1, fontFamily: MONO }}>
+                  <div
+                    key={s.label}
+                    style={{
+                      padding: "12px 18px",
+                      borderBottom: isLast ? "none" : `1px solid ${C.bds}`,
+                      transition: "background 0.12s",
+                    }}
+                    onMouseEnter={(e) => listRowHoverIn(e.currentTarget)}
+                    onMouseLeave={(e) => listRowHoverOut(e.currentTarget)}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <span style={{ fontSize: 12.5, color: C.t2 }}><T en={s.en}>{s.label}</T></span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
                         {s.count}
                       </span>
                     </div>
-                    <div style={{ height: 3, background: C.l3, borderRadius: 1.5, overflow: "hidden" }}>
+                    <div style={{ height: 2, background: C.l3, borderRadius: 1, overflow: "hidden" }}>
                       <div style={{ height: "100%", width: `${pct}%`, background: C.accent, transition: "width 0.4s" }} />
                     </div>
                   </div>
