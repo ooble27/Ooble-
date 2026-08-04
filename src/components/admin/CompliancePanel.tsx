@@ -21,6 +21,7 @@ import {
   type ChecklistItem, type DeclarationFormData,
 } from "@/lib/compliance";
 import { SubTabs } from "./AdminBits";
+import { logAdminAction } from "@/lib/audit";
 
 // ──────────────── Design tokens ────────────────
 
@@ -1083,15 +1084,33 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
   const goBack = () => { setView("main"); setSelectedAlertId(null); setSelectedDeclId(null); setDeclForm(null); };
 
   const prendreEnCharge = (id: string) => {
+    const previous = allAlerts.find((a) => a.id === id) ?? null;
     updateAlert(id, { status: "en_cours", assignedTo: CURRENT_OPERATOR });
     setSuccessMsg("Alerte prise en charge — vous en êtes responsable.");
+    void logAdminAction({
+      action: "compliance.take_charge",
+      entityKind: "compliance_case",
+      entityId: /^[0-9a-f-]{36}$/i.test(id) ? id : null,
+      before: previous ? { status: previous.status, assignedTo: previous.assignedTo ?? null } : null,
+      after: { status: "en_cours", assignedTo: CURRENT_OPERATOR },
+      metadata: { alert_ref: id, alert_type: previous?.type ?? null, client_email: previous?.clientEmail ?? null },
+    });
   };
 
   const openClasser = (id: string) => { setSelectedAlertId(id); setView("classer"); };
 
   const submitClasser = (reason: string, notes: string) => {
     if (!selectedAlertId) return;
+    const previous = allAlerts.find((a) => a.id === selectedAlertId) ?? null;
     updateAlert(selectedAlertId, { status: "classe", notes: `Classée : ${reason}\n${notes}` });
+    void logAdminAction({
+      action: "compliance.classify",
+      entityKind: "compliance_case",
+      entityId: /^[0-9a-f-]{36}$/i.test(selectedAlertId) ? selectedAlertId : null,
+      before: previous ? { status: previous.status } : null,
+      after: { status: "classe" },
+      metadata: { alert_ref: selectedAlertId, reason, notes: notes || null, alert_type: previous?.type ?? null },
+    });
     goBack(); setTab("alertes");
     setSuccessMsg("Alerte classée sans suite.");
   };
@@ -1120,6 +1139,20 @@ const CompliancePanel = ({ orders }: { orders: AdminOrder[] }) => {
     };
     setDeclarations((prev) => [newDecl, ...prev]);
     if (!asBrouillon) updateAlert(selectedAlertId, { status: "declare" });
+    void logAdminAction({
+      action: asBrouillon ? "compliance.declaration_draft" : "compliance.declaration_submit",
+      entityKind: "compliance_declaration",
+      entityId: null,
+      after: {
+        declaration_id: newDecl.id, type: newDecl.type, alertId: newDecl.alertId,
+        amount: newDecl.amount, dueDate: newDecl.dueDate, status: newDecl.status,
+      },
+      metadata: {
+        alert_ref: selectedAlertId,
+        client_name: newDecl.clientName,
+        submitted_at: newDecl.submittedAt ?? null,
+      },
+    });
     goBack(); setTab("declarations");
     setSuccessMsg(asBrouillon ? "Brouillon enregistré." : "Déclaration marquée comme soumise — rendez-vous sur le portail F2R.");
   };

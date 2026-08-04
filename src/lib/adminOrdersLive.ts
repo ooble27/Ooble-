@@ -12,6 +12,7 @@ import { DB_TO_NET, orderRef } from "@/lib/orders";
 import { CURRENT_OPERATOR, nfCad, nfUsdt, type AdminOrder, type OrderStatus } from "@/lib/adminOrders";
 import { sendEmail } from "@/lib/email";
 import { NETWORKS } from "@/components/app/networks";
+import { logAdminAction } from "@/lib/audit";
 
 type DbStatus = Database["public"]["Enums"]["order_status"];
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
@@ -66,8 +67,22 @@ function toAdminOrder(row: RowWithProfile, currentUid: string | null): AdminOrde
 
 /** Supprime définitivement une commande (RLS : admin uniquement). */
 export async function deleteOrder(id: string): Promise<{ error?: string }> {
+  // Snapshot avant suppression pour l'audit.
+  const { data: before } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
   const { error } = await supabase.from("orders").delete().eq("id", id);
-  return error ? { error: error.message } : {};
+  if (error) return { error: error.message };
+  void logAdminAction({
+    action: "order.delete",
+    entityKind: "order",
+    entityId: id,
+    before,
+    after: null,
+  });
+  return {};
 }
 
 /** Lit toutes les commandes (le staff les voit toutes via RLS). */
@@ -95,6 +110,13 @@ export async function persistOrderPatch(
   const { data: auth } = await supabase.auth.getSession();
   const uid = auth.session?.user?.id ?? null;
 
+  // Snapshot avant modification pour l'audit.
+  const { data: before } = await supabase
+    .from("orders")
+    .select("id, status, assigned_to, assigned_at")
+    .eq("id", id)
+    .maybeSingle();
+
   const update: Partial<OrderRow> = {};
   if (changes.status) update.status = DEMO_TO_DB[changes.status];
   if ("assignedTo" in changes) {
@@ -117,6 +139,30 @@ export async function persistOrderPatch(
       order_id: id,
       new_status: DEMO_TO_DB[changes.status],
       actor: uid ?? "staff",
+    });
+  }
+
+  // Audit immuable — une ligne par nature d'action pour faciliter la lecture.
+  const after = { ...(before ?? { id }), ...update };
+  if (changes.status) {
+    const action =
+      changes.status === "annule" ? "order.cancel" : "order.status_change";
+    void logAdminAction({
+      action,
+      entityKind: "order",
+      entityId: id,
+      before,
+      after,
+      metadata: { new_status: DEMO_TO_DB[changes.status], previous_status: before?.status ?? null },
+    });
+  }
+  if ("assignedTo" in changes) {
+    void logAdminAction({
+      action: changes.assignedTo === null ? "order.release" : "order.assign",
+      entityKind: "order",
+      entityId: id,
+      before,
+      after,
     });
   }
 
