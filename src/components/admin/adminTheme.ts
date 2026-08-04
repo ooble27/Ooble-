@@ -69,7 +69,7 @@ export const heroCard: React.CSSProperties = {
 export const sH: React.CSSProperties = {
   color: C.t3,
   fontSize: 10,
-  fontWeight: 600,
+  fontWeight: 500,
   letterSpacing: "0.1em",
   textTransform: "uppercase",
   margin: 0,
@@ -196,7 +196,7 @@ export const avatarCircle: React.CSSProperties = {
   flexShrink: 0,
   fontFamily: FONT,
   fontSize: 12,
-  fontWeight: 600,
+  fontWeight: 500,
 };
 
 /** Bouton d'action carré (26-28px), à droite d'une ligne. */
@@ -235,7 +235,7 @@ export function pillSmall(on: boolean): React.CSSProperties {
     background: on ? C.accentSoft : "transparent",
     color: on ? C.accent : C.t3,
     fontSize: 11,
-    fontWeight: on ? 600 : 400,
+    fontWeight: on ? 500 : 400,
     fontFamily: FONT,
     cursor: "pointer",
     display: "inline-flex",
@@ -278,7 +278,7 @@ export const cardHeaderRow: React.CSSProperties = {
 export const cardTitle: React.CSSProperties = {
   color: C.t1,
   fontSize: 13,
-  fontWeight: 600,
+  fontWeight: 500,
   margin: 0,
   fontFamily: FONT,
 };

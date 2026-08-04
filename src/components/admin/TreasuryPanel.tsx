@@ -9,6 +9,7 @@ import { T } from "@/lib/i18n";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { NetworkCoin } from "@/components/illustrations";
 import { nfUsdt, type AdminOrder } from "@/lib/adminOrders";
+import { C, FONT, MONO, heroCard, sH } from "./adminTheme";
 import {
   listAddresses, saveAddress, recordSnapshot, recordMovement,
   getAlertConfig, saveAlertConfig, getLowBalanceAlerts, getExpectedOutflows,
@@ -126,34 +127,65 @@ const OverviewView = ({
   const cMap = new Map(configs.map((c) => [c.network, c] as const));
 
   return (
-    <div className="space-y-5">
-      {/* Résumé global */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <SummaryCard
-          icon={Wallet}
-          label="Solde total"
-          value={`${nfUsdt.format(totals.grand)} USDT`}
-          sub={`${addresses.filter((a) => a.active).length} adresses actives`}
-        />
-        <SummaryCard
-          icon={AlertTriangle}
-          label="Alertes solde bas"
-          value={String(alerts.length)}
-          sub={alerts.length > 0 ? "Réapprovisionner" : "Tout est confortable"}
-          urgent={alerts.length > 0}
-        />
-        <SummaryCard
-          icon={TrendingDown}
-          label="Sorties attendues"
-          value={`${nfUsdt.format(outflows.total)} USDT`}
-          sub={`${outflows.openBuyOrders} achat(s) en cours`}
-        />
-        <SummaryCard
-          icon={Layers}
-          label="Réseaux"
-          value={String(NETWORKS.length)}
-          sub="TRC20 · ERC20 · BEP20 · Polygon · SPL · C-Chain"
-        />
+    <div className="space-y-5" style={{ fontFamily: FONT, color: C.t1 }}>
+      {/* Héro — Trésorerie totale (style Terex) */}
+      <div style={heroCard}>
+        <p style={{ ...sH, marginBottom: 18 }}><T en="Total treasury">Trésorerie totale</T></p>
+        <p style={{
+          fontFamily: MONO, fontSize: 50, fontWeight: 500, color: C.t1, margin: 0,
+          letterSpacing: "-0.04em", lineHeight: 1,
+        }}>
+          {nfUsdt.format(totals.grand)}
+          <span style={{ color: C.t3, fontSize: 18, fontWeight: 400, marginLeft: 10, letterSpacing: 0 }}>
+            USDT
+          </span>
+        </p>
+        <div style={{ display: "flex", gap: 0, marginTop: 24, marginBottom: 26, flexWrap: "wrap" }}>
+          <div style={{ paddingRight: 24 }}>
+            <p style={{ ...sH, marginBottom: 4 }}><T en="Active addresses">Adresses actives</T></p>
+            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
+              {addresses.filter((a) => a.active).length}
+            </p>
+          </div>
+          <div style={{ width: 1, background: C.bds, marginRight: 24, alignSelf: "stretch" }} />
+          <div style={{ paddingRight: 24 }}>
+            <p style={{ ...sH, marginBottom: 4 }}><T en="Low balances">Alertes solde bas</T></p>
+            <p style={{ color: alerts.length > 0 ? C.t1 : C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
+              {alerts.length}
+            </p>
+          </div>
+          <div style={{ width: 1, background: C.bds, marginRight: 24, alignSelf: "stretch" }} />
+          <div style={{ paddingRight: 24 }}>
+            <p style={{ ...sH, marginBottom: 4 }}><T en="Expected outflows">Sorties attendues</T></p>
+            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
+              {nfUsdt.format(outflows.total)}
+            </p>
+          </div>
+          <div style={{ width: 1, background: C.bds, marginRight: 24, alignSelf: "stretch" }} />
+          <div>
+            <p style={{ ...sH, marginBottom: 4 }}><T en="Open buys">Achats ouverts</T></p>
+            <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
+              {outflows.openBuyOrders}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            onClick={onAdd}
+            style={{
+              height: 36, paddingLeft: 18, paddingRight: 18,
+              background: C.accent, border: "none", borderRadius: 9,
+              color: "#111", fontSize: 12, fontWeight: 500,
+              cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6,
+              fontFamily: FONT, transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = C.accent; }}
+          >
+            <Plus style={{ width: 13, height: 13 }} strokeWidth={2} />
+            <T en="Add address">Ajouter une adresse</T>
+          </button>
+        </div>
       </div>
 
       {/* Sous-totaux par réseau */}

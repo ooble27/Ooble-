@@ -112,7 +112,7 @@ function StatTile({ label, value, sub, trend, onClick }: StatTileProps) {
       </div>
       <p style={{
         marginTop: 8, marginBottom: 0,
-        fontFamily: MONO, fontSize: 26, fontWeight: 600, color: C.t1,
+        fontFamily: MONO, fontSize: 26, fontWeight: 500, color: C.t1,
         letterSpacing: "-0.02em", lineHeight: 1,
       }}>
         {value}
@@ -227,7 +227,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
         <div>
           <p style={{ ...sH, marginBottom: 6 }}><T en="Overview">Vue d'ensemble</T></p>
           <h2 style={{
-            fontSize: 24, fontWeight: 600, color: C.t1, margin: 0,
+            fontSize: 24, fontWeight: 500, color: C.t1, margin: 0,
             letterSpacing: "-0.02em", lineHeight: 1.1,
           }}>
             <T en={`Business snapshot · ${periodLabel}`}>{`Activité · ${periodLabel}`}</T>
@@ -255,7 +255,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
             ) : (
               <>
                 <p style={{
-                  fontFamily: MONO, fontSize: 50, fontWeight: 700, color: C.t1, margin: 0,
+                  fontFamily: MONO, fontSize: 50, fontWeight: 500, color: C.t1, margin: 0,
                   letterSpacing: "-0.04em", lineHeight: 1,
                 }}>
                   {compact(volume.totalCad)}
@@ -267,14 +267,14 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 <div style={{ display: "flex", gap: 0, marginTop: 22, marginBottom: 24 }}>
                   <div style={{ paddingRight: 24 }}>
                     <p style={{ ...sH, marginBottom: 4 }}>USDT</p>
-                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 600, margin: 0 }}>
+                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
                       {nfUsdt.format(volume.totalUsdt)}
                     </p>
                   </div>
                   <div style={{ width: 1, background: C.bds, marginRight: 24 }} />
                   <div style={{ paddingRight: 24 }}>
                     <p style={{ ...sH, marginBottom: 4 }}><T en="Orders">Commandes</T></p>
-                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 600, margin: 0 }}>
+                    <p style={{ color: C.t2, fontSize: 16, fontFamily: MONO, fontWeight: 500, margin: 0 }}>
                       {volume.count}
                     </p>
                   </div>
@@ -354,7 +354,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               padding: "16px 20px", borderBottom: `1px solid ${C.bds}`,
             }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: C.t1, margin: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: C.t1, margin: 0 }}>
                   <T en="Daily volume">Volume quotidien</T>
                 </p>
                 <p style={{ fontSize: 11, color: C.t3, margin: "3px 0 0" }}>
@@ -388,7 +388,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               {margin && <Trend value={margin.changePct} />}
             </div>
             <p style={{
-              fontFamily: MONO, fontSize: 34, fontWeight: 700, color: C.t1, margin: 0,
+              fontFamily: MONO, fontSize: 34, fontWeight: 500, color: C.t1, margin: 0,
               letterSpacing: "-0.03em", lineHeight: 1,
             }}>
               {loading || !margin ? "—" : compact(margin.marginCad)}
@@ -426,7 +426,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                   onMouseLeave={(e) => listRowHoverOut(e.currentTarget)}
                 >
                   <span style={{ fontSize: 12.5, color: C.t2 }}><T en={r.en}>{r.label}</T></span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
                     {r.count}
                   </span>
                 </div>
@@ -454,7 +454,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 </div>
                 <p style={sH}><T en="Pending">À traiter</T></p>
               </div>
-              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 600, color: C.t1, margin: 0 }}>
+              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 500, color: C.t1, margin: 0 }}>
                 {pending}
               </p>
               <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
@@ -479,7 +479,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 </div>
                 <p style={sH}><T en="Compliance">Conformité</T></p>
               </div>
-              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 600, color: C.t1, margin: 0 }}>
+              <p style={{ fontFamily: MONO, fontSize: 24, fontWeight: 500, color: C.t1, margin: 0 }}>
                 {complianceCount.open}
               </p>
               <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
@@ -524,7 +524,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <span style={{ fontSize: 12.5, color: C.t2 }}><T en={s.en}>{s.label}</T></span>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: C.t1, fontFamily: MONO, letterSpacing: "-0.01em" }}>
                         {s.count}
                       </span>
                     </div>
