@@ -259,8 +259,27 @@ const OverviewView = ({
                 )}
               >
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium">{a.label}</p>
+                  <div className="flex items-center gap-2">
+                    <NetworkCoin id={a.network} className="h-5 w-5 shrink-0 md:hidden" />
+                    <p className="truncate text-[13px] font-medium">{a.label}</p>
+                  </div>
                   <p className="truncate font-mono text-[11.5px] text-muted-foreground">{truncMid(a.address, 10)}</p>
+                  {/* Solde compact affiché sous l'adresse sur mobile uniquement */}
+                  <div className="mt-1 flex items-center gap-2 md:hidden">
+                    <span className="text-[10.5px] uppercase tracking-[0.06em] text-muted-foreground">
+                      {purposeLabel(a.purpose)}
+                    </span>
+                    <span className="text-muted-foreground/40">·</span>
+                    {a.latestBalance == null ? (
+                      <span className="text-[11.5px] italic text-muted-foreground/70">
+                        <T en="No snapshot">Aucun snapshot</T>
+                      </span>
+                    ) : (
+                      <span className={cn("font-display text-[13px] tabular-nums", under && "text-destructive font-semibold")}>
+                        {nfUsdt.format(a.latestBalance)} USDT
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="hidden items-center gap-2 md:flex">
                   <NetworkCoin id={a.network} className="h-6 w-6" />
@@ -723,7 +742,7 @@ const ReconciliationView = ({ addresses, outflows }: {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <SummaryCard label="Hot + Dépôt" value={`${nfUsdt.format(totalHot)} USDT`} sub="Disponible côté hot & dépôt" />
         <SummaryCard label="Engagements" value={`${nfUsdt.format(totalNeed)} USDT`} sub={`${outflows.openBuyOrders} achat(s) ouverts`} />
         <SummaryCard
@@ -735,10 +754,16 @@ const ReconciliationView = ({ addresses, outflows }: {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        {/* En-têtes desktop */}
         <div className="hidden grid-cols-[1fr_1fr_1fr_1fr] items-center gap-3 border-b border-border px-4 py-2.5 md:grid">
           {["Réseau", "Hot + Dépôt", "Attendu (achats)", "Marge"].map((h) => (
             <span key={h} className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground">{h}</span>
           ))}
+        </div>
+        {/* En-têtes mobile — condensés : réseau + marge */}
+        <div className="grid grid-cols-[1fr_auto] items-center gap-3 border-b border-border px-4 py-2 md:hidden">
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground"><T en="Network">Réseau</T></span>
+          <span className="text-right text-[10.5px] font-semibold uppercase tracking-[0.07em] text-muted-foreground"><T en="Margin">Marge</T></span>
         </div>
         {rows.map((r, i) => {
           const short = r.gap < 0;
@@ -746,17 +771,24 @@ const ReconciliationView = ({ addresses, outflows }: {
             <div
               key={r.net.id}
               className={cn(
-                "grid grid-cols-2 items-center gap-3 px-4 py-3 md:grid-cols-[1fr_1fr_1fr_1fr]",
+                "grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 md:grid-cols-[1fr_1fr_1fr_1fr]",
                 i < rows.length - 1 && "border-b border-border",
               )}
             >
-              <div className="flex items-center gap-2">
-                <NetworkCoin id={r.net.id} className="h-6 w-6" />
-                <span className="text-[13px]">{r.net.name}</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <NetworkCoin id={r.net.id} className="h-6 w-6 shrink-0" />
+                <div className="min-w-0">
+                  <p className="truncate text-[13px]">{r.net.name}</p>
+                  {/* Mobile : sous le nom, le détail hot / need en petit */}
+                  <p className="mt-0.5 truncate text-[10.5px] tabular-nums text-muted-foreground md:hidden">
+                    {nfUsdt.format(r.hot)} / <T en="needed">à envoyer</T> {nfUsdt.format(r.need)}
+                  </p>
+                </div>
               </div>
-              <span className="text-right tabular-nums text-[13px] md:text-left">{nfUsdt.format(r.hot)}</span>
+              <span className="hidden text-right tabular-nums text-[13px] md:table-cell md:block">{nfUsdt.format(r.hot)}</span>
               <span className="hidden tabular-nums text-[13px] text-muted-foreground md:block">{nfUsdt.format(r.need)}</span>
-              <span className={cn("hidden text-right tabular-nums text-[13px] font-semibold md:block", short ? "text-destructive" : "text-foreground")}>
+              {/* Marge : critique, visible partout */}
+              <span className={cn("text-right tabular-nums text-[13px] font-semibold", short ? "text-destructive" : "text-foreground")}>
                 {short ? "−" : ""}{nfUsdt.format(Math.abs(r.gap))}
               </span>
             </div>
