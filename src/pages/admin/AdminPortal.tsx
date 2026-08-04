@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
-  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck,
+  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -17,10 +17,12 @@ import AccountingPanel from "@/components/admin/AccountingPanel";
 import TeamPanel from "@/components/admin/TeamPanel";
 import ClientProfile from "@/components/admin/ClientProfile";
 import CompliancePanel from "@/components/admin/CompliancePanel";
+import KpiDashboard from "@/components/admin/KpiDashboard";
 
-type TabId = "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team";
+type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "team";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
+  { id: "dashboard",  label: "Tableau de bord", desc: "Vue d'ensemble : volumes, marge, alertes et actions à traiter.", icon: LayoutDashboard },
   { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
   { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique.", icon: ShoppingCart },
   { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: ScanFace },
@@ -30,7 +32,7 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["queue", "orders", "kyc", "accounting", "compliance", "team"],
+  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "team"],
   operator:     ["queue", "orders"],
   kyc_reviewer: ["kyc"],
   support:      ["queue", "orders"],
@@ -122,6 +124,10 @@ const AdminPortal = () => {
     }
   };
 
+  const navigateTab = (target: "queue" | "orders" | "compliance") => {
+    if (allowedTabs.has(target)) setTab(target);
+  };
+
   return (
     <div className="app-surface app-type min-h-screen bg-background text-foreground">
       {/* Barre du haut */}
@@ -179,25 +185,28 @@ const AdminPortal = () => {
               })}
             </div>
 
-            {/* Titre de section */}
-            <div className="mt-6 flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-                <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
-              </span>
-              <div>
-                <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
-                <p className="text-[12px] text-muted-foreground">{active.desc}</p>
+            {/* Titre de section — masqué pour le tableau de bord (en-tête propre) */}
+            {tab !== "dashboard" && (
+              <div className="mt-6 flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
+                  <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
+                </span>
+                <div>
+                  <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
+                  <p className="text-[12px] text-muted-foreground">{active.desc}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Vue active */}
-            <div className="mt-5">
+            <div className={tab === "dashboard" ? "mt-6" : "mt-5"}>
               {loading && (tab === "queue" || tab === "orders" || tab === "accounting" || tab === "compliance") ? (
                 <div className="rounded-2xl border border-border bg-card py-16 text-center text-[13px] text-muted-foreground">
                   Chargement des commandes…
                 </div>
               ) : (
                 <>
+                  {tab === "dashboard" && <KpiDashboard orders={orders} onNavigate={navigateTab} />}
                   {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
                   {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
                   {tab === "kyc" && <KycPanel />}
