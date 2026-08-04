@@ -73,6 +73,44 @@
   }
 
   /*
+   * Back-office — palette monochrome façon Terex (#1a1a1a, cartes #212121,
+   * accent blanc pur). Toujours sombre, indépendamment du thème choisi par
+   * l'utilisateur : tous les composants admin qui utilisent `bg-card`,
+   * `text-foreground`, `border-border` etc. héritent automatiquement de ces
+   * jetons sans que chaque panneau soit réécrit.
+   */
+  .admin-scope {
+    color-scheme: dark;
+
+    --background:            0 0% 10%;   /* #1a1a1a */
+    --foreground:            0 0% 94%;   /* #f0f0f0 */
+    --card:                  0 0% 13%;   /* #212121 */
+    --card-foreground:       0 0% 94%;
+    --popover:               0 0% 16%;   /* #282828 */
+    --popover-foreground:    0 0% 94%;
+
+    /* Accent = blanc pur, jamais de couleur. */
+    --primary:               0 0% 100%;
+    --primary-foreground:    0 0% 7%;
+    --accent:                0 0% 100%;
+    --accent-foreground:     0 0% 7%;
+    --accent-ink:            0 0% 94%;
+    --accent-tint:           0 0% 16%;
+
+    --secondary:             0 0% 16%;
+    --secondary-foreground:  0 0% 94%;
+    --muted:                 0 0% 16%;
+    --muted-foreground:      0 0% 53%;   /* #888 */
+
+    --border:                0 0% 16%;   /* #2a2a2a */
+    --input:                 0 0% 22%;   /* #383838 */
+    --ring:                  0 0% 60%;
+
+    --destructive:           0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+  }
+
+  /*
    * Encre neutre — pages publiques.
    * Le noir de marque (`--foreground`) est un pétrole en teinte 194°, qui tire
    * visiblement sur le bleu sur les grands aplats. Cette classe redéclare les

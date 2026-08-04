@@ -43,8 +43,8 @@ export const C = {
   t3:   "#565656",
 } as const;
 
-/** Familles de police. */
-export const FONT = "'Inter', system-ui, -apple-system, sans-serif";
+/** Familles de police — Poppins comme le reste de la plateforme Ooble. */
+export const FONT = "'Poppins', system-ui, sans-serif";
 /** Chiffres et code (montants, IDs, adresses). */
 export const MONO = "'JetBrains Mono', ui-monospace, Consolas, monospace";
 

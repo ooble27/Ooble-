@@ -136,7 +136,10 @@ const AdminPortal = () => {
   };
 
   return (
-    <div style={{ background: C.bg, color: C.t1, minHeight: "100vh", fontFamily: FONT }}>
+    <div
+      className="admin-scope"
+      style={{ background: C.bg, color: C.t1, minHeight: "100vh", fontFamily: FONT }}
+    >
       {/* Barre du haut — sombre Terex */}
       <div style={{ borderBottom: `1px solid ${C.bds}`, background: C.bg }}>
         <div
@@ -192,37 +195,22 @@ const AdminPortal = () => {
           </div>
         ) : (
           <>
-            {/* Pastilles de navigation — style Terex sombre, défilables */}
-            <div className="-mx-5 flex gap-1.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+            {/* Pastilles de navigation — texture Ooble d'origine, défilables */}
+            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
               {visibleNav.map(({ id, label, icon: Icon }) => {
                 const on = id === tab;
                 return (
                   <button
                     key={id}
                     onClick={() => { setTab(id); setSelected(null); }}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: 7,
-                      padding: "8px 14px", borderRadius: 10, flexShrink: 0, cursor: "pointer",
-                      background: on ? C.accent : C.l1,
-                      border: `1px solid ${on ? C.accent : C.bds}`,
-                      color: on ? "#111" : C.t2,
-                      fontSize: 12.5, fontWeight: on ? 600 : 500, fontFamily: FONT,
-                      transition: "all 0.15s", whiteSpace: "nowrap",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (on) return;
-                      e.currentTarget.style.color = C.t1;
-                      e.currentTarget.style.borderColor = C.bd;
-                      e.currentTarget.style.background = C.l2;
-                    }}
-                    onMouseLeave={(e) => {
-                      if (on) return;
-                      e.currentTarget.style.color = C.t2;
-                      e.currentTarget.style.borderColor = C.bds;
-                      e.currentTarget.style.background = C.l1;
-                    }}
+                    className={cn(
+                      "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
+                      on
+                        ? "border-white bg-white text-[#111]"
+                        : "border-[#2a2a2a] bg-[#212121] text-[#888] hover:bg-[#282828] hover:text-[#f0f0f0]",
+                    )}
                   >
-                    <Icon style={{ width: 14, height: 14 }} strokeWidth={on ? 2 : 1.7} />
+                    <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
                     {label}
                   </button>
                 );
