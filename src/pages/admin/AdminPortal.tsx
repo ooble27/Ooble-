@@ -21,6 +21,7 @@ import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import KpiDashboard from "@/components/admin/KpiDashboard";
 import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
 import TreasuryPanel from "@/components/admin/TreasuryPanel";
+import { C, FONT } from "@/components/admin/adminTheme";
 
 type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "announcements" | "team" | "audit";
 
@@ -135,23 +136,43 @@ const AdminPortal = () => {
   };
 
   return (
-    <div className="app-surface app-type min-h-screen bg-background text-foreground">
-      {/* Barre du haut */}
-      <div className="border-b border-border">
-        <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] md:px-8">
+    <div style={{ background: C.bg, color: C.t1, minHeight: "100vh", fontFamily: FONT }}>
+      {/* Barre du haut — sombre Terex */}
+      <div style={{ borderBottom: `1px solid ${C.bds}`, background: C.bg }}>
+        <div
+          className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 md:px-8"
+          style={{ paddingTop: "max(16px, env(safe-area-inset-top, 0px))", paddingBottom: 16 }}
+        >
           <Link
             to="/app"
             aria-label="Retour à l'app"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-secondary active:scale-95"
+            style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: C.l1, border: `1px solid ${C.bds}`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: C.t2, transition: "all 0.15s", flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = C.t1; e.currentTarget.style.borderColor = C.bd; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = C.t2; e.currentTarget.style.borderColor = C.bds; }}
           >
-            <ArrowLeft className="h-[18px] w-[18px]" />
+            <ArrowLeft style={{ width: 18, height: 18 }} />
           </Link>
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-[19px] font-semibold leading-tight tracking-tight">Administration</h1>
-            <p className="truncate text-[12px] text-muted-foreground">Pilotez la plateforme Ooble</p>
+            <h1 style={{ fontSize: 18, fontWeight: 600, color: C.t1, margin: 0, letterSpacing: "-0.01em" }}>
+              Administration
+            </h1>
+            <p style={{ fontSize: 11.5, color: C.t3, margin: "2px 0 0", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+              Pilotez la plateforme Ooble
+            </p>
           </div>
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">
-            <BadgeIcon className="h-[13px] w-[13px]" /> {badgeLabel}
+          <span
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: C.l1, border: `1px solid ${C.bds}`, borderRadius: 999,
+              padding: "6px 12px", fontSize: 11, fontWeight: 500, color: C.t2, flexShrink: 0,
+            }}
+          >
+            <BadgeIcon style={{ width: 12, height: 12 }} /> {badgeLabel}
           </span>
         </div>
       </div>
@@ -171,20 +192,37 @@ const AdminPortal = () => {
           </div>
         ) : (
           <>
-            {/* Pastilles de navigation — défilables */}
-            <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+            {/* Pastilles de navigation — style Terex sombre, défilables */}
+            <div className="-mx-5 flex gap-1.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
               {visibleNav.map(({ id, label, icon: Icon }) => {
                 const on = id === tab;
                 return (
                   <button
                     key={id}
                     onClick={() => { setTab(id); setSelected(null); }}
-                    className={cn(
-                      "flex shrink-0 items-center gap-2 rounded-xl border px-4 py-2.5 text-[13px] font-medium transition-colors",
-                      on ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-secondary/50",
-                    )}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 7,
+                      padding: "8px 14px", borderRadius: 10, flexShrink: 0, cursor: "pointer",
+                      background: on ? C.accent : C.l1,
+                      border: `1px solid ${on ? C.accent : C.bds}`,
+                      color: on ? "#111" : C.t2,
+                      fontSize: 12.5, fontWeight: on ? 600 : 500, fontFamily: FONT,
+                      transition: "all 0.15s", whiteSpace: "nowrap",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (on) return;
+                      e.currentTarget.style.color = C.t1;
+                      e.currentTarget.style.borderColor = C.bd;
+                      e.currentTarget.style.background = C.l2;
+                    }}
+                    onMouseLeave={(e) => {
+                      if (on) return;
+                      e.currentTarget.style.color = C.t2;
+                      e.currentTarget.style.borderColor = C.bds;
+                      e.currentTarget.style.background = C.l1;
+                    }}
                   >
-                    <Icon className="h-4 w-4" strokeWidth={on ? 2 : 1.7} />
+                    <Icon style={{ width: 14, height: 14 }} strokeWidth={on ? 2 : 1.7} />
                     {label}
                   </button>
                 );
@@ -193,21 +231,33 @@ const AdminPortal = () => {
 
             {/* Titre de section — masqué pour le tableau de bord (en-tête propre) */}
             {tab !== "dashboard" && (
-              <div className="mt-6 flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground/70">
-                  <ActiveIcon className="h-[19px] w-[19px]" strokeWidth={1.9} />
+              <div style={{ marginTop: 26, display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{
+                  width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                  background: C.l1, border: `1px solid ${C.bds}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: C.t2,
+                }}>
+                  <ActiveIcon style={{ width: 18, height: 18 }} strokeWidth={1.8} />
                 </span>
-                <div>
-                  <h2 className="font-display text-[17px] font-semibold tracking-tight">{active.label}</h2>
-                  <p className="text-[12px] text-muted-foreground">{active.desc}</p>
+                <div style={{ minWidth: 0 }}>
+                  <h2 style={{ fontSize: 17, fontWeight: 600, color: C.t1, margin: 0, letterSpacing: "-0.015em" }}>
+                    {active.label}
+                  </h2>
+                  <p style={{ fontSize: 11.5, color: C.t3, margin: "2px 0 0" }}>
+                    {active.desc}
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Vue active */}
-            <div className={tab === "dashboard" ? "mt-6" : "mt-5"}>
+            <div style={{ marginTop: tab === "dashboard" ? 26 : 22 }}>
               {loading && (tab === "queue" || tab === "orders" || tab === "accounting" || tab === "compliance") ? (
-                <div className="rounded-2xl border border-border bg-card py-16 text-center text-[13px] text-muted-foreground">
+                <div style={{
+                  ...{ background: C.l1, border: `1px solid ${C.bds}`, borderRadius: 14 },
+                  padding: "60px 20px", textAlign: "center", fontSize: 12.5, color: C.t3,
+                }}>
                   Chargement des commandes…
                 </div>
               ) : (
