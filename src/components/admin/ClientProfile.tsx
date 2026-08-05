@@ -9,6 +9,7 @@ import {
 } from "@/lib/adminClient";
 import { C, FONT, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
 import ClientNotes from "./ClientNotes";
+import RiskScoreCard from "./RiskScoreCard";
 
 interface Props {
   userId: string;
@@ -207,6 +208,9 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
               </div>
             )}
           </div>
+
+          {/* Score de risque calculé — visible juste après l'identité */}
+          {profile && <RiskScoreCard profile={profile} />}
 
           {/* Notes internes staff (localStorage V1) */}
           <ClientNotes userId={userId} />
