@@ -141,7 +141,9 @@ const AdminPortal = () => {
       style={{ background: C.bg, color: C.t1, minHeight: "100vh", fontFamily: FONT }}
     >
       {/* Barre du haut — sombre Terex */}
-      <div style={{ borderBottom: `1px solid ${C.bds}`, background: C.bg }}>
+      {/* Barre du haut — plus de filet sous la barre : la respiration seule
+          suffit à séparer visuellement l'en-tête des pastilles. */}
+      <div style={{ background: C.bg }}>
         <div
           className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 md:px-8"
           style={{ paddingTop: "max(16px, env(safe-area-inset-top, 0px))", paddingBottom: 16 }}

@@ -473,38 +473,76 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               </div>
             ) : (() => {
               const steps: Array<{ label: string; en: string; count: number }> = [
-                { label: "Inscriptions",         en: "Signups",        count: funnel.total },
-                { label: "KYC vérifié",          en: "KYC verified",   count: funnel.verified },
-                { label: "1er achat / vente",    en: "First order",    count: funnel.firstOrder },
-                { label: "Clients récurrents",   en: "Repeat",         count: funnel.repeat },
+                { label: "Inscriptions",       en: "Signups",      count: funnel.total },
+                { label: "KYC vérifié",        en: "KYC verified", count: funnel.verified },
+                { label: "1er ordre",          en: "First order",  count: funnel.firstOrder },
+                { label: "Clients récurrents", en: "Repeat",       count: funnel.repeat },
               ];
-              const max = Math.max(1, ...steps.map((s) => s.count));
-              return steps.map((s, i) => {
-                const pct = (s.count / max) * 100;
-                const isLast = i === steps.length - 1;
-                return (
-                  <div
-                    key={s.label}
-                    style={{
-                      padding: "12px 18px",
-                      borderBottom: isLast ? "none" : `1px solid ${C.bds}`,
-                      transition: "background 0.12s",
-                    }}
-                    onMouseEnter={(e) => listRowHoverIn(e.currentTarget)}
-                    onMouseLeave={(e) => listRowHoverOut(e.currentTarget)}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: 12.5, color: C.t2 }}><T en={s.en}>{s.label}</T></span>
-                      <span style={{ fontSize: 12, fontWeight: 400, color: C.t1, ...numeric }}>
-                        {s.count}
-                      </span>
-                    </div>
-                    <div style={{ height: 2, background: C.l3, borderRadius: 1, overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${pct}%`, background: C.accent, transition: "width 0.4s" }} />
-                    </div>
-                  </div>
-                );
-              });
+              const base = steps[0].count || 1;
+              return (
+                <div style={{ padding: "18px 20px 20px" }}>
+                  {steps.map((s, i) => {
+                    const pctFromBase = (s.count / base) * 100;
+                    const prev = i === 0 ? null : steps[i - 1].count;
+                    const conversion = prev != null && prev > 0 ? (s.count / prev) * 100 : null;
+                    return (
+                      <div key={s.label} style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr auto",
+                        columnGap: 14,
+                        alignItems: "baseline",
+                        marginTop: i === 0 ? 0 : 14,
+                      }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+                            <span style={{ fontSize: 12.5, color: C.t1 }}>
+                              <T en={s.en}>{s.label}</T>
+                            </span>
+                            {conversion !== null && (
+                              <span style={{
+                                fontSize: 10.5, color: C.t3,
+                                letterSpacing: "0.06em",
+                                ...numeric,
+                              }}>
+                                {conversion.toFixed(0)} % ↓
+                              </span>
+                            )}
+                          </div>
+                          <div style={{
+                            position: "relative", height: 26, background: C.l3,
+                            borderRadius: 4, overflow: "hidden",
+                          }}>
+                            <div style={{
+                              position: "absolute", inset: 0,
+                              width: `${Math.max(2, pctFromBase)}%`,
+                              background: C.accent,
+                              transition: "width 0.5s cubic-bezier(0.22,1,0.36,1)",
+                            }} />
+                            <span style={{
+                              position: "absolute", left: 10, top: "50%",
+                              transform: "translateY(-50%)",
+                              fontSize: 11, color: "#111",
+                              mixBlendMode: "difference",
+                              filter: "invert(1)",
+                              ...numeric,
+                            }}>
+                              {pctFromBase.toFixed(0)} %
+                            </span>
+                          </div>
+                        </div>
+                        <span style={{
+                          ...numeric,
+                          fontSize: 20, fontWeight: 300, color: C.t1,
+                          letterSpacing: "-0.02em", lineHeight: 1,
+                          minWidth: 44, textAlign: "right",
+                        }}>
+                          {s.count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
             })()}
           </div>
 
