@@ -8,6 +8,7 @@ import {
   type ClientProfile as ClientProfileData, type ClientOrder,
 } from "@/lib/adminClient";
 import { C, FONT, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
+import ClientNotes from "./ClientNotes";
 
 interface Props {
   userId: string;
@@ -207,9 +208,12 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
             )}
           </div>
 
+          {/* Notes internes staff (localStorage V1) */}
+          <ClientNotes userId={userId} />
+
           {/* Historique des commandes */}
           <div>
-            <p className="mb-2.5 px-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <p className="mb-2.5 px-1 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               Historique des commandes ({orders.length})
             </p>
             <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
