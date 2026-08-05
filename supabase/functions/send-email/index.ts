@@ -1,19 +1,29 @@
-// Fonction edge Ooble — envoi d'e-mails transactionnels & marketing via Resend.
+// Fonction edge Ooble — envoi d'e-mails via Resend.
 //
-// Corps attendu (POST JSON) :
-//   { "to": "client@exemple.ca", "template": "order-buy",
-//     "vars": { "ref": "OOB-…", "cadAmount": "500,00", ... },
-//     "subject": "(optionnel, sinon sujet par défaut du template)" }
+// Deux modes :
+//
+//   ─── Mode « custom » (staff écrit librement) ────────────────
+//   POST JSON :
+//     { "to": "…", "subject": "…", "html": "<p>…</p>",
+//       "text": "(optionnel, sinon dérivé du HTML)",
+//       "replyTo": "(optionnel)",
+//       "cc": ["…"], "bcc": ["…"] }
+//
+//   Le corps `html` est encapsulé dans le layout Ooble (header + footer
+//   monochromes) pour rester cohérent avec la marque.
+//
+//   ─── Mode « template » (transactionnel) ─────────────────────
+//   POST JSON :
+//     { "to": "…", "template": "welcome" | "order-buy" | …,
+//       "vars": { … }, "subject": "(optionnel)" }
 //
 // Secrets requis (Supabase → Edge Functions → Secrets) :
 //   RESEND_API_KEY   clé API Resend
 //   EMAIL_FROM       ex. "Ooble <bonjour@ooble.ca>"  (domaine vérifié)
-//   EMAIL_ASSET_BASE ex. "https://ooble.ca/email-assets"  (où sont les PNG)
-//
-// Tant que le domaine n'est pas acheté/vérifié, la fonction se déploie mais
-// l'envoi renverra une erreur Resend explicite (from non vérifié).
+//   EMAIL_ASSET_BASE ex. "https://ooble.ca/email-assets"
 
 import { TEMPLATES, SUBJECTS } from "./templates.ts";
+import { wrapCustomBody, htmlToText } from "./layout.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -33,6 +43,20 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+interface Payload {
+  to?: string;
+  cc?: string[];
+  bcc?: string[];
+  replyTo?: string;
+  subject?: string;
+  // Mode template
+  template?: string;
+  vars?: Record<string, string>;
+  // Mode custom
+  html?: string;
+  text?: string;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "Méthode non autorisée" }, 405);
@@ -42,31 +66,56 @@ Deno.serve(async (req) => {
   const assetBase = Deno.env.get("EMAIL_ASSET_BASE") ?? "https://ooble.ca/email-assets";
   if (!apiKey) return json({ error: "RESEND_API_KEY manquant." }, 500);
 
-  let payload: { to?: string; template?: string; vars?: Record<string, string>; subject?: string };
-  try {
-    payload = await req.json();
-  } catch {
-    return json({ error: "JSON invalide." }, 400);
+  let payload: Payload;
+  try { payload = await req.json(); }
+  catch { return json({ error: "JSON invalide." }, 400); }
+
+  const { to, cc, bcc, replyTo, subject, template, vars = {}, html, text } = payload;
+  if (!to) return json({ error: "Champ 'to' requis." }, 400);
+
+  let finalHtml: string;
+  let finalText: string | undefined;
+  let finalSubject: string;
+
+  if (template) {
+    // ─── Mode template ────────────────────────────────────
+    if (!(template in TEMPLATES)) {
+      return json({ error: `Template inconnu : ${template}` }, 400);
+    }
+    const data: Record<string, string> = {
+      assetBase,
+      year: String(new Date().getFullYear()),
+      unsubscribeUrl: vars.unsubscribeUrl ?? "#",
+      ...vars,
+    };
+    finalHtml = render(TEMPLATES[template], data);
+    finalSubject = render(subject ?? SUBJECTS[template] ?? "Ooble", data);
+    finalText = text; // laissé optionnel pour les templates
+  } else if (html) {
+    // ─── Mode custom (staff a écrit le contenu) ───────────
+    if (!subject?.trim()) return json({ error: "Champ 'subject' requis en mode custom." }, 400);
+    finalHtml = wrapCustomBody({ bodyHtml: html, assetBase });
+    finalSubject = subject.trim();
+    finalText = text ?? htmlToText(html);
+  } else {
+    return json({ error: "Fournir soit 'template', soit 'html'." }, 400);
   }
 
-  const { to, template, vars = {}, subject } = payload;
-  if (!to || !template) return json({ error: "Champs 'to' et 'template' requis." }, 400);
-  if (!(template in TEMPLATES)) return json({ error: `Template inconnu : ${template}` }, 400);
-
-  const data: Record<string, string> = {
-    assetBase,
-    year: String(new Date().getFullYear()),
-    unsubscribeUrl: vars.unsubscribeUrl ?? "#",
-    ...vars,
+  const body: Record<string, unknown> = {
+    from,
+    to,
+    subject: finalSubject,
+    html: finalHtml,
   };
-
-  const html = render(TEMPLATES[template], data);
-  const finalSubject = render(subject ?? SUBJECTS[template] ?? "Ooble", data);
+  if (finalText) body.text = finalText;
+  if (cc?.length) body.cc = cc;
+  if (bcc?.length) body.bcc = bcc;
+  if (replyTo) body.reply_to = replyTo;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, subject: finalSubject, html }),
+    body: JSON.stringify(body),
   });
 
   const result = await res.json().catch(() => ({}));
