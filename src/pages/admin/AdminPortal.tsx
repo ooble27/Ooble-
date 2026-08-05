@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
-  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText, LayoutDashboard, Bell, Wallet,
+  BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText,
+  LayoutDashboard, Bell, Wallet, Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -21,9 +22,10 @@ import AuditLogPanel from "@/components/admin/AuditLogPanel";
 import KpiDashboard from "@/components/admin/KpiDashboard";
 import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
 import TreasuryPanel from "@/components/admin/TreasuryPanel";
+import MailboxPanel from "@/components/admin/MailboxPanel";
 import { C, FONT } from "@/components/admin/adminTheme";
 
-type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "announcements" | "team" | "audit";
+type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "mailbox" | "announcements" | "team" | "audit";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "dashboard",  label: "Tableau de bord", desc: "Vue d'ensemble : volumes, marge, alertes et actions à traiter.", icon: LayoutDashboard },
@@ -33,17 +35,18 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "accounting",  label: "Comptabilité",   desc: "Revenus, marges et volumes traités.", icon: Calculator },
   { id: "compliance",  label: "Conformité",     desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité.", icon: ShieldCheck },
   { id: "treasury",    label: "Trésorerie",     desc: "Inventaire USDT multi-réseaux, snapshots, mouvements et alertes de solde bas.", icon: Wallet },
+  { id: "mailbox",     label: "Messagerie",     desc: "Envoyer un e-mail à un client à partir d'un template, historique des envois, boîte de réception.", icon: Mail },
   { id: "announcements", label: "Annonces",     desc: "Bannière publique et mode maintenance côté client.", icon: Bell },
   { id: "team",        label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
   { id: "audit",       label: "Journal d'audit", desc: "Historique immuable de toutes les actions administratives.", icon: ScrollText },
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "announcements", "team", "audit"],
-  operator:     ["queue", "orders"],
-  kyc_reviewer: ["kyc"],
-  support:      ["queue", "orders"],
-  marketing:    ["announcements", "accounting"],
+  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "mailbox", "announcements", "team", "audit"],
+  operator:     ["queue", "orders", "mailbox"],
+  kyc_reviewer: ["kyc", "mailbox"],
+  support:      ["queue", "orders", "mailbox"],
+  marketing:    ["mailbox", "announcements", "accounting"],
 };
 
 const ROLE_LABEL: Partial<Record<AppRole, string>> = {
@@ -259,6 +262,7 @@ const AdminPortal = () => {
                   {tab === "accounting" && <AccountingPanel orders={orders} />}
                   {tab === "compliance" && <CompliancePanel orders={orders} />}
                   {tab === "treasury" && <TreasuryPanel orders={orders} />}
+                  {tab === "mailbox" && <MailboxPanel />}
                   {tab === "announcements" && <AnnouncementsPanel />}
                   {tab === "team" && <TeamPanel />}
                   {tab === "audit" && <AuditLogPanel />}
