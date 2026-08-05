@@ -117,7 +117,7 @@ export const heroCard: React.CSSProperties = {
 export const sH: React.CSSProperties = {
   color: C.t3,
   fontSize: 11,
-  fontWeight: 500,
+  fontWeight: 400,
   letterSpacing: "0.18em",
   textTransform: "uppercase",
   margin: 0,
@@ -148,7 +148,7 @@ export const btnPrimary: React.CSSProperties = {
   borderRadius: 9,
   color: "#111",
   fontSize: 12,
-  fontWeight: 500,
+  fontWeight: 400,
   cursor: "pointer",
   display: "inline-flex",
   alignItems: "center",
@@ -168,7 +168,7 @@ export const btnGhost: React.CSSProperties = {
   borderRadius: 9,
   color: C.t2,
   fontSize: 12,
-  fontWeight: 500,
+  fontWeight: 400,
   cursor: "pointer",
   display: "inline-flex",
   alignItems: "center",
@@ -244,7 +244,7 @@ export const avatarCircle: React.CSSProperties = {
   flexShrink: 0,
   fontFamily: FONT,
   fontSize: 12,
-  fontWeight: 500,
+  fontWeight: 400,
 };
 
 /** Bouton d'action carré (26-28px), à droite d'une ligne. */
@@ -304,7 +304,7 @@ export const chipAction: React.CSSProperties = {
   borderRadius: 7,
   color: C.accent,
   fontSize: 11,
-  fontWeight: 500,
+  fontWeight: 400,
   cursor: "pointer",
   display: "inline-flex",
   alignItems: "center",
@@ -326,7 +326,7 @@ export const cardHeaderRow: React.CSSProperties = {
 export const cardTitle: React.CSSProperties = {
   color: C.t1,
   fontSize: 13,
-  fontWeight: 500,
+  fontWeight: 400,
   margin: 0,
   fontFamily: FONT,
 };

@@ -161,7 +161,7 @@ const AdminPortal = () => {
             <ArrowLeft style={{ width: 18, height: 18 }} />
           </Link>
           <div className="min-w-0 flex-1">
-            <h1 style={{ fontSize: 18, fontWeight: 600, color: C.t1, margin: 0, letterSpacing: "-0.01em" }}>
+            <h1 style={{ fontSize: 18, fontWeight: 400, color: C.t1, margin: 0, letterSpacing: "-0.01em" }}>
               Administration
             </h1>
             <p style={{ fontSize: 11.5, color: C.t3, margin: "2px 0 0", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
@@ -172,7 +172,7 @@ const AdminPortal = () => {
             style={{
               display: "inline-flex", alignItems: "center", gap: 6,
               background: C.l1, border: `1px solid ${C.bds}`, borderRadius: 999,
-              padding: "6px 12px", fontSize: 11, fontWeight: 500, color: C.t2, flexShrink: 0,
+              padding: "6px 12px", fontSize: 11, fontWeight: 400, color: C.t2, flexShrink: 0,
             }}
           >
             <BadgeIcon style={{ width: 12, height: 12 }} /> {badgeLabel}
@@ -229,7 +229,7 @@ const AdminPortal = () => {
                   <ActiveIcon style={{ width: 18, height: 18 }} strokeWidth={1.8} />
                 </span>
                 <div style={{ minWidth: 0 }}>
-                  <h2 style={{ fontSize: 17, fontWeight: 600, color: C.t1, margin: 0, letterSpacing: "-0.015em" }}>
+                  <h2 style={{ fontSize: 17, fontWeight: 400, color: C.t1, margin: 0, letterSpacing: "-0.015em" }}>
                     {active.label}
                   </h2>
                   <p style={{ fontSize: 11.5, color: C.t3, margin: "2px 0 0" }}>

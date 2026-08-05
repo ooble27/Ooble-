@@ -229,7 +229,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
         <div>
           <p style={{ ...sH, marginBottom: 6 }}><T en="Overview">Vue d'ensemble</T></p>
           <h2 style={{
-            fontSize: 24, fontWeight: 500, color: C.t1, margin: 0,
+            fontSize: 24, fontWeight: 400, color: C.t1, margin: 0,
             letterSpacing: "-0.02em", lineHeight: 1.1,
           }}>
             <T en={`Business snapshot · ${periodLabel}`}>{`Activité · ${periodLabel}`}</T>
@@ -309,7 +309,7 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
               padding: "16px 20px", borderBottom: `1px solid ${C.bds}`,
             }}>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 500, color: C.t1, margin: 0 }}>
+                <p style={{ fontSize: 13, fontWeight: 400, color: C.t1, margin: 0 }}>
                   <T en="Daily volume">Volume quotidien</T>
                 </p>
                 <p style={{ fontSize: 11, color: C.t3, margin: "3px 0 0" }}>
@@ -317,15 +317,31 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
                 </p>
               </div>
             </div>
-            <div style={{ padding: "20px 12px 16px" }}>
-              {sparks.total.length >= 2 ? (
+            <div style={{ padding: "0 12px 16px" }}>
+              {/* On ne trace que s'il y a au moins un jour avec du volume ;
+                  sinon le tracé se résume à une ligne plate en bas qui ne
+                  veut rien dire — préférer un vrai état vide. */}
+              {sparks.total.length >= 2 && sparks.total.some((v) => v > 0) ? (
                 <div style={{ color: C.accent }}>
                   <Sparkline data={sparks.total} height={140} fill endDot />
                 </div>
               ) : (
-                <div style={{ padding: "40px 20px", textAlign: "center" }}>
-                  <p style={{ fontSize: 12, color: C.t3, margin: 0 }}>
-                    <T en="Not enough data yet.">Pas encore assez de données.</T>
+                <div style={{
+                  height: 140, display: "flex", flexDirection: "column",
+                  alignItems: "center", justifyContent: "center", gap: 8,
+                }}>
+                  <span style={{
+                    fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase",
+                    color: C.t3,
+                  }}>
+                    <T en="No activity yet">Pas encore d'activité</T>
+                  </span>
+                  <p style={{
+                    fontSize: 12, color: C.t3, margin: 0, maxWidth: 280, textAlign: "center", lineHeight: 1.5,
+                  }}>
+                    <T en={`The chart will populate as soon as an order lands within the last ${period} days.`}>
+                      {`Le graphique se remplira dès qu'une commande sera enregistrée dans les ${period} derniers jours.`}
+                    </T>
                   </p>
                 </div>
               )}
