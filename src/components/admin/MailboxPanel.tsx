@@ -876,7 +876,7 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
             display: "block", width: "100%", boxSizing: "border-box",
             padding: "14px 18px 8px", border: "none", outline: "none",
             background: "transparent", color: C.t1,
-            fontFamily: FONT, fontSize: 14, lineHeight: 1.55,
+            fontFamily: FONT, fontSize: 16, lineHeight: 1.55,
             resize: "vertical", minHeight: 180,
           }}
         />

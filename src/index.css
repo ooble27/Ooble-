@@ -277,15 +277,17 @@
   }
 
   /*
-   * Empêche le zoom automatique iOS Safari au focus d'un champ.
-   * Safari sur iPhone zoome dès qu'un input a un font-size < 16px : on
-   * force le minimum sur toutes les entrées de formulaire uniquement sur
-   * mobile pour ne pas modifier le rythme typographique du desktop.
+   * Empêche le zoom automatique iOS Safari au focus d'un champ. Safari
+   * zoome dès qu'un input a un font-size < 16px. On applique le seuil
+   * UNIQUEMENT aux inputs qui optent explicitement (classe .no-zoom) ou
+   * qui n'ont ni classe Tailwind text-* ni style inline explicite. Sans
+   * `!important` : les tailles définies par l'app (Terex 34px sur
+   * l'accueil Acheter/Vendre, etc.) restent intactes.
    */
   @media (max-width: 767px) {
-    input,
-    textarea,
-    select {
+    input.no-zoom,
+    textarea.no-zoom,
+    select.no-zoom {
       font-size: 16px !important;
     }
   }
