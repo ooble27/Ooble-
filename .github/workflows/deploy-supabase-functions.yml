@@ -7,9 +7,17 @@ on:
       - "supabase/functions/**"
   workflow_dispatch:
 
+# Un seul déploiement à la fois. Toute nouvelle exécution annule celles
+# en cours ou en queue — évite qu'une queue vieille de 15 minutes fasse
+# expirer les runs plus récents et bloque les correctifs.
+concurrency:
+  group: deploy-supabase-functions
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
