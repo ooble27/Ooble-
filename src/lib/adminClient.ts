@@ -83,6 +83,49 @@ export async function fetchClientProfile(userId: string): Promise<ClientProfile 
   };
 }
 
+/** Version compacte d'un client pour l'annuaire (composer d'e-mail, etc.). */
+export interface ClientDirectoryEntry {
+  id: string;
+  fullName: string;
+  firstName: string;
+  email: string;
+  kycStatus: KycStatus;
+}
+
+/** Déduit un prénom exploitable pour la personnalisation d'un mail. */
+function pickFirstName(fullName: string | null | undefined, email: string | null | undefined): string {
+  const raw = (fullName ?? "").trim();
+  if (raw) return raw.split(/\s+/)[0];
+  // Repli sur la partie locale de l'e-mail (« marie.dupont » → « Marie »).
+  const local = (email ?? "").split("@")[0] ?? "";
+  const first = local.split(/[.\-_]/)[0];
+  if (!first) return "";
+  return first.charAt(0).toUpperCase() + first.slice(1);
+}
+
+/**
+ * Annuaire des clients pour le composer d'e-mail : nécessite un compte staff
+ * (la politique RLS `is_staff(auth.uid())` sur `profiles` doit être active).
+ */
+export async function fetchClientDirectory(limit = 500): Promise<ClientDirectoryEntry[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, email, kyc_status")
+    .not("email", "is", null)
+    .order("full_name", { ascending: true })
+    .limit(limit);
+  if (error || !data) return [];
+  return data
+    .filter((p) => (p.email ?? "").length > 0)
+    .map((p) => ({
+      id: p.id,
+      fullName: (p.full_name ?? "").trim() || (p.email ?? "").split("@")[0] || "Client",
+      firstName: pickFirstName(p.full_name, p.email),
+      email: p.email as string,
+      kycStatus: p.kyc_status,
+    }));
+}
+
 export async function fetchClientOrders(userId: string): Promise<ClientOrder[]> {
   const { data, error } = await supabase
     .from("orders")

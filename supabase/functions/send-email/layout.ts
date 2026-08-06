@@ -2,10 +2,41 @@
 //
 // Sobre, monochrome, lisible sur tous les clients mail. Header : « Ooble » en
 // lettres, pas d'image (moins d'échec de rendu). Corps : blanc, typographie
-// système. Footer discret avec mention légale + lien contact.
+// système. Pied de page riche (contact, coordonnées légales, liens utiles)
+// pour que chaque envoi rende visible qui est derrière la marque — comme le
+// font toutes les grandes entreprises.
 //
 // Volontairement minimal : aucun gradient, aucune couleur d'accent, un seul
 // filet de séparation. Aligné sur le vocabulaire visuel du site.
+
+// ────────────────────────────────────────────────────────────
+// Coordonnées de l'entreprise (source unique de vérité).
+// Tout est modifiable en une seule passe ici — sans redéploiement, en
+// surchargeant les variables d'environnement de la fonction edge :
+//   COMPANY_LEGAL, COMPANY_ADDRESS, COMPANY_LOCALITY, COMPANY_COUNTRY,
+//   COMPANY_EMAIL, COMPANY_PHONE, COMPANY_WEBSITE, COMPANY_LICENSE.
+// À défaut, on tombe sur les valeurs publiques (site + Conditions).
+// ────────────────────────────────────────────────────────────
+
+function env(key: string, fallback: string): string {
+  const v = Deno.env.get(key);
+  return v && v.trim() ? v : fallback;
+}
+
+const COMPANY = {
+  legal:    env("COMPANY_LEGAL",    "Ooble Technologies Inc."),
+  address:  env("COMPANY_ADDRESS",  ""),                    // « 123 rue X »
+  locality: env("COMPANY_LOCALITY", "Montréal, Québec"),
+  country:  env("COMPANY_COUNTRY",  "Canada"),
+  email:    env("COMPANY_EMAIL",    "bonjour@ooble.ca"),
+  phone:    env("COMPANY_PHONE",    ""),                    // « +1 514 000-0000 »
+  website:  env("COMPANY_WEBSITE",  "https://ooble.ca"),
+  // Vide tant que l'inscription CANAFE n'est pas finalisée : quand elle
+  // le sera, mettre p.ex. « MSB M25000000 » dans COMPANY_LICENSE.
+  license:  env("COMPANY_LICENSE",  ""),
+};
+
+const WEB_HOST = COMPANY.website.replace(/^https?:\/\//, "").replace(/\/$/, "");
 
 interface WrapArgs {
   bodyHtml: string;
@@ -45,9 +76,17 @@ export function wrapCustomBody({ bodyHtml, assetBase: _ }: WrapArgs): string {
   .body code { background: #f0f0ed; padding: 1px 5px; border-radius: 4px; font-size: 13.5px; }
   .body hr { border: 0; border-top: 1px solid #ececea; margin: 20px 0; }
   .body .btn { display: inline-block; background: #111; color: #fff !important; padding: 11px 18px; border-radius: 8px; text-decoration: none; font-size: 14px; }
-  .foot { padding: 18px 28px 22px; border-top: 1px solid #ececea; color: #7c7c78; font-size: 12px; line-height: 1.55; }
-  .foot a { color: #7c7c78; }
-  .sig { padding: 18px 28px 4px; color: #333; font-size: 14.5px; }
+  .foot { border-top: 1px solid #ececea; color: #6f6f6b; font-size: 12px; line-height: 1.55; }
+  .foot a { color: #4a4a47; text-decoration: none; }
+  .foot a:hover { text-decoration: underline; }
+  .foot .row { padding: 16px 28px; }
+  .foot .contact { display: table; width: 100%; }
+  .foot .contact .col { display: table-cell; vertical-align: top; padding-right: 20px; }
+  .foot .contact .col:last-child { padding-right: 0; text-align: right; }
+  .foot .brand-mark { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: #111; font-weight: 500; }
+  .foot .legal { color: #4a4a47; }
+  .foot .fine { border-top: 1px solid #ececea; color: #9c9c98; }
+  .foot .links a { margin-right: 14px; }
 </style>
 </head>
 <body>
@@ -59,14 +98,66 @@ export function wrapCustomBody({ bodyHtml, assetBase: _ }: WrapArgs): string {
       <div class="body">
         ${bodyHtml}
       </div>
-      <div class="foot">
-        Ooble Technologies — Canada · ${year}<br />
-        Vous recevez cet e-mail parce que vous avez un compte sur Ooble.
-      </div>
+      ${renderFooter(year)}
     </div>
   </div>
 </body>
 </html>`;
+}
+
+/**
+ * Pied de mail structuré comme le font les entreprises sérieuses :
+ * une ligne « qui contacter », une ligne coordonnées légales, une ligne
+ * conformité, une ligne liens, une fine print au ton neutre.
+ */
+function renderFooter(year: number): string {
+  const contactBits: string[] = [];
+  contactBits.push(`<a href="mailto:${COMPANY.email}">${COMPANY.email}</a>`);
+  if (COMPANY.phone) contactBits.push(escape(COMPANY.phone));
+  contactBits.push(`<a href="${COMPANY.website}">${WEB_HOST}</a>`);
+
+  const addressParts = [COMPANY.address, COMPANY.locality, COMPANY.country]
+    .filter((s) => s && s.trim()).map(escape).join(" · ");
+
+  const complianceLine = COMPANY.license
+    ? `${escape(COMPANY.legal)} est enregistrée auprès de CANAFE sous le n<sup>o</sup> ${escape(COMPANY.license)}.`
+    : `${escape(COMPANY.legal)} est en cours d'inscription auprès de CANAFE comme entreprise de services monétaires.`;
+
+  return `
+      <div class="foot">
+        <div class="row contact">
+          <div class="col">
+            <div class="brand-mark">Ooble</div>
+            <div style="margin-top:6px">${contactBits.join(" &nbsp;·&nbsp; ")}</div>
+          </div>
+          <div class="col">
+            <div class="legal">${escape(COMPANY.legal)}</div>
+            <div style="margin-top:4px">${addressParts}</div>
+          </div>
+        </div>
+        <div class="row" style="padding-top:0">
+          <div class="legal" style="font-size:11.5px">${complianceLine}</div>
+        </div>
+        <div class="row links" style="padding-top:0">
+          <a href="${COMPANY.website}">Site</a>
+          <a href="${COMPANY.website}/aide">Aide</a>
+          <a href="${COMPANY.website}/confidentialite">Confidentialité</a>
+          <a href="${COMPANY.website}/conditions">Conditions</a>
+        </div>
+        <div class="row fine">
+          Vous recevez cet e-mail parce que vous avez un compte sur Ooble.
+          Pour les demandes urgentes, répondez directement à ce message — un membre de l'équipe vous répond.
+          <br />&copy; ${year} ${escape(COMPANY.legal)}. Tous droits réservés.
+        </div>
+      </div>`;
+}
+
+function escape(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /**
