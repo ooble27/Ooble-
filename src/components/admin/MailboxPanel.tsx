@@ -165,6 +165,130 @@ Merci pour votre message.
 
 Restez à l'écoute et n'hésitez pas si autre chose,`,
   },
+  {
+    id: "kyc-approved",
+    name: "KYC approuvé",
+    description: "Notification de vérification d'identité réussie.",
+    subject: "Votre identité est vérifiée — Ooble",
+    body: `Bonjour {{prenom}},
+
+Bonne nouvelle : votre vérification d'identité est **approuvée**. Vous pouvez désormais acheter et vendre sans limite quotidienne réduite.
+
+[Acheter des USDT](https://ooble.ca/app/acheter)
+
+Bonne journée,`,
+  },
+  {
+    id: "kyc-rejected",
+    name: "KYC refusé",
+    description: "Rejet KYC avec explication et prochaine étape.",
+    subject: "Votre vérification d'identité — action requise",
+    body: `Bonjour {{prenom}},
+
+Après examen de votre dossier de vérification, nous ne pouvons pas l'approuver en l'état pour la raison suivante :
+
+> {{raison}}
+
+Vous pouvez recommencer la démarche depuis votre espace, avec les corrections nécessaires. Répondez à ce mail si vous avez besoin d'accompagnement — nous sommes là pour vous aider à finaliser.
+
+[Reprendre la vérification](https://ooble.ca/app/verification)
+
+Cordialement,`,
+  },
+  {
+    id: "payment-confirmed-manual",
+    name: "Paiement reçu (manuel)",
+    description: "Confirmation manuelle après réception d'un Interac.",
+    subject: "Paiement reçu — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Nous confirmons la réception de votre paiement Interac pour l'ordre **{{ref}}**.
+
+Nous procédons à l'envoi de vos USDT à l'adresse indiquée. Vous recevrez un dernier mail avec le hash de transaction dès que c'est envoyé.
+
+[Suivre ma commande](https://ooble.ca/app/activite/{{ref}})
+
+Merci de votre confiance,`,
+  },
+  {
+    id: "order-completed-manual",
+    name: "Transaction terminée",
+    description: "Confirmation manuelle après envoi USDT.",
+    subject: "Transaction terminée — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Votre transaction **{{ref}}** est terminée. Voici le hash de transaction blockchain :
+
+\`{{hash}}\`
+
+Vous pouvez le retrouver dans votre historique à tout moment.
+
+[Voir le reçu](https://ooble.ca/app/activite/{{ref}})
+
+À bientôt sur Ooble,`,
+  },
+  {
+    id: "security-alert",
+    name: "Alerte sécurité",
+    description: "Signaler une activité inhabituelle sur le compte.",
+    subject: "Activité inhabituelle sur votre compte — Ooble",
+    body: `Bonjour {{prenom}},
+
+Nous avons détecté une activité inhabituelle sur votre compte Ooble : **{{detail}}**.
+
+Par précaution, nous avons temporairement suspendu les opérations en attendant votre confirmation. Si c'était bien vous, répondez simplement à ce message pour lever la suspension.
+
+Si vous ne reconnaissez pas cette activité, changez immédiatement votre mot de passe et contactez-nous.
+
+Cordialement,
+L'équipe sécurité Ooble`,
+  },
+  {
+    id: "delay-apology",
+    name: "Excuses délai",
+    description: "Message d'excuse pour un traitement plus long que prévu.",
+    subject: "Traitement de votre ordre {{ref}} — Ooble",
+    body: `Bonjour {{prenom}},
+
+Le traitement de votre ordre **{{ref}}** prend plus de temps qu'habituellement en raison de **{{cause}}**. Nous en sommes désolés.
+
+Estimation d'achèvement : **{{eta}}**.
+
+Nous restons à votre disposition en réponse à ce message si vous avez la moindre question.
+
+Merci pour votre patience,`,
+  },
+  {
+    id: "commercial-outreach",
+    name: "Prise de contact commerciale",
+    description: "Premier contact avec un client entreprise.",
+    subject: "Ooble pour {{entreprise}} — un mot rapide",
+    body: `Bonjour {{prenom}},
+
+Je suis {{agent}} chez Ooble. Nous accompagnons plusieurs entreprises comme {{entreprise}} dans leurs opérations USDT/CAD au Canada — règlement par Interac, tarification transparente, aucune garde des fonds.
+
+Auriez-vous 15 minutes cette semaine pour un rapide échange sur vos besoins ? Je peux vous proposer des créneaux ou vous laisser choisir.
+
+Bien à vous,`,
+  },
+  {
+    id: "limit-increase-info",
+    name: "Info limite quotidienne",
+    description: "Répondre à une question sur les plafonds.",
+    subject: "Votre limite quotidienne — Ooble",
+    body: `Bonjour {{prenom}},
+
+Votre limite quotidienne actuelle est de **{{limite}} CAD**.
+
+Pour l'augmenter, nous avons besoin des pièces suivantes selon votre profil :
+
+- Justificatif de source des fonds (relevés bancaires 3 mois, contrat, etc.)
+- Pour les entreprises : liste des bénéficiaires effectifs à jour
+
+Envoyez-nous ces éléments en réponse à ce message et nous procéderons à l'augmentation dans les 48h ouvrables.
+
+Cordialement,`,
+  },
 ];
 
 type SubTab = "compose" | "sent" | "snippets" | "inbox";

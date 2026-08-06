@@ -26,10 +26,10 @@ function env(key: string, fallback: string): string {
 const COMPANY = {
   legal:    env("COMPANY_LEGAL",    "Ooble Technologies Inc."),
   address:  env("COMPANY_ADDRESS",  ""),                    // « 123 rue X »
-  locality: env("COMPANY_LOCALITY", "Montréal, Québec"),
+  locality: env("COMPANY_LOCALITY", "Québec"),
   country:  env("COMPANY_COUNTRY",  "Canada"),
-  email:    env("COMPANY_EMAIL",    "bonjour@ooble.ca"),
-  phone:    env("COMPANY_PHONE",    ""),                    // « +1 514 000-0000 »
+  email:    env("COMPANY_EMAIL",    ""),                    // à définir dès qu'une adresse de contact existe
+  phone:    env("COMPANY_PHONE",    ""),                    // « +1 418 000-0000 »
   website:  env("COMPANY_WEBSITE",  "https://ooble.ca"),
   // Vide tant que l'inscription CANAFE n'est pas finalisée : quand elle
   // le sera, mettre p.ex. « MSB M25000000 » dans COMPANY_LICENSE.
@@ -112,7 +112,7 @@ export function wrapCustomBody({ bodyHtml, assetBase: _ }: WrapArgs): string {
  */
 function renderFooter(year: number): string {
   const contactBits: string[] = [];
-  contactBits.push(`<a href="mailto:${COMPANY.email}">${COMPANY.email}</a>`);
+  if (COMPANY.email) contactBits.push(`<a href="mailto:${COMPANY.email}">${COMPANY.email}</a>`);
   if (COMPANY.phone) contactBits.push(escape(COMPANY.phone));
   contactBits.push(`<a href="${COMPANY.website}">${WEB_HOST}</a>`);
 
@@ -158,6 +158,55 @@ function escape(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// ────────────────────────────────────────────────────────────
+// Primitives réutilisables par les templates transactionnels.
+//
+// Tout est monochrome sobre, aligné sur le composer libre du back-office.
+// Un template = quelques appels à ces primitives + une passe dans
+// `wrapCustomBody`. Fini l'ancien wrap avec ses accents teal et ses
+// styles inline dupliqués.
+// ────────────────────────────────────────────────────────────
+
+/** Petit chapeau discret au-dessus du titre (« Bienvenue », « Ordre d'achat »…). */
+export function eyebrow(text: string): string {
+  return `<p style="margin:0 0 8px;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#8a8a86;">${text}</p>`;
+}
+
+/** Titre principal du mail. */
+export function heading(text: string): string {
+  return `<h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;font-weight:500;letter-spacing:-0.01em;color:#111;">${text}</h1>`;
+}
+
+/** Paragraphe d'intro. */
+export function lead(text: string): string {
+  return `<p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#333;">${text}</p>`;
+}
+
+/** Table clé/valeur pour un récapitulatif d'ordre. */
+export function dataRows(pairs: Array<[label: string, value: string, mono?: boolean]>): string {
+  const rows = pairs.map(([label, value, mono]) => `
+    <tr>
+      <td style="padding:11px 0;border-bottom:1px solid #ececea;font-size:13px;color:#8a8a86;vertical-align:top;">${label}</td>
+      <td style="padding:11px 0;border-bottom:1px solid #ececea;font-size:${mono ? "12.5px" : "14px"};color:#111;text-align:right;vertical-align:top;word-break:break-all;${mono ? "font-family:'SFMono-Regular',Consolas,Menlo,monospace;" : ""}">${value}</td>
+    </tr>`).join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 20px;border-top:1px solid #ececea;">${rows}</table>`;
+}
+
+/**
+ * Bouton d'action principal (fond sombre, texte clair). Un mail = idéalement
+ * un seul bouton principal — c'est l'invitation à faire quelque chose.
+ */
+export function primaryButton(href: string, label: string): string {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 8px;"><tr><td>
+    <a href="${href}" style="display:inline-block;padding:12px 22px;font-size:14px;font-weight:500;color:#fff;background:#111;text-decoration:none;border-radius:8px;">${label}</a>
+  </td></tr></table>`;
+}
+
+/** Encart d'avertissement / rappel important. */
+export function notice(text: string): string {
+  return `<div style="margin:16px 0;padding:12px 14px;background:#f6f6f4;border:1px solid #ececea;border-left:3px solid #111;border-radius:6px;font-size:13px;line-height:1.55;color:#3a3a37;">${text}</div>`;
 }
 
 /**

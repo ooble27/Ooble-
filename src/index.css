@@ -275,6 +275,20 @@
   ::selection {
     background: hsl(var(--primary) / 0.2);
   }
+
+  /*
+   * Empêche le zoom automatique iOS Safari au focus d'un champ.
+   * Safari sur iPhone zoome dès qu'un input a un font-size < 16px : on
+   * force le minimum sur toutes les entrées de formulaire uniquement sur
+   * mobile pour ne pas modifier le rythme typographique du desktop.
+   */
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+  }
 }
 
 @layer utilities {
