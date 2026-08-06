@@ -76,19 +76,19 @@ export function assessClient(p: ClientProfile): RiskAssessment {
   });
 
   // ─── Statut KYC ─────────────────────────────────────────
-  if (p.kycStatus === "attente" || p.kycStatus === "pending") {
+  if (p.kycStatus === "pending" || p.kycStatus === "not_started") {
     factors.push({
-      label: "KYC en attente",
+      label: "KYC non finalisé",
       delta: 25,
       hint: "L'identité n'est pas encore confirmée : aucune opération ne devrait passer sans vérification.",
     });
-  } else if (p.kycStatus === "refuse" || p.kycStatus === "refused" || p.kycStatus === "rejected") {
+  } else if (p.kycStatus === "rejected") {
     factors.push({
       label: "KYC refusé",
       delta: 55,
       hint: "L'identité a été refusée par la vérification. Toute activité future est à considérer avec prudence.",
     });
-  } else if (p.kycStatus === "verifie" || p.kycStatus === "verified" || p.kycStatus === "approved") {
+  } else if (p.kycStatus === "approved") {
     factors.push({
       label: "KYC vérifié",
       delta: -10,
@@ -114,7 +114,7 @@ export function assessClient(p: ClientProfile): RiskAssessment {
   }
 
   // Volume élevé sans KYC vérifié = combinaison à risque
-  const kycOk = p.kycStatus === "verifie" || p.kycStatus === "verified" || p.kycStatus === "approved";
+  const kycOk = p.kycStatus === "approved";
   if (!kycOk && p.totalCad >= 10_000) {
     factors.push({
       label: "Volume élevé sans KYC",

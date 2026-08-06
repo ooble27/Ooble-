@@ -9,6 +9,7 @@ import {
 } from "@/lib/adminClient";
 import { C, FONT, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
 import ClientNotes from "./ClientNotes";
+import ClientTimeline from "./ClientTimeline";
 import RiskScoreCard from "./RiskScoreCard";
 
 interface Props {
@@ -214,6 +215,9 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
 
           {/* Notes internes staff (localStorage V1) */}
           <ClientNotes userId={userId} />
+
+          {/* Chronologie unifiée : inscription + KYC + commandes + notes */}
+          {profile && <ClientTimeline profile={profile} orders={orders} userId={userId} />}
 
           {/* Historique des commandes */}
           <div>
