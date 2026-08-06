@@ -80,11 +80,25 @@ export async function createOrder(input: CreateOrderInput): Promise<{ id: string
   return { id: data.id };
 }
 
-/** Ordres de l'utilisateur connecté (RLS : uniquement les siens). */
+/**
+ * Ordres de l'utilisateur connecté.
+ *
+ * Sécurité : on filtre EXPLICITEMENT par `user_id` en plus des politiques RLS.
+ * La table `orders` porte deux politiques SELECT (utilisateur = ses ordres,
+ * staff = tous les ordres) qui s'additionnent. Sans ce filtre, un compte
+ * marqué staff verrait ici l'historique de tous les clients — c'est
+ * exactement le bug qu'on ferme. Le filtre côté client garantit qu'aucun
+ * autre chemin ne peut ramener plus que « les ordres du user connecté ».
+ */
 export async function listMyOrders(limit = 20): Promise<OrderRow[]> {
+  const { data: auth } = await supabase.auth.getSession();
+  const uid = auth.session?.user?.id;
+  if (!uid) return [];
+
   const { data, error } = await supabase
     .from("orders")
     .select("*")
+    .eq("user_id", uid)
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) return [];

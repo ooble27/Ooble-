@@ -118,7 +118,14 @@ Deno.serve(async (req) => {
     body: JSON.stringify(body),
   });
 
-  const result = await res.json().catch(() => ({}));
-  if (!res.ok) return json({ error: "Échec Resend", detail: result }, res.status);
+  const result = await res.json().catch(() => ({} as Record<string, unknown>));
+  if (!res.ok) {
+    // Resend renvoie { message, name, statusCode } → on aplatit pour que le
+    // front puisse afficher un message actionnable (« domain not verified »,
+    // « invalid API key », etc.) plutôt qu'un opaque « non-2xx status code ».
+    const r = result as { message?: string; name?: string };
+    const detail = r.message || r.name || `HTTP ${res.status}`;
+    return json({ error: `Resend : ${detail}` }, res.status);
+  }
   return json({ ok: true, id: result.id });
 });
