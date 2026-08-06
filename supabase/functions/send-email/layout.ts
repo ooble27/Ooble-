@@ -119,9 +119,12 @@ function renderFooter(year: number): string {
   const addressParts = [COMPANY.address, COMPANY.locality, COMPANY.country]
     .filter((s) => s && s.trim()).map(escape).join(" · ");
 
+  // Ligne conformité affichée uniquement quand un numéro CANAFE est
+  // disponible. Tant qu'on n'est pas enregistré, silence : on n'annonce
+  // pas dans chaque mail qu'on ne l'est pas encore.
   const complianceLine = COMPANY.license
     ? `${escape(COMPANY.legal)} est enregistrée auprès de CANAFE sous le n<sup>o</sup> ${escape(COMPANY.license)}.`
-    : `${escape(COMPANY.legal)} est en cours d'inscription auprès de CANAFE comme entreprise de services monétaires.`;
+    : "";
 
   return `
       <div class="foot">
@@ -135,9 +138,9 @@ function renderFooter(year: number): string {
             <div style="margin-top:4px">${addressParts}</div>
           </div>
         </div>
-        <div class="row" style="padding-top:0">
+        ${complianceLine ? `<div class="row" style="padding-top:0">
           <div class="legal" style="font-size:11.5px">${complianceLine}</div>
-        </div>
+        </div>` : ""}
         <div class="row links" style="padding-top:0">
           <a href="${COMPANY.website}">Site</a>
           <a href="${COMPANY.website}/aide">Aide</a>

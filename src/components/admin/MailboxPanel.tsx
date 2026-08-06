@@ -38,7 +38,7 @@ import { loadSent, recordSent, type SentMail } from "@/lib/mailHistory";
 import { fetchClientDirectory, type ClientDirectoryEntry } from "@/lib/adminClient";
 import {
   markdownToHtml, wrapSelection, insertAtCursor, prefixLines, defaultSignature,
-  substituteVars, CLIENT_VARS,
+  substituteVars, extractRemainingVars, CLIENT_VARS,
 } from "@/lib/mailComposer";
 import AdminHero from "./AdminHero";
 import { SubTabs } from "./AdminBits";
@@ -289,6 +289,181 @@ Envoyez-nous ces éléments en réponse à ce message et nous procéderons à l'
 
 Cordialement,`,
   },
+  {
+    id: "interac-not-received",
+    name: "Interac non reçu",
+    description: "Le client dit avoir envoyé un Interac que nous n'avons pas reçu.",
+    subject: "Votre virement Interac — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Nous n'avons pas encore reçu votre virement Interac pour l'ordre **{{ref}}**. Les virements Interac prennent généralement quelques minutes mais peuvent parfois durer jusqu'à 30 minutes.
+
+Pour nous aider à vérifier, pouvez-vous nous confirmer :
+
+1. L'e-mail Interac utilisé pour l'envoi
+2. La question de sécurité et sa réponse
+3. La date/heure de l'envoi
+4. Le montant exact envoyé
+
+Nous recherchons de notre côté en parallèle.
+
+Cordialement,`,
+  },
+  {
+    id: "wrong-network",
+    name: "Mauvais réseau USDT",
+    description: "Le client a envoyé USDT sur le mauvais réseau blockchain.",
+    subject: "Réseau blockchain — action requise sur votre vente",
+    body: `Bonjour {{prenom}},
+
+Nous détectons que le dépôt USDT associé à votre ordre **{{ref}}** a été effectué sur le réseau **{{reseauRecu}}**, alors que l'ordre était configuré pour **{{reseauAttendu}}**.
+
+Selon le réseau utilisé, la récupération des fonds est parfois possible mais nécessite des frais supplémentaires et un délai de traitement plus long.
+
+Merci de nous confirmer :
+
+1. Le hash de la transaction
+2. L'adresse d'expédition
+
+Nous revenons vers vous avec la marche à suivre.
+
+Cordialement,`,
+  },
+  {
+    id: "address-format",
+    name: "Adresse wallet invalide",
+    description: "L'adresse de réception fournie n'est pas valide pour le réseau choisi.",
+    subject: "Vérification de votre adresse USDT — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Avant d'envoyer vos USDT pour l'ordre **{{ref}}**, nous vérifions systématiquement le format de l'adresse de réception. Celle que vous avez fournie ne correspond pas au format attendu pour le réseau **{{reseau}}**.
+
+Pouvez-vous nous confirmer que vous vouliez bien recevoir sur **{{reseau}}** ? Si oui, envoyez-nous en réponse la bonne adresse pour ce réseau.
+
+Cordialement,`,
+  },
+  {
+    id: "canafe-doimv",
+    name: "CANAFE — DOIMV (opération importante)",
+    description: "Notification de déclaration d'opération importante MV (≥ 10 000 $).",
+    subject: "Déclaration réglementaire — votre opération {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Nous vous informons qu'en application de la Loi sur le recyclage des produits de la criminalité et le financement des activités terroristes (LRPCFAT), votre opération **{{ref}}** d'un montant de **{{montant}} CAD** a fait l'objet d'une déclaration d'opération importante en monnaie virtuelle (DOIMV) transmise au CANAFE.
+
+Cette déclaration est obligatoire pour toute opération de 10 000 $ CAD ou plus. Elle ne remet pas en cause votre opération et n'entraîne aucune action de votre part.
+
+Vos données restent confidentielles et sont conservées conformément à nos obligations légales (5 ans).
+
+Cordialement,`,
+  },
+  {
+    id: "refund-processed",
+    name: "Remboursement traité",
+    description: "Notification qu'un remboursement Interac a été émis.",
+    subject: "Remboursement traité — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Nous confirmons l'émission d'un remboursement de **{{montant}} CAD** pour votre ordre **{{ref}}**. Vous recevrez le virement Interac à l'adresse **{{email}}** dans un délai de 30 minutes à 24 heures selon votre banque.
+
+Motif du remboursement : {{motif}}.
+
+Si vous ne l'avez pas reçu sous 48h, répondez à ce message et nous procéderons à un suivi immédiat.
+
+Cordialement,`,
+  },
+  {
+    id: "account-frozen",
+    name: "Compte gelé — conformité",
+    description: "Notification de gel de compte le temps d'une revue.",
+    subject: "Suspension temporaire de votre compte — Ooble",
+    body: `Bonjour {{prenom}},
+
+Dans le cadre de nos obligations de conformité, votre compte Ooble est temporairement suspendu le temps d'une revue de dossier.
+
+Aucune action n'est requise de votre part pour l'instant. Nous vous recontacterons dans les meilleurs délais avec les éventuelles informations complémentaires nécessaires.
+
+Nous vous remercions de votre compréhension.
+
+Cordialement,`,
+  },
+  {
+    id: "rate-locked-reminder",
+    name: "Rappel taux verrouillé",
+    description: "Rappeler que le taux expire bientôt sur un ordre.",
+    subject: "Votre taux expire bientôt — ordre {{ref}}",
+    body: `Bonjour {{prenom}},
+
+Petit rappel : le taux verrouillé pour votre ordre **{{ref}}** expire dans quelques minutes. Passé ce délai, l'ordre sera automatiquement annulé et il faudra en recréer un nouveau au taux du moment.
+
+[Régler maintenant](https://ooble.ca/app/activite/{{ref}})
+
+Cordialement,`,
+  },
+  {
+    id: "welcome-business",
+    name: "Bienvenue — compte entreprise",
+    description: "Accueil personnalisé d'un nouveau compte entreprise.",
+    subject: "Bienvenue chez Ooble, {{prenom}} — compte entreprise",
+    body: `Bonjour {{prenom}},
+
+Merci d'avoir créé un compte entreprise chez Ooble pour **{{entreprise}}**. Nous accompagnons vos opérations USDT/CAD avec une tarification adaptée aux volumes professionnels.
+
+Prochaines étapes pour finaliser votre dossier :
+
+1. Vérification de l'identité des bénéficiaires effectifs
+2. Justificatif d'existence de la société (extrait Kbis, NEQ, etc.)
+3. Justificatif de l'activité économique
+
+Un chargé de compte prendra contact avec vous dans les 24h. En attendant, répondez à ce message si vous avez la moindre question.
+
+Cordialement,`,
+  },
+  {
+    id: "newsletter-update",
+    name: "Annonce produit / mise à jour",
+    description: "Communiquer une nouvelle fonctionnalité ou évolution.",
+    subject: "Nouveauté chez Ooble : {{sujet}}",
+    body: `Bonjour {{prenom}},
+
+Nous avons une nouveauté à vous partager.
+
+**{{titre}}**
+
+{{description}}
+
+[En savoir plus](https://ooble.ca/{{lien}})
+
+Merci de votre confiance,`,
+  },
+  {
+    id: "maintenance-notice",
+    name: "Maintenance planifiée",
+    description: "Prévenir d'une fenêtre de maintenance à venir.",
+    subject: "Maintenance planifiée — Ooble",
+    body: `Bonjour {{prenom}},
+
+Nous vous informons qu'une opération de maintenance est programmée le **{{date}}** de **{{heureDebut}}** à **{{heureFin}}** (heure de l'Est).
+
+Pendant cette période, l'accès à la plateforme sera temporairement indisponible. Aucune opération en cours ne sera perdue.
+
+Merci pour votre compréhension.
+
+Cordialement,`,
+  },
+  {
+    id: "birthday-message",
+    name: "Message anniversaire",
+    description: "Petit mot personnel pour l'anniversaire d'un client.",
+    subject: "Joyeux anniversaire, {{prenom}}",
+    body: `Bonjour {{prenom}},
+
+Toute l'équipe Ooble se joint à moi pour vous souhaiter un très joyeux anniversaire.
+
+Merci pour votre confiance depuis {{depuis}}.
+
+Bonne journée,`,
+  },
 ];
 
 type SubTab = "compose" | "sent" | "snippets" | "inbox";
@@ -355,6 +530,14 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
     ? substituteVars(subject, previewVars)
     : substituteVars(subject, {}, [...CLIENT_VARS]);
   const renderedHtml = useMemo(() => markdownToHtml(previewBody), [previewBody]);
+
+  // Variables `{{xxx}}` non-client encore dans le texte : on prévient
+  // l'agent qu'elles partiront telles quelles s'il n'y touche pas.
+  const clientVarSet = new Set<string>(CLIENT_VARS);
+  const remainingVars = useMemo(
+    () => extractRemainingVars(`${subject}\n${body}`).filter((v) => !clientVarSet.has(v)),
+    [subject, body],
+  );
 
   const valid = recipients.length > 0 && subject.trim().length > 0 && body.trim().length > 0;
 
@@ -560,21 +743,45 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
           </button>
         </div>
 
-        {/* Textarea du corps */}
+        {/* Textarea du corps — hauteur modeste, l'auteur agrandit à la
+            volée s'il en a besoin ; on n'inflige pas 320 px vides sur mobile. */}
         <textarea
           ref={textareaRef}
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Bonjour {{prenom}},&#10;&#10;Écrivez votre message ici. Les variables {{prenom}}, {{nom}}, {{email}} sont remplacées par les vraies valeurs de chaque destinataire au moment de l'envoi."
-          rows={18}
+          rows={10}
           style={{
             display: "block", width: "100%", boxSizing: "border-box",
-            padding: "16px 18px", border: "none", outline: "none",
+            padding: "14px 18px 8px", border: "none", outline: "none",
             background: "transparent", color: C.t1,
-            fontFamily: FONT, fontSize: 14, lineHeight: 1.6,
-            resize: "vertical", minHeight: 320,
+            fontFamily: FONT, fontSize: 14, lineHeight: 1.55,
+            resize: "vertical", minHeight: 180,
           }}
         />
+
+        {/* Avertissement variables non remplies : on ne bloque pas
+            l'envoi, on informe. Le staff sait ce qu'il fait. */}
+        {remainingVars.length > 0 && (
+          <div style={{
+            margin: "0 18px 8px",
+            padding: "8px 12px", borderRadius: 8,
+            background: "rgba(220,170,60,0.08)",
+            border: "1px solid rgba(220,170,60,0.25)",
+            color: "#dcc47a",
+            fontSize: 11.5, lineHeight: 1.5,
+          }}>
+            Variable{remainingVars.length > 1 ? "s" : ""} non remplie{remainingVars.length > 1 ? "s" : ""} —
+            partira{remainingVars.length > 1 ? "ont" : ""} telle{remainingVars.length > 1 ? "s" : ""} quelle{remainingVars.length > 1 ? "s" : ""} :
+            {" "}
+            {remainingVars.map((v) => (
+              <code key={v} style={{
+                background: "rgba(255,255,255,0.06)", padding: "1px 5px",
+                borderRadius: 4, marginRight: 4, fontSize: 11,
+              }}>{`{{${v}}}`}</code>
+            ))}
+          </div>
+        )}
 
         {/* Feedback + actions */}
         <div style={{
