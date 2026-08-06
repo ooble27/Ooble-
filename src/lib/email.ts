@@ -79,3 +79,29 @@ export async function sendCustomEmail(input: {
 }): Promise<SendResult> {
   return invoke(input);
 }
+
+/**
+ * Notification interne : prévient le staff qu'un nouvel ordre vient d'être
+ * créé. Le destinataire côté staff est déterminé côté serveur (variable
+ * d'env STAFF_NOTIFICATION_EMAIL — jamais exposée au client) : le client
+ * ne peut pas rediriger la notification ailleurs.
+ *
+ * Best-effort : si la config manque, l'edge function répond en douceur et
+ * on ne remonte pas d'erreur à l'utilisateur — l'ordre lui-même est déjà
+ * enregistré, la notif est un plus.
+ */
+export interface StaffNewOrderInput {
+  ref: string;
+  side: "buy" | "sell";
+  cadAmount: string;
+  usdtAmount: string;
+  network: string;
+  address: string;
+  clientEmail: string;
+  clientName: string;
+  adminUrl: string;
+}
+
+export async function notifyStaffOfNewOrder(order: StaffNewOrderInput): Promise<SendResult> {
+  return invoke({ staffNotify: "new-order", order });
+}

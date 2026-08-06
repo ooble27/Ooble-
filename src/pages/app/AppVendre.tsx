@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { NETWORKS, type NetId } from "@/components/app/networks";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, notifyStaffOfNewOrder } from "@/lib/email";
 import { getMyProfile } from "@/lib/profile";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
@@ -116,6 +116,18 @@ const AppVendre = () => {
         },
       });
     }
+    // Prévient le staff (best-effort, silencieux si la config manque).
+    void notifyStaffOfNewOrder({
+      ref,
+      side: "sell",
+      cadAmount: nfCad.format(cad),
+      usdtAmount: nfUsdt.format(usdt),
+      network: network ? `${network.name} · ${network.tag}` : "—",
+      address: depositAddr,
+      clientEmail: user?.email ?? email,
+      clientName: user?.user_metadata?.full_name ?? "",
+      adminUrl: `${window.location.origin}/admin`,
+    });
   };
 
   if (step === "amount") {

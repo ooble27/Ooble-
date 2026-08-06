@@ -33,15 +33,14 @@ export const TEMPLATES: Record<string, string> = {
   "order-buy": template(
     eyebrow("Ordre d'achat") +
     heading("Payez par Interac pour recevoir vos USDT") +
-    lead("Envoyez un virement Interac e-Transfer avec les informations ci-dessous. Dès réception, nous envoyons vos USDT à votre adresse.") +
+    lead("Envoyez un virement Interac e-Transfer avec les informations ci-dessous. Dès réception, nous envoyons vos USDT à l'adresse que vous nous avez indiquée.") +
     dataRows([
-      ["Référence",             "{{ref}}",              true],
-      ["Montant à payer",       "{{cadAmount}} CAD"],
-      ["Vous recevrez",         "{{usdtAmount}} USDT"],
-      ["Réseau",                "{{network}}"],
-      ["Destinataire Interac",  "{{interacRecipient}}", true],
+      ["Référence",           "{{ref}}",                true],
+      ["Montant à payer",     "{{cadAmount}} CAD"],
+      ["Vous recevrez",       "{{usdtAmount}} USDT"],
+      ["Réseau",              "{{network}}"],
+      ["Adresse de réception","{{receptionAddress}}",   true],
     ]) +
-    notice("Indiquez la référence <strong>{{ref}}</strong> dans le message de votre e-Transfer. Le taux est garanti 15 minutes.") +
     primaryButton("{{orderUrl}}", "Voir ma commande"),
   ),
 

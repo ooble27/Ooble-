@@ -1,6 +1,6 @@
 // Fonction edge Ooble — envoi d'e-mails via Resend.
 //
-// Deux modes :
+// Trois modes :
 //
 //   ─── Mode « custom » (staff écrit librement) ────────────────
 //   POST JSON :
@@ -17,13 +17,27 @@
 //     { "to": "…", "template": "welcome" | "order-buy" | …,
 //       "vars": { … }, "subject": "(optionnel)" }
 //
+//   ─── Mode « staffNotify » (notification interne) ────────────
+//   POST JSON :
+//     { "staffNotify": "new-order",
+//       "order": { ref, side, cadAmount, usdtAmount, network, address,
+//                  clientEmail, clientName, adminUrl } }
+//
+//   Le destinataire est lu côté serveur (STAFF_NOTIFICATION_EMAIL) —
+//   jamais fourni par le client — pour qu'aucun appel navigateur ne
+//   puisse rediriger la notification ailleurs.
+//
 // Secrets requis (Supabase → Edge Functions → Secrets) :
-//   RESEND_API_KEY   clé API Resend
-//   EMAIL_FROM       ex. "Ooble <bonjour@ooble.ca>"  (domaine vérifié)
-//   EMAIL_ASSET_BASE ex. "https://ooble.ca/email-assets"
+//   RESEND_API_KEY              clé API Resend
+//   EMAIL_FROM                  ex. "Ooble <bonjour@ooble.ca>" (domaine vérifié)
+//   STAFF_NOTIFICATION_EMAIL    destinataire des notifs internes (nouvelles commandes)
+//   EMAIL_ASSET_BASE            ex. "https://ooble.ca/email-assets"
 
 import { TEMPLATES, SUBJECTS } from "./templates.ts";
-import { wrapCustomBody, htmlToText } from "./layout.ts";
+import {
+  wrapCustomBody, htmlToText,
+  eyebrow, heading, lead, dataRows, primaryButton,
+} from "./layout.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -43,6 +57,18 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+interface StaffOrderPayload {
+  ref: string;
+  side: "buy" | "sell";
+  cadAmount: string;
+  usdtAmount: string;
+  network: string;
+  address: string;
+  clientEmail: string;
+  clientName: string;
+  adminUrl: string;
+}
+
 interface Payload {
   to?: string;
   cc?: string[];
@@ -55,6 +81,9 @@ interface Payload {
   // Mode custom
   html?: string;
   text?: string;
+  // Mode staffNotify
+  staffNotify?: "new-order";
+  order?: StaffOrderPayload;
 }
 
 Deno.serve(async (req) => {
@@ -70,14 +99,33 @@ Deno.serve(async (req) => {
   try { payload = await req.json(); }
   catch { return json({ error: "JSON invalide." }, 400); }
 
-  const { to, cc, bcc, replyTo, subject, template, vars = {}, html, text } = payload;
-  if (!to) return json({ error: "Champ 'to' requis." }, 400);
+  const {
+    to: rawTo, cc, bcc, replyTo, subject, template, vars = {}, html, text,
+    staffNotify, order,
+  } = payload;
 
   let finalHtml: string;
   let finalText: string | undefined;
   let finalSubject: string;
+  let to = rawTo;
 
-  if (template) {
+  if (staffNotify === "new-order") {
+    // ─── Mode staffNotify — destinataire déterminé côté serveur ─
+    const staffTo = Deno.env.get("STAFF_NOTIFICATION_EMAIL")?.trim();
+    if (!staffTo) {
+      return json({
+        error: "STAFF_NOTIFICATION_EMAIL manquant : configurer le secret dans Supabase pour recevoir les notifications de nouvelles commandes.",
+      }, 500);
+    }
+    if (!order?.ref) return json({ error: "Champ 'order' requis (avec ref, side, montants…)." }, 400);
+    to = staffTo;
+    const built = buildStaffNewOrder(order, assetBase);
+    finalHtml = built.html;
+    finalText = built.text;
+    finalSubject = built.subject;
+  } else if (!rawTo) {
+    return json({ error: "Champ 'to' requis." }, 400);
+  } else if (template) {
     // ─── Mode template ────────────────────────────────────
     if (!(template in TEMPLATES)) {
       return json({ error: `Template inconnu : ${template}` }, 400);
@@ -129,3 +177,49 @@ Deno.serve(async (req) => {
   }
   return json({ ok: true, id: result.id });
 });
+
+// ────────────────────────────────────────────────────────────
+// Notification interne : nouvelle commande
+//
+// Rendu très scannable : sujet préfixé par le type d'ordre et la référence,
+// eyebrow + heading qui disent immédiatement ce que c'est, tableau
+// détaillé, bouton pour ouvrir la commande dans le back-office. Le mot
+// « MANUEL » n'apparaît nulle part : la file d'attente est déjà branchée,
+// ce mail est un rappel poussé (« au cas où »).
+// ────────────────────────────────────────────────────────────
+
+function buildStaffNewOrder(order: StaffOrderPayload, assetBase: string) {
+  const isBuy = order.side === "buy";
+  const sideLabel = isBuy ? "Ordre d'achat" : "Ordre de vente";
+  const clientDisplay = order.clientName?.trim()
+    ? `${order.clientName.trim()} · ${order.clientEmail}`
+    : order.clientEmail;
+  const headline = isBuy
+    ? `Achat ${order.usdtAmount} USDT pour ${order.cadAmount} CAD`
+    : `Vente ${order.usdtAmount} USDT pour ${order.cadAmount} CAD`;
+  const addressLabel = isBuy ? "Adresse de réception client" : "Adresse de dépôt (Ooble)";
+
+  const bodyHtml =
+    eyebrow(`Nouvelle commande · ${sideLabel}`) +
+    heading(headline) +
+    lead(
+      isBuy
+        ? "Un client vient de placer un ordre d'achat. Vous devez confirmer la réception de l'Interac puis envoyer les USDT à l'adresse indiquée."
+        : "Un client vient de placer un ordre de vente. Vous devez confirmer la réception des USDT sur l'adresse de dépôt puis envoyer l'Interac.",
+    ) +
+    dataRows([
+      ["Client",     clientDisplay],
+      ["Référence",  order.ref,            true],
+      ["Montant CAD", `${order.cadAmount} CAD`],
+      ["Montant USDT", `${order.usdtAmount} USDT`],
+      ["Réseau",     order.network],
+      [addressLabel, order.address,        true],
+    ]) +
+    primaryButton(order.adminUrl, "Ouvrir dans le back-office");
+
+  return {
+    html: wrapCustomBody({ bodyHtml, assetBase }),
+    text: `${sideLabel} — ${order.ref}\n\n${headline}\nClient : ${clientDisplay}\nRéseau : ${order.network}\n${addressLabel} : ${order.address}\n\nOuvrir : ${order.adminUrl}`,
+    subject: `Nouvelle commande ${isBuy ? "d'achat" : "de vente"} — ${order.ref}`,
+  };
+}

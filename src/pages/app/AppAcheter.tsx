@@ -8,9 +8,8 @@ import { NETWORKS, type NetId } from "@/components/app/networks";
 import { Button } from "@/components/ui/button";
 import { useUsdtRate } from "@/hooks/useUsdtRate";
 import { createOrder, orderRef } from "@/lib/orders";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, notifyStaffOfNewOrder } from "@/lib/email";
 import { useAuth } from "@/lib/auth";
-import { OOBLE_INTERAC_EMAIL } from "@/lib/config";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -92,11 +91,23 @@ const AppAcheter = () => {
           cadAmount: nfCad.format(cad),
           usdtAmount: nfUsdt.format(usdt),
           network: network ? `${network.name} · ${network.tag}` : "—",
-          interacRecipient: OOBLE_INTERAC_EMAIL,
+          receptionAddress: address,
           orderUrl: `${window.location.origin}/app`,
         },
       });
     }
+    // Prévient le staff (best-effort, silencieux si la config manque).
+    void notifyStaffOfNewOrder({
+      ref,
+      side: "buy",
+      cadAmount: nfCad.format(cad),
+      usdtAmount: nfUsdt.format(usdt),
+      network: network ? `${network.name} · ${network.tag}` : "—",
+      address,
+      clientEmail: user?.email ?? "",
+      clientName: user?.user_metadata?.full_name ?? "",
+      adminUrl: `${window.location.origin}/admin`,
+    });
   };
 
   if (step === "amount") {
