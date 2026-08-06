@@ -30,12 +30,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Send, Mail, Inbox, Sparkles, Check, AlertTriangle, Eye, Bold, Italic,
   List, ListOrdered, Link as LinkIcon, Heading2, Quote, Minus, Copy,
-  X, User, Users,
+  X, User, Users, Wand2, Loader2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { sendCustomEmail } from "@/lib/email";
 import { loadSent, recordSent, type SentMail } from "@/lib/mailHistory";
-import { fetchClientDirectory, type ClientDirectoryEntry } from "@/lib/adminClient";
+import {
+  fetchClientDirectory, fetchClientProfile,
+  type ClientDirectoryEntry,
+} from "@/lib/adminClient";
+import { draftMail, isAIError, toAIClientContext } from "@/lib/ai";
 import {
   markdownToHtml, wrapSelection, insertAtCursor, prefixLines, defaultSignature,
   substituteVars, extractRemainingVars, CLIENT_VARS,
@@ -506,6 +510,11 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
   const [feedback, setFeedback] = useState<null | { kind: "ok" | "err"; text: string }>(null);
   const [showPreview, setShowPreview] = useState(true);
 
+  // Assistant IA — état du prompt + du chargement.
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
@@ -621,6 +630,42 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
     insertAtCursor(t, `[${label}](${url})`);
   });
 
+  // Assistant IA : appelle l'agent draft-mail avec l'intention + contexte
+  // du premier destinataire (si c'est un vrai client de l'annuaire, on
+  // charge son profil complet pour donner du contexte à Claude).
+  const runAiDraft = async () => {
+    const intention = aiPrompt.trim();
+    if (!intention || aiBusy) return;
+    setAiBusy(true);
+    setFeedback(null);
+    try {
+      // Contexte client si un vrai destinataire est sélectionné.
+      let clientCtx: ReturnType<typeof toAIClientContext> | null = null;
+      const target = recipients.find((r) => r.id);
+      if (target?.id) {
+        const profile = await fetchClientProfile(target.id);
+        if (profile) clientCtx = toAIClientContext(profile);
+      }
+      const res = await draftMail({ intention, client: clientCtx });
+      if (isAIError(res)) {
+        setFeedback({ kind: "err", text: res.error });
+      } else {
+        setSubject(res.subject);
+        setBody(`${res.body}\n${signature}`);
+        setAiPrompt("");
+        setAiOpen(false);
+        setFeedback({
+          kind: "ok",
+          text: `Draft généré (${res.tokens.in} + ${res.tokens.out} tokens). Ajustez à votre goût avant d'envoyer.`,
+        });
+      }
+    } catch (e) {
+      setFeedback({ kind: "err", text: e instanceof Error ? e.message : "Erreur inconnue." });
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   const addRecipient = (r: Recipient) => {
     setRecipients((prev) => prev.some((x) => x.email.toLowerCase() === r.email.toLowerCase()) ? prev : [...prev, r]);
   };
@@ -725,6 +770,25 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
               {"{{prenom}}"}
             </span>
           </ToolbarButton>
+          <ToolbarSeparator />
+          <button
+            type="button"
+            onClick={() => setAiOpen((v) => !v)}
+            title="Assistant IA — rédiger un draft"
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              height: 30, padding: "0 10px", borderRadius: 7, border: "none",
+              background: aiOpen ? "rgba(255,255,255,0.08)" : "transparent",
+              color: aiOpen ? C.t1 : C.t2,
+              cursor: "pointer", fontFamily: FONT, fontSize: 11.5,
+              transition: "background 0.12s, color 0.12s",
+            }}
+            onMouseEnter={(e) => { if (!aiOpen) { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = C.t1; } }}
+            onMouseLeave={(e) => { if (!aiOpen) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.t2; } }}
+          >
+            <Wand2 style={{ width: 12, height: 12 }} strokeWidth={1.8} />
+            Suggérer
+          </button>
           <div style={{ flex: 1 }} />
           <button
             type="button"
@@ -742,6 +806,63 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
             {showPreview ? "Cacher l'aperçu" : "Voir l'aperçu"}
           </button>
         </div>
+
+        {/* Assistant IA — bandeau plié/déplié pour saisir l'intention. */}
+        {aiOpen && (
+          <div style={{
+            padding: "12px 18px", borderBottom: `1px solid ${C.bds}`,
+            background: "rgba(255,255,255,0.02)",
+            display: "flex", alignItems: "flex-start", gap: 10,
+          }}>
+            <Wand2 style={{ width: 14, height: 14, color: C.t2, marginTop: 6 }} strokeWidth={1.8} />
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void runAiDraft(); }
+                }}
+                placeholder="Décrivez ce que vous voulez dire, en une phrase. Ex : « réponds gentiment qu'on a bien reçu son KYC mais qu'il manque la preuve d'adresse »."
+                rows={2}
+                style={{
+                  display: "block", width: "100%", boxSizing: "border-box",
+                  padding: "6px 0", border: "none", outline: "none",
+                  background: "transparent", color: C.t1,
+                  fontFamily: FONT, fontSize: 13, lineHeight: 1.5,
+                  resize: "none",
+                }}
+              />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
+                <span style={{ fontSize: 10.5, color: C.t3 }}>
+                  {recipients.find((r) => r.id)
+                    ? `Contexte : ${recipients.find((r) => r.id)?.fullName} sera utilisé pour personnaliser.`
+                    : "Aucun contexte client — sélectionnez un destinataire pour un draft plus fin."}
+                  {" · "}
+                  <kbd style={{ fontFamily: FONT, fontSize: 10 }}>⌘</kbd>+<kbd style={{ fontFamily: FONT, fontSize: 10 }}>Entrée</kbd> pour lancer.
+                </span>
+                <button
+                  type="button"
+                  onClick={runAiDraft}
+                  disabled={!aiPrompt.trim() || aiBusy}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    height: 28, padding: "0 12px", borderRadius: 7, border: "none",
+                    background: aiPrompt.trim() && !aiBusy ? C.accent : C.l3,
+                    color: aiPrompt.trim() && !aiBusy ? "#111" : C.t3,
+                    fontSize: 11.5, fontFamily: FONT,
+                    cursor: aiPrompt.trim() && !aiBusy ? "pointer" : "default",
+                    transition: "background 0.15s",
+                  }}
+                >
+                  {aiBusy
+                    ? <Loader2 style={{ width: 12, height: 12, animation: "spin 1s linear infinite" }} />
+                    : <Wand2 style={{ width: 12, height: 12 }} strokeWidth={1.8} />}
+                  {aiBusy ? "Génération…" : "Générer le draft"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Textarea du corps — hauteur modeste, l'auteur agrandit à la
             volée s'il en a besoin ; on n'inflige pas 320 px vides sur mobile. */}

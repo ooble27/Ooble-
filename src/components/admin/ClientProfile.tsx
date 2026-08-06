@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, Copy, Check, Coins, HandCoins, ChevronRight } from "lucide-react";
+import { ArrowLeft, Copy, Check, Coins, HandCoins, ChevronRight, Wand2, Loader2, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { nfCad } from "@/lib/adminOrders";
 import { orderRef } from "@/lib/orders";
@@ -7,7 +7,8 @@ import {
   fetchClientProfile, fetchClientOrders, KYC_LABEL,
   type ClientProfile as ClientProfileData, type ClientOrder,
 } from "@/lib/adminClient";
-import { C, FONT, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
+import { summarizeClient, isAIError, toAIClientContext, toAIOrderSummaries } from "@/lib/ai";
+import { C, FONT, card, heroCard, heroNumber, heroUnit, sH } from "./adminTheme";
 import ClientNotes from "./ClientNotes";
 import ClientTimeline from "./ClientTimeline";
 import RiskScoreCard from "./RiskScoreCard";
@@ -40,6 +41,24 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState<string | null>(null);
+
+  // Résumé IA — chargé à la demande sur clic du bouton « Résumer ».
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const runSummary = async () => {
+    if (!profile || aiBusy) return;
+    setAiBusy(true);
+    setAiError(null);
+    const res = await summarizeClient({
+      client: toAIClientContext(profile),
+      orders: toAIOrderSummaries(orders),
+    });
+    setAiBusy(false);
+    if (isAIError(res)) setAiError(res.error);
+    else setAiSummary(res.summary);
+  };
 
   useEffect(() => {
     let active = true;
@@ -209,6 +228,61 @@ const ClientProfile = ({ userId, clientName, onBack, onOpenOrder }: Props) => {
               </div>
             )}
           </div>
+
+          {/* Résumé IA — carte au-dessus des autres pour un contexte immédiat. */}
+          {profile && (
+            <div style={{ ...card, padding: 16, fontFamily: FONT }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: aiSummary || aiError || aiBusy ? 12 : 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Wand2 style={{ width: 15, height: 15, color: C.t2 }} strokeWidth={1.7} />
+                  <span style={sH}>Résumé assistant</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={runSummary}
+                  disabled={aiBusy}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    height: 30, padding: "0 12px", borderRadius: 8, border: `1px solid ${C.bd}`,
+                    background: aiBusy ? C.l3 : "transparent",
+                    color: aiBusy ? C.t3 : C.t1, fontSize: 12, fontFamily: FONT,
+                    cursor: aiBusy ? "default" : "pointer",
+                    transition: "border-color 0.12s, color 0.12s",
+                  }}
+                  onMouseEnter={(e) => { if (!aiBusy) { e.currentTarget.style.borderColor = C.accentBd; e.currentTarget.style.color = C.accent; } }}
+                  onMouseLeave={(e) => { if (!aiBusy) { e.currentTarget.style.borderColor = C.bd; e.currentTarget.style.color = C.t1; } }}
+                >
+                  {aiBusy
+                    ? <Loader2 style={{ width: 13, height: 13, animation: "spin 1s linear infinite" }} />
+                    : <Wand2 style={{ width: 13, height: 13 }} strokeWidth={1.7} />}
+                  {aiBusy ? "Analyse…" : aiSummary ? "Régénérer" : "Résumer"}
+                </button>
+              </div>
+              {aiError && (
+                <div style={{
+                  padding: "8px 12px", borderRadius: 8,
+                  background: "rgba(200,60,60,0.10)", border: "1px solid rgba(200,60,60,0.3)",
+                  color: "#f2c1c1", fontSize: 12, display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  <AlertTriangle style={{ width: 13, height: 13 }} strokeWidth={2} />
+                  {aiError}
+                </div>
+              )}
+              {aiSummary && !aiError && (
+                <div style={{
+                  fontSize: 13.5, lineHeight: 1.65, color: C.t1,
+                  whiteSpace: "pre-wrap",
+                }}>
+                  {aiSummary}
+                </div>
+              )}
+              {!aiSummary && !aiError && !aiBusy && (
+                <p style={{ fontSize: 12, color: C.t3, margin: 0, lineHeight: 1.5 }}>
+                  Cliquez sur « Résumer » pour générer un aperçu du dossier en 4-6 puces (profil, volume, KYC, points d'attention).
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Score de risque calculé — visible juste après l'identité */}
           {profile && <RiskScoreCard profile={profile} />}
