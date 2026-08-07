@@ -736,7 +736,7 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading, rep
                 value={cc}
                 onChange={(e) => setCc(e.target.value)}
                 placeholder="conformite@ooble.ca, direction@ooble.ca"
-                style={{ ...inputStyle, border: "none", padding: 0, background: "transparent" }}
+                style={{ ...inputStyle, border: "none", padding: 0, background: "transparent", fontSize: 16 }}
                 spellCheck={false}
                 autoCapitalize="none"
               />
@@ -763,7 +763,7 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading, rep
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Objet du message"
-              style={{ ...inputStyle, border: "none", padding: 0, background: "transparent" }}
+              style={{ ...inputStyle, border: "none", padding: 0, background: "transparent", fontSize: 16 }}
             />
           </FieldRow>
         </div>
@@ -864,7 +864,7 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading, rep
                   display: "block", width: "100%", boxSizing: "border-box",
                   padding: "6px 0", border: "none", outline: "none",
                   background: "transparent", color: C.t1,
-                  fontFamily: FONT, fontSize: 13, lineHeight: 1.5,
+                  fontFamily: FONT, fontSize: 16, lineHeight: 1.5,
                   resize: "none",
                 }}
               />
@@ -1121,7 +1121,7 @@ function RecipientPicker({ selected, clients, loading, onAdd, onRemove, onSelect
           style={{
             flex: 1, minWidth: 180,
             border: "none", outline: "none", background: "transparent",
-            color: C.t1, fontFamily: FONT, fontSize: 13.5,
+            color: C.t1, fontFamily: FONT, fontSize: 16,
             padding: "6px 0",
           }}
         />

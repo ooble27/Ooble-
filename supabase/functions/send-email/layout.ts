@@ -149,7 +149,7 @@ function renderFooter(year: number): string {
         </div>
         <div class="row fine">
           Vous recevez cet e-mail parce que vous avez un compte sur Ooble.
-          Pour les demandes urgentes, répondez directement à ce message — un membre de l'équipe vous répond.
+          Pour les demandes urgentes, répondez directement à ce message. Un membre de l'équipe vous répond.
           <br />&copy; ${year} ${escape(COMPANY.legal)}. Tous droits réservés.
         </div>
       </div>`;

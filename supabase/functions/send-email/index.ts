@@ -219,7 +219,7 @@ function buildStaffNewOrder(order: StaffOrderPayload, assetBase: string) {
 
   return {
     html: wrapCustomBody({ bodyHtml, assetBase }),
-    text: `${sideLabel} — ${order.ref}\n\n${headline}\nClient : ${clientDisplay}\nRéseau : ${order.network}\n${addressLabel} : ${order.address}\n\nOuvrir : ${order.adminUrl}`,
-    subject: `Nouvelle commande ${isBuy ? "d'achat" : "de vente"} — ${order.ref}`,
+    text: `${sideLabel} ${order.ref}\n\n${headline}\nClient : ${clientDisplay}\nRéseau : ${order.network}\n${addressLabel} : ${order.address}\n\nOuvrir : ${order.adminUrl}`,
+    subject: `Nouvelle commande ${isBuy ? "d'achat" : "de vente"} ${order.ref}`,
   };
 }

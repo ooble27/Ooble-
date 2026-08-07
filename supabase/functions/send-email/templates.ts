@@ -21,7 +21,7 @@ export const TEMPLATES: Record<string, string> = {
   welcome: template(
     eyebrow("Bienvenue") +
     heading("Bienvenue sur Ooble, {{firstName}}") +
-    lead("Votre compte est créé. Vous pouvez acheter et vendre de l'USDT en dollars canadiens, réglé par Interac e-Transfer — de façon simple, rapide et non-custodial.") +
+    lead("Votre compte est créé. Vous pouvez acheter et vendre de l'USDT en dollars canadiens, réglé par Interac e-Transfer, de façon simple, rapide et non-custodial.") +
     dataRows([
       ["USDT",       "6 réseaux au choix"],
       ["Paiement",   "Interac e-Transfer"],
@@ -62,7 +62,7 @@ export const TEMPLATES: Record<string, string> = {
   "payment-received": template(
     eyebrow("Paiement reçu") +
     heading("Nous avons bien reçu votre paiement") +
-    lead("Votre paiement est confirmé. Notre équipe traite votre commande — vous recevrez vos USDT très bientôt.") +
+    lead("Votre paiement est confirmé. Notre équipe traite votre commande. Vous recevrez vos USDT très bientôt.") +
     dataRows([
       ["Référence",     "{{ref}}",             true],
       ["Montant reçu",  "{{amount}}"],
@@ -75,7 +75,7 @@ export const TEMPLATES: Record<string, string> = {
   "order-completed": template(
     eyebrow("Terminé") +
     heading("Votre transaction est terminée") +
-    lead("C'est réglé — voici le récapitulatif de votre transaction.") +
+    lead("C'est réglé. Voici le récapitulatif de votre transaction.") +
     dataRows([
       ["Référence",           "{{ref}}",          true],
       ["{{summaryLabel}}",    "{{summaryValue}}"],
@@ -98,7 +98,7 @@ export const SUBJECTS: Record<string, string> = {
   welcome:            "Bienvenue sur Ooble",
   "order-buy":        "Votre ordre d'achat Ooble ({{ref}})",
   "order-sell":       "Votre ordre de vente Ooble ({{ref}})",
-  "payment-received": "Paiement reçu — on traite votre commande ({{ref}})",
+  "payment-received": "Paiement reçu, on traite votre commande ({{ref}})",
   "order-completed":  "Transaction terminée ({{ref}})",
   newsletter:         "{{subjectLine}}",
 };
