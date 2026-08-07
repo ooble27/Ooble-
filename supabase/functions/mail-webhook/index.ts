@@ -99,10 +99,16 @@ Deno.serve(async (req) => {
 
   const resendId = (data.email_id as string) ?? (data.id as string) ?? null;
 
-  // Debug : si tout est vide, on log le payload brut pour comprendre.
-  if (!bodyText && !bodyHtml) {
-    console.warn("mail-webhook: text ET html vides — payload:", JSON.stringify(data).slice(0, 2000));
+  // Debug : si tout est vide, on stocke le payload brut comme corps du
+  // message pour qu'il soit visible dans le back-office et qu'on comprenne
+  // quel format Resend nous envoie exactement.
+  const debugDump = (!bodyText && !bodyHtml)
+    ? `[DEBUG payload brut Resend — texte et html vides]\n\n${JSON.stringify(payload, null, 2).slice(0, 6000)}`
+    : null;
+  if (debugDump) {
+    console.warn("mail-webhook: text ET html vides — payload complet:", JSON.stringify(payload).slice(0, 4000));
   }
+  const effectiveBodyText = bodyText || debugDump;
 
   // Extraire l'ID du thread depuis le plus-addressing :
   //   support+t.{uuid}@ooble.ca  →  thread existant
@@ -130,7 +136,7 @@ Deno.serve(async (req) => {
         from_name: senderName || null,
         to_email: toAddresses[0] ?? "",
         subject,
-        body_text: bodyText || null,
+        body_text: effectiveBodyText,
         body_html: bodyHtml || null,
         resend_id: resendId,
       });
