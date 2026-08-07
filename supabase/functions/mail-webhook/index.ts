@@ -44,7 +44,9 @@ function cleanSubject(s: string): string {
 }
 
 // Récupère le contenu complet d'un email reçu via l'API Resend.
-// Utilisé quand le webhook n'envoie pas text/html directement.
+// Le webhook Resend Inbound n'envoie QUE les métadonnées, il faut appeler
+// l'API pour obtenir text/html/attachments.
+// Endpoint : https://api.resend.com/emails/receiving/:id
 async function fetchResendEmail(id: string, apiKey: string): Promise<{
   text: string;
   html: string;
@@ -52,28 +54,39 @@ async function fetchResendEmail(id: string, apiKey: string): Promise<{
   from: string;
   to: string[];
 } | null> {
-  try {
-    const res = await fetch(`https://api.resend.com/emails/received/${id}`, {
-      headers: { Authorization: `Bearer ${apiKey}` },
-    });
-    if (!res.ok) {
-      console.error(`fetchResendEmail: HTTP ${res.status}`, await res.text());
-      return null;
+  // On essaie plusieurs endpoints (l'API a évolué au fil du temps) et
+  // on prend le premier qui répond 200.
+  const urls = [
+    `https://api.resend.com/emails/receiving/${id}`,
+    `https://api.resend.com/emails/received/${id}`,
+    `https://api.resend.com/received-emails/${id}`,
+  ];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        console.warn(`fetchResendEmail: ${url} → HTTP ${res.status}`, errText.slice(0, 200));
+        continue;
+      }
+      const email = await res.json();
+      const d = (email.data ?? email) as Record<string, unknown>;
+      console.log(`fetchResendEmail: succès sur ${url}, keys:`, Object.keys(d));
+      return {
+        text: (d.text as string) || "",
+        html: (d.html as string) || "",
+        subject: (d.subject as string) || "",
+        from: (d.from as string) || "",
+        to: Array.isArray(d.to) ? (d.to as string[]) : [],
+      };
+    } catch (e) {
+      console.warn(`fetchResendEmail: ${url} → erreur`, e);
     }
-    const email = await res.json();
-    // La réponse peut être plate ou dans un champ `data`.
-    const d = (email.data ?? email) as Record<string, unknown>;
-    return {
-      text: (d.text as string) || "",
-      html: (d.html as string) || "",
-      subject: (d.subject as string) || "",
-      from: (d.from as string) || "",
-      to: Array.isArray(d.to) ? (d.to as string[]) : [],
-    };
-  } catch (e) {
-    console.error("fetchResendEmail: erreur", e);
-    return null;
   }
+  console.error(`fetchResendEmail: aucun endpoint ne répond pour id=${id}`);
+  return null;
 }
 
 Deno.serve(async (req) => {
