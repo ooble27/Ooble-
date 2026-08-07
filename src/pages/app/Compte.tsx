@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight, MessageSquare, Building2 } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound, Sun, Moon, LayoutGrid, ChevronRight, MessageSquare, Building2, Bell, BellOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
@@ -13,6 +13,7 @@ import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import type { TKey } from "@/lib/translations";
+import { pushSupported, isSubscribed, subscribePush, unsubscribePush } from "@/lib/pushNotifications";
 
 const KYC_KEYS: Record<KycDbStatus, TKey> = {
   not_started: "kyc.notStarted",
@@ -35,10 +36,14 @@ const Compte = () => {
   const [theme, setThemeState] = useState<Theme>(getTheme);
   const [profile, setProfile] = useState<MyProfile | null>(null);
   const [kyc, setKyc] = useState<KycDbStatus | null>(null);
+  const [pushOn, setPushOn] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+  const hasPush = pushSupported();
 
   useEffect(() => {
     getMyProfile().then(setProfile);
     getMyKyc().then((k) => setKyc(k?.status ?? "not_started"));
+    if (hasPush) isSubscribed().then(setPushOn);
   }, []);
 
   const chooseTheme = (th: Theme) => {
@@ -152,6 +157,40 @@ const Compte = () => {
         <span className="flex-1 text-sm font-medium">{t("acct.language")}</span>
         <LangPicker />
       </div>
+
+      {/* Notifications push */}
+      {hasPush && (
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4">
+          {pushOn
+            ? <Bell className="h-5 w-5 text-primary" strokeWidth={1.9} />
+            : <BellOff className="h-5 w-5 text-muted-foreground" strokeWidth={1.9} />}
+          <div className="flex-1">
+            <span className="text-sm font-medium">{t("acct.notifications")}</span>
+            <p className="text-[11.5px] text-muted-foreground">{t("acct.notifSub")}</p>
+          </div>
+          <button
+            type="button"
+            disabled={pushLoading}
+            onClick={async () => {
+              setPushLoading(true);
+              if (pushOn) {
+                await unsubscribePush();
+                setPushOn(false);
+              } else {
+                const ok = await subscribePush();
+                setPushOn(ok);
+              }
+              setPushLoading(false);
+            }}
+            className={cn(
+              "rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors",
+              pushOn ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary",
+            )}
+          >
+            {pushLoading ? "…" : pushOn ? t("acct.notifOff") : t("acct.notifOn")}
+          </button>
+        </div>
+      )}
 
       <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
         <Link to="/app/verification" className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-secondary/40">

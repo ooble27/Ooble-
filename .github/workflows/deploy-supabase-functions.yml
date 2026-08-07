@@ -29,5 +29,7 @@ jobs:
           supabase functions deploy sumsub-token --project-ref uukxacjjviiktmbikdwp
           supabase functions deploy sumsub-webhook --project-ref uukxacjjviiktmbikdwp --no-verify-jwt
           supabase functions deploy mail-webhook --project-ref uukxacjjviiktmbikdwp --no-verify-jwt
+          supabase functions deploy push-notify --project-ref uukxacjjviiktmbikdwp
+          supabase functions deploy order-notify --project-ref uukxacjjviiktmbikdwp --no-verify-jwt
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
