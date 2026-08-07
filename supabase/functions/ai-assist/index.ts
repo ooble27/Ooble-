@@ -238,14 +238,15 @@ function clientContextToText(c: ClientContext): string {
   return lines.join("\n");
 }
 
+/**
+ * Vérifie que l'utilisateur appartient au staff. On délègue à la fonction
+ * SQL `is_staff(uuid)` déjà utilisée par toutes les politiques RLS du
+ * projet — pas de duplication de la liste des rôles ici.
+ */
 async function isStaff(client: SupabaseClient, userId: string): Promise<boolean> {
-  const { data, error } = await client
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .in("role", ["admin", "agent", "director", "compliance"]);
+  const { data, error } = await client.rpc("is_staff", { _user_id: userId });
   if (error) return false;
-  return (data ?? []).length > 0;
+  return data === true;
 }
 
 async function logCall(
