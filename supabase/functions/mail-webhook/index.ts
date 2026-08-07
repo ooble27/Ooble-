@@ -49,10 +49,14 @@ Deno.serve(async (req) => {
   try { payload = await req.json(); }
   catch { return json({ error: "JSON invalide" }, 400); }
 
-  // Resend Inbound envoie { type: "email.received", data: { ... } }
-  if (payload.type !== "email.received") return json({ ok: true, skipped: true });
+  // DEBUG TEMPORAIRE : on log TOUS les payloads reçus (peu importe le type)
+  // pour vérifier que Resend appelle bien le webhook.
+  console.warn("mail-webhook: type reçu =", payload.type, "keys:", Object.keys(payload));
 
-  const data = payload.data as Record<string, unknown> | undefined;
+  // Resend Inbound envoie { type: "email.received", data: { ... } }
+  // On accepte aussi les autres types en mode debug pour ne pas les perdre.
+  const data = (payload.data as Record<string, unknown> | undefined)
+    ?? (payload as Record<string, unknown>);
   if (!data) return json({ ok: true, skipped: true });
 
   // `from` peut être une string ("Nom <a@b.c>"), un objet {email, name},
@@ -99,16 +103,12 @@ Deno.serve(async (req) => {
 
   const resendId = (data.email_id as string) ?? (data.id as string) ?? null;
 
-  // Debug : si tout est vide, on stocke le payload brut comme corps du
-  // message pour qu'il soit visible dans le back-office et qu'on comprenne
-  // quel format Resend nous envoie exactement.
-  const debugDump = (!bodyText && !bodyHtml)
-    ? `[DEBUG payload brut Resend — texte et html vides]\n\n${JSON.stringify(payload, null, 2).slice(0, 6000)}`
-    : null;
-  if (debugDump) {
-    console.warn("mail-webhook: text ET html vides — payload complet:", JSON.stringify(payload).slice(0, 4000));
-  }
-  const effectiveBodyText = bodyText || debugDump;
+  // DEBUG TEMPORAIRE : on stocke TOUJOURS le payload brut dans body_text
+  // pour comprendre exactement ce que Resend envoie. À retirer une fois
+  // le format des champs identifié.
+  const rawDump = `[DEBUG payload Resend brut — champs détectés : text=${bodyText ? bodyText.length + " chars" : "vide"}, html=${bodyHtml ? bodyHtml.length + " chars" : "vide"}]\n\n${JSON.stringify(payload, null, 2).slice(0, 8000)}`;
+  console.warn("mail-webhook: payload brut:", JSON.stringify(payload).slice(0, 4000));
+  const effectiveBodyText = rawDump;
 
   // Extraire l'ID du thread depuis le plus-addressing :
   //   support+t.{uuid}@ooble.ca  →  thread existant
