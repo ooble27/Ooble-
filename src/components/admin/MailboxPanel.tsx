@@ -26,11 +26,12 @@
  *   4. Réception — bloc de configuration expliquant les étapes pour activer
  *                  la réception (Resend Inbound + webhook).
  */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Send, Mail, Inbox, Sparkles, Check, AlertTriangle, Eye, Bold, Italic,
   List, ListOrdered, Link as LinkIcon, Heading2, Quote, Minus, Copy,
-  X, User, Users, Wand2, Loader2,
+  X, User, Users, Wand2, Loader2, ArrowLeft, Reply, Archive, MailOpen,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { sendCustomEmail } from "@/lib/email";
@@ -44,6 +45,11 @@ import {
   markdownToHtml, wrapSelection, insertAtCursor, prefixLines, defaultSignature,
   substituteVars, extractRemainingVars, CLIENT_VARS,
 } from "@/lib/mailComposer";
+import {
+  fetchThreads, fetchMessages, markThreadRead, archiveThread,
+  createThread, insertOutboundMessage, threadReplyTo, countUnread,
+  type MailThread, type MailMessage,
+} from "@/lib/mailThreads";
 import AdminHero from "./AdminHero";
 import { SubTabs } from "./AdminBits";
 import { C, FONT, card, sH, inputStyle, listRowStyle } from "./adminTheme";
@@ -494,9 +500,10 @@ interface ComposeViewProps {
   onConsumed: () => void;
   clients: ClientDirectoryEntry[];
   clientsLoading: boolean;
+  replyThreadId?: string | null;
 }
 
-function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: ComposeViewProps) {
+function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading, replyThreadId }: ComposeViewProps) {
   const { session } = useAuth();
   const author = session?.user?.email ?? "staff";
   const signature = useMemo(() => defaultSignature(author), [author]);
@@ -569,13 +576,42 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading }: C
       const bodyRendered = substituteVars(body, vars);
       const html = markdownToHtml(bodyRendered);
 
+      // Thread tracking : créer ou réutiliser un thread pour
+      // rattacher les réponses du client.
+      let usedThreadId = replyThreadId ?? null;
+      if (!usedThreadId) {
+        usedThreadId = await createThread({
+          clientId: r.id ?? null,
+          clientEmail: r.email,
+          clientName: r.fullName || null,
+          subject: subj,
+        });
+      }
+
+      const replyTo = usedThreadId ? threadReplyTo(usedThreadId) : undefined;
       const res = await sendCustomEmail({
         to: r.email,
         subject: subj,
         html,
         text: bodyRendered,
         cc: ccList.length > 0 ? ccList : undefined,
+        replyTo,
       });
+
+      // Enregistrer le message sortant dans le thread.
+      if (!res.error && usedThreadId) {
+        await insertOutboundMessage({
+          threadId: usedThreadId,
+          fromEmail: author,
+          fromName: "Ooble",
+          toEmail: r.email,
+          subject: subj,
+          bodyText: bodyRendered,
+          bodyHtml: html,
+          staffId: session?.user?.id,
+          resendId: res.id,
+        });
+      }
 
       recordSent({
         id: crypto.randomUUID(),
@@ -1376,35 +1412,261 @@ function SnippetsView({ onLoad }: SnippetsViewProps) {
 
 // ─────────────────── Boîte de réception ───────────────────
 
-function InboxView() {
-  return (
-    <div style={{ ...card, padding: 26, fontFamily: FONT }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+const msgDateFmt = new Intl.DateTimeFormat("fr-CA", {
+  day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+});
+
+function snippet(text: string | null, max = 100): string {
+  if (!text) return "";
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length <= max ? clean : `${clean.slice(0, max)}...`;
+}
+
+interface InboxViewProps {
+  onReply: (thread: MailThread) => void;
+}
+
+function InboxView({ onReply }: InboxViewProps) {
+  const [threads, setThreads] = useState<MailThread[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedThread, setSelectedThread] = useState<MailThread | null>(null);
+  const [messages, setMessages] = useState<MailMessage[]>([]);
+  const [msgsLoading, setMsgsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchThreads().then((t) => { setThreads(t); setLoading(false); });
+  }, []);
+
+  const openThread = async (t: MailThread) => {
+    setSelectedThread(t);
+    setMsgsLoading(true);
+    const msgs = await fetchMessages(t.id);
+    setMessages(msgs);
+    setMsgsLoading(false);
+    if (t.hasUnread) {
+      await markThreadRead(t.id);
+      setThreads((prev) => prev.map((x) => x.id === t.id ? { ...x, hasUnread: false } : x));
+    }
+  };
+
+  const doArchive = async (id: string) => {
+    await archiveThread(id);
+    setThreads((prev) => prev.filter((x) => x.id !== id));
+    setSelectedThread(null);
+  };
+
+  // Vue détail d'un thread
+  if (selectedThread) {
+    return (
+      <div style={card}>
+        {/* En-tête */}
         <div style={{
-          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-          background: "rgba(255,255,255,0.05)", border: `1px solid ${C.bds}`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: C.t2,
+          padding: "14px 18px", borderBottom: `1px solid ${C.bds}`,
+          display: "flex", alignItems: "center", gap: 12,
         }}>
-          <Inbox style={{ width: 16, height: 16 }} strokeWidth={1.7} />
+          <button
+            onClick={() => setSelectedThread(null)}
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 30, height: 30, borderRadius: 7,
+              background: "transparent", border: `1px solid ${C.bds}`,
+              color: C.t2, cursor: "pointer", flexShrink: 0,
+              transition: "all 0.12s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accentBd; e.currentTarget.style.color = C.t1; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.bds; e.currentTarget.style.color = C.t2; }}
+          >
+            <ArrowLeft style={{ width: 14, height: 14 }} strokeWidth={1.7} />
+          </button>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ margin: 0, fontSize: 13.5, color: C.t1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {selectedThread.subject}
+            </p>
+            <p style={{ margin: "2px 0 0", fontSize: 11, color: C.t3 }}>
+              {selectedThread.clientName || selectedThread.clientEmail} · {selectedThread.messageCount} message{selectedThread.messageCount > 1 ? "s" : ""}
+            </p>
+          </div>
+          <button
+            onClick={() => onReply(selectedThread)}
+            style={{
+              height: 30, padding: "0 14px", borderRadius: 7, border: "none",
+              background: C.accent, color: "#111",
+              fontSize: 11.5, fontFamily: FONT,
+              display: "inline-flex", alignItems: "center", gap: 5,
+              cursor: "pointer", transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = C.accentHover; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = C.accent; }}
+          >
+            <Reply style={{ width: 12, height: 12 }} strokeWidth={2} />
+            Répondre
+          </button>
+          <button
+            onClick={() => doArchive(selectedThread.id)}
+            title="Archiver"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 30, height: 30, borderRadius: 7,
+              background: "transparent", border: `1px solid ${C.bds}`,
+              color: C.t3, cursor: "pointer", transition: "all 0.12s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.accentBd; e.currentTarget.style.color = C.t1; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.bds; e.currentTarget.style.color = C.t3; }}
+          >
+            <Archive style={{ width: 13, height: 13 }} strokeWidth={1.7} />
+          </button>
         </div>
-        <div style={{ minWidth: 0 }}>
-          <p style={{ fontSize: 14, color: C.t1, margin: 0 }}>Réception — à activer</p>
-          <p style={{ fontSize: 12.5, color: C.t3, margin: "8px 0 0", lineHeight: 1.6 }}>
-            Pour recevoir les réponses des clients ici (et pouvoir cliquer sur « Répondre » pour ouvrir
-            le composer préchargé), activer <strong style={{ color: C.t2 }}>Resend Inbound</strong>
-            sur <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>replies@ooble.ca</code>
-            et brancher un webhook <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>mail-webhook</code>
-            qui insère dans une table <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>mail_messages</code>.
-          </p>
-          <ol style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 12, color: C.t3, lineHeight: 1.7 }}>
-            <li>Activer Resend Inbound + créer la route sur <code>replies@ooble.ca</code>.</li>
-            <li>Déployer une edge function <code>mail-webhook</code> qui parse les événements et insère dans <code>mail_messages</code>.</li>
-            <li>Ajouter la migration <code>mail_threads</code> + <code>mail_messages</code>.</li>
-            <li>Débloquer la liste des conversations et le bouton « Répondre » (ouvrira le composer avec destinataire + sujet préchargés).</li>
-          </ol>
-        </div>
+
+        {/* Messages */}
+        {msgsLoading ? (
+          <div style={{ padding: 30, textAlign: "center" }}>
+            <Loader2 style={{ width: 18, height: 18, color: C.t3, animation: "spin 1s linear infinite" }} />
+          </div>
+        ) : (
+          <div style={{ maxHeight: 520, overflowY: "auto" }}>
+            {messages.map((m, i) => {
+              const isInbound = m.direction === "inbound";
+              return (
+                <div
+                  key={m.id}
+                  style={{
+                    padding: "16px 18px",
+                    borderBottom: i < messages.length - 1 ? `1px solid ${C.bds}` : "none",
+                    background: isInbound ? "rgba(255,255,255,0.015)" : "transparent",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <div style={{
+                      width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+                      background: isInbound ? "rgba(255,255,255,0.06)" : C.accentSoft,
+                      border: `1px solid ${isInbound ? C.bds : C.accentBd}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: isInbound ? C.t2 : C.t1, fontSize: 10,
+                    }}>
+                      {isInbound
+                        ? <MailOpen style={{ width: 11, height: 11 }} strokeWidth={1.7} />
+                        : <Send style={{ width: 10, height: 10 }} strokeWidth={2} />}
+                    </div>
+                    <span style={{ fontSize: 12, color: C.t1, fontWeight: 400 }}>
+                      {isInbound ? (m.fromName || m.fromEmail) : "Ooble"}
+                    </span>
+                    <span style={{ fontSize: 10.5, color: C.t3, marginLeft: "auto", fontVariantNumeric: "tabular-nums" }}>
+                      {msgDateFmt.format(new Date(m.createdAt))}
+                    </span>
+                  </div>
+                  <div style={{
+                    fontSize: 13, color: C.t1, lineHeight: 1.6, paddingLeft: 32,
+                    whiteSpace: "pre-wrap", wordBreak: "break-word",
+                  }}>
+                    {m.bodyText || snippet(m.bodyHtml, 500) || "(vide)"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+    );
+  }
+
+  // Vue liste des threads
+  if (loading) {
+    return (
+      <div style={{ ...card, padding: 40, textAlign: "center" }}>
+        <Loader2 style={{ width: 18, height: 18, color: C.t3, animation: "spin 1s linear infinite", margin: "0 auto" }} />
+      </div>
+    );
+  }
+
+  if (threads.length === 0) {
+    return (
+      <div style={{ ...card, padding: 40, textAlign: "center", fontFamily: FONT }}>
+        <Inbox style={{ width: 22, height: 22, color: C.t3, opacity: 0.5, margin: "0 auto 8px", display: "block" }} strokeWidth={1.6} />
+        <p style={{ fontSize: 12.5, color: C.t3, margin: "0 0 4px" }}>
+          Aucune conversation pour l'instant.
+        </p>
+        <p style={{ fontSize: 11, color: C.t3, margin: 0, lineHeight: 1.6 }}>
+          Les réponses des clients apparaissent ici une fois Resend Inbound activé sur <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>reply.ooble.ca</code>.
+          <br />Les e-mails envoyés depuis le composer créent aussi un fil ici.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={card}>
+      {threads.map((t, i) => (
+        <button
+          key={t.id}
+          onClick={() => openThread(t)}
+          style={{
+            display: "flex", width: "100%", alignItems: "center", gap: 12,
+            padding: "14px 18px", textAlign: "left",
+            borderBottom: i < threads.length - 1 ? `1px solid ${C.bds}` : "none",
+            background: t.hasUnread ? "rgba(255,255,255,0.02)" : "transparent",
+            border: "none", borderBottomStyle: i < threads.length - 1 ? "solid" : "none",
+            borderBottomWidth: 1, borderBottomColor: C.bds,
+            cursor: "pointer", fontFamily: FONT,
+            transition: "background 0.12s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = t.hasUnread ? "rgba(255,255,255,0.02)" : "transparent"; }}
+        >
+          {/* Indicateur non lu */}
+          <div style={{
+            width: 7, height: 7, borderRadius: "50%", flexShrink: 0,
+            background: t.hasUnread ? C.accent : "transparent",
+          }} />
+
+          {/* Avatar */}
+          <div style={{
+            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+            background: "rgba(255,255,255,0.05)", border: `1px solid ${C.bds}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: C.t2, fontSize: 12,
+          }}>
+            {(t.clientName || t.clientEmail)[0]?.toUpperCase() || "?"}
+          </div>
+
+          {/* Contenu */}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{
+                fontSize: 13, color: C.t1,
+                fontWeight: t.hasUnread ? 500 : 400,
+                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                flex: 1, minWidth: 0,
+              }}>
+                {t.clientName || t.clientEmail}
+              </span>
+              <span style={{
+                fontSize: 10.5, color: C.t3, flexShrink: 0,
+                fontVariantNumeric: "tabular-nums",
+              }}>
+                {msgDateFmt.format(new Date(t.lastMessageAt))}
+              </span>
+            </div>
+            <p style={{
+              margin: "2px 0 0", fontSize: 12,
+              color: t.hasUnread ? C.t2 : C.t3,
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>
+              {t.subject}
+            </p>
+          </div>
+
+          {/* Badge nombre de messages */}
+          {t.messageCount > 1 && (
+            <span style={{
+              fontSize: 10, color: C.t3, flexShrink: 0,
+              background: C.l3, padding: "2px 7px", borderRadius: 999,
+            }}>
+              {t.messageCount}
+            </span>
+          )}
+          <ChevronRight style={{ width: 14, height: 14, color: C.t3, flexShrink: 0 }} strokeWidth={1.5} />
+        </button>
+      ))}
     </div>
   );
 }
@@ -1417,6 +1679,8 @@ const MailboxPanel = () => {
   const [initialComposerState, setInitialComposerState] = useState<ComposerState | null>(null);
   const [clients, setClients] = useState<ClientDirectoryEntry[]>([]);
   const [clientsLoading, setClientsLoading] = useState(true);
+  const [replyThreadId, setReplyThreadId] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => { setSent(loadSent()); }, []);
   useEffect(() => {
@@ -1428,6 +1692,9 @@ const MailboxPanel = () => {
     });
     return () => { active = false; };
   }, []);
+  useEffect(() => {
+    countUnread().then(setUnreadCount);
+  }, [tab]);
 
   const refreshSent = () => setSent(loadSent());
 
@@ -1436,14 +1703,26 @@ const MailboxPanel = () => {
 
   const loadSnippet = (s: Snippet) => {
     setInitialComposerState({ recipients: [], cc: "", subject: s.subject, body: s.body });
+    setReplyThreadId(null);
     setTab("compose");
   };
+
+  const handleReply = useCallback((thread: MailThread) => {
+    setInitialComposerState({
+      recipients: [thread.clientEmail],
+      cc: "",
+      subject: `Re: ${thread.subject}`,
+      body: "",
+    });
+    setReplyThreadId(thread.id);
+    setTab("compose");
+  }, []);
 
   const TABS = [
     { id: "compose",  label: "Composer" },
     { id: "sent",     label: "Envoyés",  count: sent.length || undefined },
     { id: "snippets", label: "Points de départ", count: SNIPPETS.length },
-    { id: "inbox",    label: "Réception" },
+    { id: "inbox",    label: "Réception", count: unreadCount || undefined },
   ];
 
   return (
@@ -1473,11 +1752,12 @@ const MailboxPanel = () => {
           onConsumed={() => setInitialComposerState(null)}
           clients={clients}
           clientsLoading={clientsLoading}
+          replyThreadId={replyThreadId}
         />
       )}
       {tab === "sent"     && <SentView sent={sent} />}
       {tab === "snippets" && <SnippetsView onLoad={loadSnippet} />}
-      {tab === "inbox"    && <InboxView />}
+      {tab === "inbox"    && <InboxView onReply={handleReply} />}
     </div>
   );
 };
