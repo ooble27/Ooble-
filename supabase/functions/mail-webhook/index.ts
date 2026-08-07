@@ -1,11 +1,11 @@
 // Fonction edge Ooble — webhook e-mails entrants (Resend Inbound).
 //
-// Reçoit les e-mails envoyés à `*@support.ooble.ca` et les insère dans
+// Reçoit les e-mails envoyés à `support@ooble.ca` et les insère dans
 // la table `mail_messages`, rattachés au bon thread. Le thread est
-// identifié par le local-part de l'adresse de destination :
+// identifié par le plus-addressing de l'adresse de destination :
 //
-//   t.{threadId}@support.ooble.ca  →  rattaché au thread existant
-//   *@support.ooble.ca (sans t.)   →  nouveau thread créé automatiquement
+//   support+t.{threadId}@ooble.ca  →  rattaché au thread existant
+//   support@ooble.ca (sans +t.)    →  nouveau thread créé automatiquement
 //
 // Cette fonction est déployée SANS vérification JWT (--no-verify-jwt)
 // car Resend l'appelle directement sans authentification Supabase.
@@ -64,11 +64,11 @@ Deno.serve(async (req) => {
   const toAddresses: string[] = Array.isArray(data.to) ? data.to : [];
   const resendId = (data.email_id as string) ?? null;
 
-  // Extraire l'ID du thread depuis l'adresse de destination :
-  //   t.{uuid}@support.ooble.ca  →  thread existant
+  // Extraire l'ID du thread depuis le plus-addressing :
+  //   support+t.{uuid}@ooble.ca  →  thread existant
   let threadId: string | null = null;
   for (const addr of toAddresses) {
-    const match = /^t\.([a-f0-9-]{36})@/i.exec(extractEmail(addr));
+    const match = /^support\+t\.([a-f0-9-]{36})@/i.exec(extractEmail(addr));
     if (match) { threadId = match[1]; break; }
   }
 

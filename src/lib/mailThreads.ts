@@ -134,11 +134,8 @@ export async function countUnread(): Promise<number> {
   return count ?? 0;
 }
 
-// Reply-to domain for thread tracking. Configurable via env if needed.
-const REPLY_DOMAIN = "support.ooble.ca";
-
 export function threadReplyTo(threadId: string): string {
-  return `t.${threadId}@${REPLY_DOMAIN}`;
+  return `support+t.${threadId}@ooble.ca`;
 }
 
 function mapThread(r: Record<string, unknown>): MailThread {
