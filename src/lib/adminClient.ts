@@ -90,6 +90,7 @@ export interface ClientDirectoryEntry {
   firstName: string;
   email: string;
   kycStatus: KycStatus;
+  accountType: AccountType;
 }
 
 /** Déduit un prénom exploitable pour la personnalisation d'un mail. */
@@ -110,7 +111,7 @@ function pickFirstName(fullName: string | null | undefined, email: string | null
 export async function fetchClientDirectory(limit = 500): Promise<ClientDirectoryEntry[]> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, kyc_status")
+    .select("id, full_name, email, kyc_status, account_type")
     .not("email", "is", null)
     .order("full_name", { ascending: true })
     .limit(limit);
@@ -123,6 +124,7 @@ export async function fetchClientDirectory(limit = 500): Promise<ClientDirectory
       firstName: pickFirstName(p.full_name, p.email),
       email: p.email as string,
       kycStatus: p.kyc_status,
+      accountType: p.account_type,
     }));
 }
 

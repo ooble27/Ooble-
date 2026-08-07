@@ -23,9 +23,10 @@ import KpiDashboard from "@/components/admin/KpiDashboard";
 import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
 import TreasuryPanel from "@/components/admin/TreasuryPanel";
 import MailboxPanel from "@/components/admin/MailboxPanel";
+import CampaignsPanel from "@/components/admin/CampaignsPanel";
 import { C, FONT } from "@/components/admin/adminTheme";
 
-type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "mailbox" | "announcements" | "team" | "audit";
+type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "mailbox" | "campaigns" | "announcements" | "team" | "audit";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "dashboard",  label: "Tableau de bord", desc: "Vue d'ensemble : volumes, marge, alertes et actions à traiter.", icon: LayoutDashboard },
@@ -36,17 +37,18 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "compliance",  label: "Conformité",     desc: "Alertes CANAFE, déclarations, dossiers et programme de conformité.", icon: ShieldCheck },
   { id: "treasury",    label: "Trésorerie",     desc: "Inventaire USDT multi-réseaux, snapshots, mouvements et alertes de solde bas.", icon: Wallet },
   { id: "mailbox",     label: "Messagerie",     desc: "Envoyer un e-mail à un client à partir d'un template, historique des envois, boîte de réception.", icon: Mail },
+  { id: "campaigns",   label: "Campagnes",      desc: "Campagnes marketing bien designées avec segmentation, aperçu live et historique.", icon: Megaphone },
   { id: "announcements", label: "Annonces",     desc: "Bannière publique et mode maintenance côté client.", icon: Bell },
   { id: "team",        label: "Équipe",         desc: "Membres, rôles et permissions du back-office.", icon: Users },
   { id: "audit",       label: "Journal d'audit", desc: "Historique immuable de toutes les actions administratives.", icon: ScrollText },
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "mailbox", "announcements", "team", "audit"],
+  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "mailbox", "campaigns", "announcements", "team", "audit"],
   operator:     ["queue", "orders", "mailbox"],
   kyc_reviewer: ["kyc", "mailbox"],
   support:      ["queue", "orders", "mailbox"],
-  marketing:    ["mailbox", "announcements", "accounting"],
+  marketing:    ["mailbox", "campaigns", "announcements", "accounting"],
 };
 
 const ROLE_LABEL: Partial<Record<AppRole, string>> = {
@@ -263,6 +265,7 @@ const AdminPortal = () => {
                   {tab === "compliance" && <CompliancePanel orders={orders} />}
                   {tab === "treasury" && <TreasuryPanel orders={orders} />}
                   {tab === "mailbox" && <MailboxPanel />}
+                  {tab === "campaigns" && <CampaignsPanel />}
                   {tab === "announcements" && <AnnouncementsPanel />}
                   {tab === "team" && <TeamPanel />}
                   {tab === "audit" && <AuditLogPanel />}
