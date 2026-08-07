@@ -106,7 +106,7 @@ const AppAcheter = () => {
       network: network ? `${network.name} · ${network.tag}` : "—",
       address,
       clientEmail: user?.email ?? "",
-      clientName: user?.user_metadata?.full_name ?? "",
+      clientName: user?.name ?? "",
       adminUrl: `${window.location.origin}/admin`,
     });
   };
