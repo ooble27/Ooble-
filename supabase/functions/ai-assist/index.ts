@@ -239,14 +239,18 @@ function clientContextToText(c: ClientContext): string {
 }
 
 /**
- * Vérifie que l'utilisateur appartient au staff. On délègue à la fonction
- * SQL `is_staff(uuid)` déjà utilisée par toutes les politiques RLS du
- * projet — pas de duplication de la liste des rôles ici.
+ * Vérifie que l'utilisateur appartient au staff. Requête directe sur
+ * `user_roles` avec le service_role (RLS contournée) : suffit qu'une
+ * ligne existe. Même définition que la fonction SQL `is_staff()` mais
+ * sans passer par un RPC dont la sérialisation peut varier.
  */
 async function isStaff(client: SupabaseClient, userId: string): Promise<boolean> {
-  const { data, error } = await client.rpc("is_staff", { _user_id: userId });
+  const { count, error } = await client
+    .from("user_roles")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
   if (error) return false;
-  return data === true;
+  return (count ?? 0) > 0;
 }
 
 async function logCall(
@@ -311,7 +315,9 @@ Deno.serve(async (req) => {
   const userId = userData.user.id;
 
   if (!(await isStaff(admin, userId))) {
-    return json({ error: "Accès réservé au staff." }, 403);
+    return json({
+      error: `Accès réservé au staff. Aucun rôle trouvé pour ${userData.user.email ?? userId}. Ajouter une ligne dans user_roles.`,
+    }, 403);
   }
 
   let payload: Payload;
