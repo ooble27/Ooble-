@@ -1708,8 +1708,15 @@ const MailboxPanel = () => {
   };
 
   const handleReply = useCallback((thread: MailThread) => {
+    const firstName = thread.clientName?.split(/\s+/)[0]
+      || thread.clientEmail.split("@")[0];
     setInitialComposerState({
-      recipients: [thread.clientEmail],
+      recipients: [{
+        id: thread.clientId ?? undefined,
+        email: thread.clientEmail,
+        firstName,
+        fullName: thread.clientName || thread.clientEmail,
+      }],
       cc: "",
       subject: `Re: ${thread.subject}`,
       body: "",

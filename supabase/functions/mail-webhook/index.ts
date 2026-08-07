@@ -55,14 +55,54 @@ Deno.serve(async (req) => {
   const data = payload.data as Record<string, unknown> | undefined;
   if (!data) return json({ ok: true, skipped: true });
 
-  const fromRaw = (data.from as string) ?? "";
+  // `from` peut être une string ("Nom <a@b.c>"), un objet {email, name},
+  // ou un tableau d'objets. On normalise.
+  const fromField = data.from as unknown;
+  let fromRaw = "";
+  let fromNameFromObj = "";
+  if (typeof fromField === "string") {
+    fromRaw = fromField;
+  } else if (Array.isArray(fromField) && fromField.length > 0) {
+    const f = fromField[0] as { email?: string; name?: string };
+    fromRaw = f?.email ?? "";
+    fromNameFromObj = f?.name ?? "";
+  } else if (fromField && typeof fromField === "object") {
+    const f = fromField as { email?: string; name?: string };
+    fromRaw = f?.email ?? "";
+    fromNameFromObj = f?.name ?? "";
+  }
+
   const senderEmail = extractEmail(fromRaw);
-  const senderName = extractName(fromRaw) || ((data.from_name as string) ?? "");
+  const senderName = extractName(fromRaw)
+    || fromNameFromObj
+    || ((data.from_name as string) ?? "");
+
   const subject = (data.subject as string) ?? "";
-  const bodyText = (data.text as string) ?? "";
-  const bodyHtml = (data.html as string) ?? "";
-  const toAddresses: string[] = Array.isArray(data.to) ? data.to : [];
-  const resendId = (data.email_id as string) ?? null;
+
+  // `text` / `html` peuvent être aux racines OU dans un objet imbriqué
+  // (variantes Resend). On fait des fallbacks explicites.
+  const bodyText = (data.text as string)
+    || (data.plain_text as string)
+    || (data.stripped_text as string)
+    || "";
+  const bodyHtml = (data.html as string)
+    || (data.body_html as string)
+    || "";
+
+  // `to` peut être un tableau de strings OU un tableau d'objets {email}.
+  const toRaw = Array.isArray(data.to) ? data.to : [];
+  const toAddresses: string[] = toRaw.map((x: unknown) => {
+    if (typeof x === "string") return x;
+    if (x && typeof x === "object") return (x as { email?: string }).email ?? "";
+    return "";
+  }).filter(Boolean);
+
+  const resendId = (data.email_id as string) ?? (data.id as string) ?? null;
+
+  // Debug : si tout est vide, on log le payload brut pour comprendre.
+  if (!bodyText && !bodyHtml) {
+    console.warn("mail-webhook: text ET html vides — payload:", JSON.stringify(data).slice(0, 2000));
+  }
 
   // Extraire l'ID du thread depuis le plus-addressing :
   //   support+t.{uuid}@ooble.ca  →  thread existant
