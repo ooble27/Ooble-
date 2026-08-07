@@ -12,6 +12,7 @@ import { sendEmail, notifyStaffOfNewOrder } from "@/lib/email";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { OOBLE_INTERAC_EMAIL } from "@/lib/config";
 
 type Unit = "CAD" | "USDT";
 type Step = "amount" | "network" | "address" | "recap" | "done";
