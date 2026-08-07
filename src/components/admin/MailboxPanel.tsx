@@ -1586,7 +1586,7 @@ function InboxView({ onReply }: InboxViewProps) {
           Aucune conversation pour l'instant.
         </p>
         <p style={{ fontSize: 11, color: C.t3, margin: 0, lineHeight: 1.6 }}>
-          Les réponses des clients apparaissent ici une fois Resend Inbound activé sur <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>reply.ooble.ca</code>.
+          Les réponses des clients apparaissent ici une fois Resend Inbound activé sur <code style={{ background: C.l3, padding: "1px 5px", borderRadius: 4 }}>support.ooble.ca</code>.
           <br />Les e-mails envoyés depuis le composer créent aussi un fil ici.
         </p>
       </div>
