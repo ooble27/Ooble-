@@ -25,6 +25,7 @@ jobs:
           version: latest
       - run: |
           supabase functions deploy send-email --project-ref uukxacjjviiktmbikdwp
+          supabase functions deploy ai-assist --project-ref uukxacjjviiktmbikdwp
           supabase functions deploy sumsub-token --project-ref uukxacjjviiktmbikdwp
           supabase functions deploy sumsub-webhook --project-ref uukxacjjviiktmbikdwp --no-verify-jwt
         env:
