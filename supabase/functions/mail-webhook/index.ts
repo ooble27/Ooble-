@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
 
   const fromRaw = (data.from as string) ?? "";
   const senderEmail = extractEmail(fromRaw);
-  const senderName = extractName(fromRaw) || (data.from_name as string) ?? "";
+  const senderName = extractName(fromRaw) || ((data.from_name as string) ?? "");
   const subject = (data.subject as string) ?? "";
   const bodyText = (data.text as string) ?? "";
   const bodyHtml = (data.html as string) ?? "";
