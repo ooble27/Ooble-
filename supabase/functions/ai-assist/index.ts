@@ -283,12 +283,102 @@ async function logCall(
 // Router
 // ────────────────────────────────────────────────────────────
 
+// ────────────────────────────────────────────────────────────
+// Agent 3 — Rédaction campagne marketing
+// ────────────────────────────────────────────────────────────
+
+const SYSTEM_DRAFT_CAMPAIGN = `Tu es le rédacteur marketing de Ooble, une plateforme canadienne d'échange USDT/CAD non-custodial réglementée par CANAFE.
+
+Tu produis du contenu d'e-mail marketing en français québécois professionnel. Ton : confiant, clair, engageant mais pas agressif. On vouvoie le client.
+
+Contexte Ooble :
+- Ooble permet d'acheter et vendre des USDT (stablecoin) en dollars canadiens via Interac e-Transfer.
+- Plateforme non-custodial : les USDT sont envoyés directement au portefeuille du client.
+- Réseaux supportés : Tron (TRC20), Ethereum (ERC20), Polygon, Solana, BNB Smart Chain (BEP20), Avalanche.
+- KYC obligatoire (vérification d'identité) avant la première transaction.
+- Vocabulaire : « USDT », « Interac e-Transfer », « ordre » (pas « transaction »), « réseau » (pas « blockchain » pour un client).
+
+Contraintes :
+- Le corps (body) est en markdown simple : **gras**, *italique*, listes (- ), liens [texte](url).
+- Utilise {{prenom}} pour personnaliser avec le prénom du client. Ne remplace PAS ce placeholder.
+- Ne mets PAS de salutation (pas de « Bonjour {{prenom}} ») car le design de l'email a son propre header.
+- Le corps doit faire 60-150 mots. Court et percutant.
+- N'invente pas de chiffres précis (taux, prix) sauf si le staff les a donnés.
+- Le CTA (bouton) doit pointer vers une URL crédible d'Ooble (https://ooble.ca/app/acheter, https://ooble.ca/app, etc.).
+- Ne signe PAS le mail.
+
+Format de sortie EXACT (JSON) :
+{"subject":"...","preheader":"...","eyebrow":"...","headline":"...","body":"...","ctaLabel":"...","ctaUrl":"..."}
+
+Règles pour chaque champ :
+- subject : 40-60 caractères, accrocheur, pas de majuscules abusives
+- preheader : 50-90 caractères, complète le sujet dans la boîte de réception
+- eyebrow : 1-3 mots en majuscules (ex: NOUVEAU, OFFRE SPÉCIALE, MISE À JOUR)
+- headline : 5-10 mots, le message clé, percutant
+- body : contenu principal en markdown, 60-150 mots
+- ctaLabel : 2-4 mots pour le bouton (ex: Acheter maintenant, En savoir plus)
+- ctaUrl : URL Ooble pertinente
+
+Ne produis QUE le JSON, sans commentaire, sans bloc code.`;
+
+async function draftCampaign(
+  apiKey: string,
+  input: { intention: string; segment?: string; design?: string },
+): Promise<{
+  subject: string;
+  preheader: string;
+  eyebrow: string;
+  headline: string;
+  body: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  call: ClaudeCallResult;
+}> {
+  const parts: string[] = [];
+  parts.push(`Intention de la campagne : ${input.intention}`);
+  if (input.segment) parts.push(`Segment ciblé : ${input.segment}`);
+  if (input.design) parts.push(`Design choisi : ${input.design}`);
+  parts.push("\nProduit le JSON maintenant.");
+
+  const call = await callClaude(apiKey, SYSTEM_DRAFT_CAMPAIGN, parts.join("\n"), 600);
+
+  let parsed: Record<string, string>;
+  try {
+    const cleaned = call.text.replace(/^```json?\s*/i, "").replace(/\s*```$/i, "").trim();
+    parsed = JSON.parse(cleaned);
+  } catch {
+    parsed = {
+      subject: "Nouvelle campagne Ooble",
+      preheader: "",
+      eyebrow: "NOUVEAU",
+      headline: "Découvrez notre dernière nouveauté",
+      body: call.text,
+      ctaLabel: "En savoir plus",
+      ctaUrl: "https://ooble.ca/app",
+    };
+  }
+
+  return {
+    subject: parsed.subject ?? "Nouvelle campagne Ooble",
+    preheader: parsed.preheader ?? "",
+    eyebrow: parsed.eyebrow ?? "NOUVEAU",
+    headline: parsed.headline ?? "",
+    body: parsed.body ?? "",
+    ctaLabel: parsed.ctaLabel ?? "",
+    ctaUrl: parsed.ctaUrl ?? "",
+    call,
+  };
+}
+
 interface Payload {
-  agent: "draft-mail" | "summarize-client";
-  // draft-mail
+  agent: "draft-mail" | "summarize-client" | "draft-campaign";
+  // draft-mail / draft-campaign
   intention?: string;
   client?: ClientContext | null;
   previousMails?: string;
+  // draft-campaign
+  segment?: string;
+  design?: string;
   // summarize-client
   orders?: OrderSummary[];
   notes?: string[];
@@ -337,6 +427,29 @@ Deno.serve(async (req) => {
       });
       await logCall(admin, { agent: "draft-mail", staffId: userId, inputPreview, call, startedAt });
       return json({ ok: true, subject, body, tokens: { in: call.inputTokens, out: call.outputTokens } });
+    }
+
+    if (payload.agent === "draft-campaign") {
+      const intention = payload.intention?.trim();
+      if (!intention) return json({ error: "Champ 'intention' requis." }, 400);
+      const inputPreview = preview(intention);
+      const result = await draftCampaign(anthropicKey, {
+        intention,
+        segment: payload.segment,
+        design: payload.design,
+      });
+      await logCall(admin, { agent: "draft-campaign", staffId: userId, inputPreview, call: result.call, startedAt });
+      return json({
+        ok: true,
+        subject: result.subject,
+        preheader: result.preheader,
+        eyebrow: result.eyebrow,
+        headline: result.headline,
+        body: result.body,
+        ctaLabel: result.ctaLabel,
+        ctaUrl: result.ctaUrl,
+        tokens: { in: result.call.inputTokens, out: result.call.outputTokens },
+      });
     }
 
     if (payload.agent === "summarize-client") {

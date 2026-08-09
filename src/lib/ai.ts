@@ -123,6 +123,32 @@ export async function summarizeClient(input: SummarizeClientInput): Promise<Summ
   return invoke<SummarizeClientResult>({ agent: "summarize-client", ...input });
 }
 
+// ────────────────────────────────────────────────────────────
+// Agent 3 — Rédaction campagne marketing
+// ────────────────────────────────────────────────────────────
+
+export interface DraftCampaignInput {
+  intention: string;
+  segment?: string;
+  design?: string;
+}
+
+export interface DraftCampaignResult {
+  ok: true;
+  subject: string;
+  preheader: string;
+  eyebrow: string;
+  headline: string;
+  body: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  tokens: { in: number; out: number };
+}
+
+export async function draftCampaign(input: DraftCampaignInput): Promise<DraftCampaignResult | AICallError> {
+  return invoke<DraftCampaignResult>({ agent: "draft-campaign", ...input });
+}
+
 export function isAIError<T extends { ok?: true }>(res: T | AICallError): res is AICallError {
   return "error" in res;
 }
