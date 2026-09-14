@@ -35,10 +35,6 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
 
   const close = () => setOpen(false);
 
-  const toggleOnDark = inverted
-    ? "border-background/20 bg-transparent text-background hover:bg-background/10"
-    : undefined;
-
   return (
     <header className={cn("pt-safe relative z-40 bg-transparent", inverted && "text-background")}>
       <div className="mx-auto flex h-[76px] max-w-[1200px] items-center justify-between gap-8 px-6 sm:px-10">
@@ -69,8 +65,8 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <LangToggle className={cn("h-9 w-9 rounded-[10px] text-[12px]", toggleOnDark)} />
-          <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
+          <LangToggle className={cn("h-8 w-8 rounded-lg border text-[11px] font-bold", inverted ? "border-background/20 text-background hover:bg-background/10" : "border-border bg-card text-foreground hover:bg-secondary")} />
+          <ThemeToggle />
           <Link
             to="/connexion"
             className={cn(
@@ -94,8 +90,7 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <LangToggle className={cn("h-9 w-9 rounded-[10px] text-[12px]", toggleOnDark)} />
-          <ThemeToggle className={cn("h-9 w-9 rounded-[10px]", toggleOnDark)} />
+          <ThemeToggle />
           <button
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-[10px] border transition-colors active:scale-95",
@@ -140,13 +135,19 @@ const Header = ({ inverted }: { inverted?: boolean }) => {
               ))}
             </nav>
 
-            <div className="flex shrink-0 gap-2.5 px-6 pb-10 pt-6">
-              <Button asChild variant="secondary" shape="rounded" size="default" className="flex-1">
-                <Link to="/connexion" onClick={close}>{t("nav.login")}</Link>
-              </Button>
-              <Button asChild variant="appSolid" shape="rounded" size="default" className="flex-1">
-                <Link to="/inscription" onClick={close}>{t("nav.signup")}</Link>
-              </Button>
+            <div className="shrink-0 px-6 pb-10 pt-6">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-[13px] font-medium text-muted-foreground">{t("acct.language")}</span>
+                <LangToggle className="h-9 w-9 rounded-[10px] border border-border bg-card text-[12px] font-bold text-foreground" />
+              </div>
+              <div className="flex gap-2.5">
+                <Button asChild variant="secondary" shape="rounded" size="default" className="flex-1">
+                  <Link to="/connexion" onClick={close}>{t("nav.login")}</Link>
+                </Button>
+                <Button asChild variant="appSolid" shape="rounded" size="default" className="flex-1">
+                  <Link to="/inscription" onClick={close}>{t("nav.signup")}</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
