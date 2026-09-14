@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
+import ThemeToggle from "./ThemeToggle";
+import LangToggle from "./LangToggle";
 import BottomNav from "./BottomNav";
 
 /**
@@ -79,13 +81,17 @@ const AppShell = ({ children, header, backTo, wide, center, className }: AppShel
           )}
           <div className="min-w-0">{header}</div>
         </div>
-        <Link
-          to="/app/compte"
-          aria-label={lang === "en" ? "My account" : "Mon compte"}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
-        >
-          <User className="h-5 w-5" strokeWidth={1.8} />
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <ThemeToggle className="h-9 w-9 rounded-[10px]" />
+          <LangToggle className="h-9 w-9 rounded-[10px] text-[12px]" />
+          <Link
+            to="/app/compte"
+            aria-label={lang === "en" ? "My account" : "Mon compte"}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95"
+          >
+            <User className="h-5 w-5" strokeWidth={1.8} />
+          </Link>
+        </div>
       </div>
 
       <div
