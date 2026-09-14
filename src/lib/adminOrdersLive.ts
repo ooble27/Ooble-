@@ -27,6 +27,7 @@ const DB_TO_DEMO: Record<DbStatus, OrderStatus> = {
   completed: "termine",
   cancelled: "annule",
   expired: "annule",
+  refunded: "rembourse",
 };
 
 /** Statut d'affichage → statut base (pour l'écriture). */
@@ -36,6 +37,7 @@ const DEMO_TO_DB: Record<OrderStatus, DbStatus> = {
   cours: "settling",
   termine: "completed",
   annule: "cancelled",
+  rembourse: "refunded",
 };
 
 const minsAgo = (iso: string) =>

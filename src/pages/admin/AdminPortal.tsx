@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Inbox, ShoppingCart, ScanFace, Calculator, Users, ArrowLeft,
   BadgeCheck, UserRound, Megaphone, Headphones, ShieldCheck, ScrollText,
-  LayoutDashboard, Bell, Wallet, Mail,
+  LayoutDashboard, Bell, Wallet, Mail, Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/lib/auth";
@@ -24,12 +24,14 @@ import AnnouncementsPanel from "@/components/admin/AnnouncementsPanel";
 import TreasuryPanel from "@/components/admin/TreasuryPanel";
 import MailboxPanel from "@/components/admin/MailboxPanel";
 import CampaignsPanel from "@/components/admin/CampaignsPanel";
+import AIAssistPanel from "@/components/admin/AIAssistPanel";
 import { C, FONT } from "@/components/admin/adminTheme";
 
-type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "mailbox" | "campaigns" | "announcements" | "team" | "audit";
+type TabId = "dashboard" | "queue" | "orders" | "kyc" | "accounting" | "compliance" | "treasury" | "mailbox" | "campaigns" | "announcements" | "team" | "audit" | "ai";
 
 const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
   { id: "dashboard",  label: "Tableau de bord", desc: "Vue d'ensemble : volumes, marge, alertes et actions à traiter.", icon: LayoutDashboard },
+  { id: "ai",         label: "Assistant IA",   desc: "Posez des questions à l'IA sur l'état de la plateforme, les commandes et les clients.", icon: Bot },
   { id: "queue",      label: "File d'attente", desc: "Prenez une commande en charge avant de la traiter — elle se verrouille pour l'équipe.", icon: Inbox },
   { id: "orders",     label: "Commandes",      desc: "Toutes les commandes et leur historique.", icon: ShoppingCart },
   { id: "kyc",        label: "KYC",            desc: "Vérifiez l'identité des clients avant leurs transactions.", icon: ScanFace },
@@ -44,10 +46,10 @@ const NAV: { id: TabId; label: string; desc: string; icon: typeof Inbox }[] = [
 ];
 
 const ROLE_TABS: Record<AppRole, TabId[]> = {
-  admin:        ["dashboard", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "mailbox", "campaigns", "announcements", "team", "audit"],
-  operator:     ["queue", "orders", "mailbox"],
+  admin:        ["dashboard", "ai", "queue", "orders", "kyc", "accounting", "compliance", "treasury", "mailbox", "campaigns", "announcements", "team", "audit"],
+  operator:     ["queue", "orders", "mailbox", "ai"],
   kyc_reviewer: ["kyc", "mailbox"],
-  support:      ["queue", "orders", "mailbox"],
+  support:      ["queue", "orders", "mailbox", "ai"],
   marketing:    ["mailbox", "campaigns", "announcements", "accounting"],
 };
 
@@ -258,6 +260,7 @@ const AdminPortal = () => {
               ) : (
                 <>
                   {tab === "dashboard" && <KpiDashboard orders={orders} onNavigate={navigateTab} />}
+                  {tab === "ai" && <AIAssistPanel />}
                   {tab === "queue" && <OrdersQueue orders={orders} onOpen={openOrder} onPatch={patch} />}
                   {tab === "orders" && <OrdersList orders={orders} onOpen={openOrder} />}
                   {tab === "kyc" && <KycPanel />}

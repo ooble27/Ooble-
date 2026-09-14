@@ -459,6 +459,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "expired"
+        | "refunded"
       recipient_kind: "wallet" | "interac"
       usdt_network:
         | "trc20"
@@ -589,6 +590,7 @@ export const Constants = {
         "completed",
         "cancelled",
         "expired",
+        "refunded",
       ],
       recipient_kind: ["wallet", "interac"],
       usdt_network: ["trc20", "bep20", "erc20", "polygon", "spl", "avalanche"],
