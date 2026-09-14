@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Building2, Eye, EyeOff, FileText, Lock, Mail, MapPin, Phone, User } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
-import LangToggle from "@/components/app/LangToggle";
+import { LangPill } from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
@@ -118,7 +118,7 @@ const InscriptionEntreprise = () => {
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
         <div className="flex items-center gap-2">
-          <LangToggle />
+          <LangPill />
           <ThemeToggle />
         </div>
       </header>

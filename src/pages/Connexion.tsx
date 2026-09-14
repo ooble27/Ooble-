@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
-import LangToggle from "@/components/app/LangToggle";
+import { LangPill } from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
@@ -101,9 +101,9 @@ const Connexion = () => {
     <div className="ink-neutral app-type flex min-h-screen flex-col bg-background tracking-[-0.015em]">
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
-        <div className="flex items-center gap-2">
-          <LangToggle className="h-9 w-9 rounded-[10px] text-[12px]" />
-          <ThemeToggle className="h-9 w-9 rounded-[10px]" />
+        <div className="flex items-center gap-2.5">
+          <LangPill />
+          <ThemeToggle />
         </div>
       </header>
 

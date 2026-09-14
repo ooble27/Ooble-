@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, Eye, EyeOff, Lock } from "lucide-react";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/app/ThemeToggle";
-import LangToggle from "@/components/app/LangToggle";
+import { LangPill } from "@/components/app/LangToggle";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -54,7 +54,7 @@ const Reinitialiser = () => {
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] sm:px-10">
         <Logo />
         <div className="flex items-center gap-2">
-          <LangToggle />
+          <LangPill />
           <ThemeToggle />
         </div>
       </header>
