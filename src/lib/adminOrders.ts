@@ -19,7 +19,7 @@ export type OrderType = "buy" | "sell" | "transfer";
  *  termine → USDT envoyés / CAD versés
  *  annule  → annulée / expirée
  */
-export type OrderStatus = "attente" | "recu" | "cours" | "termine" | "annule";
+export type OrderStatus = "attente" | "recu" | "cours" | "termine" | "annule" | "rembourse";
 
 export interface AdminOrder {
   id: string;
@@ -49,7 +49,8 @@ export const STATUS_META: Record<OrderStatus, { label: string; text: string }> =
   recu:    { label: "À traiter",  text: "text-foreground" },
   cours:   { label: "En cours",   text: "text-foreground" },
   termine: { label: "Terminée",   text: "text-muted-foreground/60" },
-  annule:  { label: "Annulée",    text: "text-destructive" },
+  annule:    { label: "Annulée",     text: "text-destructive" },
+  rembourse: { label: "Remboursée", text: "text-amber-500" },
 };
 
 export const TYPE_META: Record<OrderType, { label: string; verb: string }> = {

@@ -105,3 +105,36 @@ export interface StaffNewOrderInput {
 export async function notifyStaffOfNewOrder(order: StaffNewOrderInput): Promise<SendResult> {
   return invoke({ staffNotify: "new-order", order });
 }
+
+export async function sendRefundEmail(input: {
+  to: string;
+  clientName: string;
+  ref: string;
+  amount: string;
+}): Promise<SendResult> {
+  const subject = `Remboursement de votre commande ${input.ref} — Ooble`;
+  const html = `
+    <h2 style="margin:0 0 16px;font-size:20px;font-weight:600;">Remboursement confirmé</h2>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;">Bonjour ${escHtml(input.clientName)},</p>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;">
+      Votre commande <strong>${escHtml(input.ref)}</strong> a été remboursée.
+    </p>
+    <div style="margin:20px 0;padding:16px 20px;background:#f5f5f5;border-radius:12px;">
+      <p style="margin:0;font-size:13px;color:#666;text-transform:uppercase;letter-spacing:0.05em;">Montant remboursé</p>
+      <p style="margin:4px 0 0;font-size:22px;font-weight:700;">${escHtml(input.amount)}</p>
+    </div>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;">
+      Le montant sera crédité selon le mode de paiement original.
+      Veuillez prévoir un délai de 1 à 5 jours ouvrables.
+    </p>
+    <p style="margin:24px 0 0;font-size:14px;color:#666;">
+      Si vous avez des questions, n'hésitez pas à nous contacter.<br/>
+      L'équipe Ooble
+    </p>
+  `;
+  return sendCustomEmail({ to: input.to, subject, html });
+}
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}

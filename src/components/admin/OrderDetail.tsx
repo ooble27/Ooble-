@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { ArrowLeft, ArrowRight, Copy, Check, Hand, Ban, RotateCcw, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Copy, Check, Hand, Ban, RotateCcw, ChevronRight, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +7,7 @@ import {
   type AdminOrder,
 } from "@/lib/adminOrders";
 import { fetchOrderEvents, type OrderEvent } from "@/lib/adminOrderEvents";
+import { sendRefundEmail } from "@/lib/email";
 import { useAuth } from "@/lib/auth";
 import { StatusBadge } from "./AdminBits";
 import { NETWORKS } from "@/components/app/networks";
@@ -120,6 +121,9 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
   const [copied, setCopied] = useState<string | null>(null);
   const [events, setEvents] = useState<OrderEvent[] | null>(null);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [confirmRefund, setConfirmRefund] = useState(false);
+  const [refunding, setRefunding] = useState(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
   const lockedByOther = !!order.assignedTo && order.assignedTo !== CURRENT_OPERATOR;
 
   useEffect(() => {
@@ -133,6 +137,29 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
     navigator.clipboard?.writeText(value).catch(() => {});
     setCopied(key);
     setTimeout(() => setCopied((c) => (c === key ? null : c)), 1200);
+  };
+
+  const refundAmount = order.type === "buy"
+    ? `${nfCad.format(order.cad)} CAD`
+    : `${nfUsdt.format(order.usdt)} USDT`;
+
+  const handleRefund = async () => {
+    setRefunding(true);
+    setRefundError(null);
+    const { error } = await sendRefundEmail({
+      to: order.clientEmail,
+      clientName: order.clientName,
+      ref: order.ref,
+      amount: refundAmount,
+    });
+    if (error) {
+      setRefundError(error);
+      setRefunding(false);
+      return;
+    }
+    onPatch(order.id, { status: "rembourse" });
+    setConfirmRefund(false);
+    setRefunding(false);
   };
 
   const Row = ({ label, value, mono, copyKey }: { label: string; value?: string | null; mono?: boolean; copyKey?: string }) => (
@@ -290,16 +317,62 @@ const OrderDetail = ({ order, onBack, onPatch, onDelete, onShowClient }: Props) 
               Libérer
             </Button>
           )}
-          {order.status !== "termine" && order.status !== "annule" && (
+          {order.status !== "termine" && order.status !== "annule" && order.status !== "rembourse" && (
             <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "annule" })}>
               <Ban className="h-[17px] w-[17px]" /> Annuler
             </Button>
           )}
-          {(order.status === "termine" || order.status === "annule") && (
+          {(order.status === "recu" || order.status === "cours" || order.status === "termine") && (
+            <Button
+              variant="appOutline"
+              shape="rounded"
+              className="h-auto gap-2 rounded-[10px] border-amber-500/30 px-4 py-[11px] text-sm text-amber-600 hover:bg-amber-500/10 dark:text-amber-400"
+              onClick={() => setConfirmRefund(true)}
+            >
+              <Banknote className="h-[17px] w-[17px]" /> Rembourser
+            </Button>
+          )}
+          {(order.status === "termine" || order.status === "annule" || order.status === "rembourse") && (
             <Button variant="appOutline" shape="rounded" className="h-auto gap-2 rounded-[10px] px-4 py-[11px] text-sm" onClick={() => onPatch(order.id, { status: "attente", assignedTo: null })}>
               <RotateCcw className="h-[17px] w-[17px]" /> Rouvrir
             </Button>
           )}
+        </div>
+      )}
+
+      {confirmRefund && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+          <p className="text-[14px] font-medium">
+            Confirmer le remboursement de <span className="font-bold">{refundAmount}</span> à {order.clientName} ?
+          </p>
+          <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+            Un courriel sera envoyé au client à {order.clientEmail}.
+          </p>
+          {refundError && (
+            <p className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-[12.5px] text-destructive">
+              {refundError}
+            </p>
+          )}
+          <div className="mt-4 flex gap-2.5">
+            <Button
+              shape="rounded"
+              className="h-auto gap-2 rounded-[10px] border border-amber-500 bg-amber-500 px-4 py-2.5 text-[12.5px] font-bold text-white hover:opacity-90"
+              onClick={handleRefund}
+              disabled={refunding}
+            >
+              <Banknote className="h-[14px] w-[14px]" />
+              {refunding ? "Envoi…" : "Confirmer le remboursement"}
+            </Button>
+            <Button
+              variant="ghost"
+              shape="rounded"
+              className="h-auto rounded-[10px] px-3.5 py-2.5 text-[12.5px]"
+              onClick={() => { setConfirmRefund(false); setRefundError(null); }}
+              disabled={refunding}
+            >
+              Annuler
+            </Button>
+          </div>
         </div>
       )}
 
