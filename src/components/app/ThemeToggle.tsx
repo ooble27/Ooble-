@@ -4,7 +4,6 @@ import { getTheme, setTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 
-/** Bouton bascule mode clair / sombre. */
 const ThemeToggle = ({ className }: { className?: string }) => {
   const [lang] = useLang();
   const [theme, setThemeState] = useState<Theme>(getTheme);
@@ -15,19 +14,38 @@ const ThemeToggle = ({ className }: { className?: string }) => {
     setThemeState(next);
   };
 
+  const isDark = theme === "dark";
+
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "dark"
+      aria-label={isDark
         ? (lang === "en" ? "Switch to light mode" : "Passer en mode clair")
         : (lang === "en" ? "Switch to dark mode" : "Passer en mode sombre")}
       className={cn(
-        "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-all hover:bg-secondary active:scale-95",
+        "relative flex h-8 w-[3.75rem] shrink-0 items-center rounded-full border border-border bg-secondary/80 p-[3px] transition-colors",
         className,
       )}
     >
-      {theme === "dark" ? <Sun className="h-5 w-5" strokeWidth={1.8} /> : <Moon className="h-5 w-5" strokeWidth={1.8} />}
+      <Sun className={cn(
+        "absolute left-[7px] h-3.5 w-3.5 transition-opacity",
+        isDark ? "opacity-30 text-muted-foreground" : "opacity-0",
+      )} strokeWidth={2} />
+      <Moon className={cn(
+        "absolute right-[7px] h-3.5 w-3.5 transition-opacity",
+        isDark ? "opacity-0" : "opacity-30 text-muted-foreground",
+      )} strokeWidth={2} />
+      <span
+        className={cn(
+          "flex h-[22px] w-[22px] items-center justify-center rounded-full bg-card shadow-sm transition-transform duration-200 ease-out",
+          isDark ? "translate-x-[calc(3.75rem-22px-6px)]" : "translate-x-0",
+        )}
+      >
+        {isDark
+          ? <Moon className="h-3 w-3 text-foreground" strokeWidth={2.2} />
+          : <Sun className="h-3 w-3 text-foreground" strokeWidth={2.2} />}
+      </span>
     </button>
   );
 };
