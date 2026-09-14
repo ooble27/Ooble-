@@ -41,6 +41,7 @@ import {
   type ClientDirectoryEntry,
 } from "@/lib/adminClient";
 import { draftMail, isAIError, toAIClientContext } from "@/lib/ai";
+import { fetchPlatformContext } from "@/lib/aiContext";
 import {
   markdownToHtml, wrapSelection, insertAtCursor, prefixLines, defaultSignature,
   substituteVars, extractRemainingVars, CLIENT_VARS,
@@ -667,22 +668,42 @@ function ComposeView({ onSent, initial, onConsumed, clients, clientsLoading, rep
   });
 
   // Assistant IA : appelle l'agent draft-mail avec l'intention + contexte
-  // du premier destinataire (si c'est un vrai client de l'annuaire, on
-  // charge son profil complet pour donner du contexte à Claude).
+  // du premier destinataire + contexte plateforme en temps réel +
+  // historique du fil si on répond à un thread existant.
   const runAiDraft = async () => {
     const intention = aiPrompt.trim();
     if (!intention || aiBusy) return;
     setAiBusy(true);
     setFeedback(null);
     try {
-      // Contexte client si un vrai destinataire est sélectionné.
-      let clientCtx: ReturnType<typeof toAIClientContext> | null = null;
-      const target = recipients.find((r) => r.id);
-      if (target?.id) {
-        const profile = await fetchClientProfile(target.id);
-        if (profile) clientCtx = toAIClientContext(profile);
+      const [platformCtx, clientProfile, threadMsgs] = await Promise.all([
+        fetchPlatformContext(),
+        (async () => {
+          const target = recipients.find((r) => r.id);
+          if (!target?.id) return null;
+          return fetchClientProfile(target.id);
+        })(),
+        (async () => {
+          if (!replyThreadId) return null;
+          return fetchMessages(replyThreadId);
+        })(),
+      ]);
+
+      const clientCtx = clientProfile ? toAIClientContext(clientProfile) : null;
+
+      let previousMails: string | undefined;
+      if (threadMsgs && threadMsgs.length > 0) {
+        previousMails = threadMsgs
+          .slice(-10)
+          .map((m) => {
+            const dir = m.direction === "inbound" ? "Client" : "Staff";
+            const preview = (m.bodyText ?? "").replace(/\s+/g, " ").trim().slice(0, 300);
+            return `[${dir}] ${preview}`;
+          })
+          .join("\n\n");
       }
-      const res = await draftMail({ intention, client: clientCtx });
+
+      const res = await draftMail({ intention, client: clientCtx, previousMails, context: platformCtx });
       if (isAIError(res)) {
         setFeedback({ kind: "err", text: res.error });
       } else {
