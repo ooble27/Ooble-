@@ -51,6 +51,15 @@ export interface CreateOrderInput {
 
 /** Crée un ordre pour l'utilisateur connecté. Renvoie l'id ou une erreur. */
 export async function createOrder(input: CreateOrderInput): Promise<{ id: string } | { error: string }> {
+  const { TRADING_ENABLED } = await import("@/lib/config");
+  if (!TRADING_ENABLED) {
+    return {
+      error: getLang() === "en"
+        ? "Trading is temporarily suspended. Account creation and verification remain available."
+        : "Les transactions sont temporairement suspendues. La création de compte et la vérification restent disponibles.",
+    };
+  }
+
   const { data: auth } = await supabase.auth.getSession();
   const uid = auth.session?.user?.id;
   if (!uid) return { error: getLang() === "en" ? "You must be logged in." : "Vous devez être connecté." };

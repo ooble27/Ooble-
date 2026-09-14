@@ -10,6 +10,8 @@ import { listMyOrders, type OrderRow } from "@/lib/orders";
 import { ActivityRow } from "@/components/app/ActivityList";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
+import { TRADING_ENABLED } from "@/lib/config";
 
 const nf = new Intl.NumberFormat("fr-CA", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
@@ -122,7 +124,14 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 gap-3">
               <Link
                 to="/app/acheter"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors",
+                  TRADING_ENABLED
+                    ? "hover:bg-secondary/50 active:bg-secondary"
+                    : "pointer-events-none opacity-40",
+                )}
+                aria-disabled={!TRADING_ENABLED}
+                tabIndex={TRADING_ENABLED ? undefined : -1}
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
                   <Coins className="h-5 w-5" strokeWidth={1.6} />
@@ -131,7 +140,14 @@ const Dashboard = () => {
               </Link>
               <Link
                 to="/app/vendre"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 transition-colors",
+                  TRADING_ENABLED
+                    ? "hover:bg-secondary/50 active:bg-secondary"
+                    : "pointer-events-none opacity-40",
+                )}
+                aria-disabled={!TRADING_ENABLED}
+                tabIndex={TRADING_ENABLED ? undefined : -1}
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-foreground/70">
                   <HandCoins className="h-5 w-5" strokeWidth={1.6} />
@@ -139,6 +155,11 @@ const Dashboard = () => {
                 <span className="text-[15px] font-medium">{t("dash.sell")}</span>
               </Link>
             </div>
+            {!TRADING_ENABLED && (
+              <p className="text-center text-[12px] text-muted-foreground/70">
+                Les transactions sont temporairement suspendues.
+              </p>
+            )}
 
             <div>
               <p className="mb-2.5 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">

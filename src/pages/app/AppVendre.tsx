@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle, MessageSquare } from "lucide-react";
+import { ArrowLeft, HandCoins, Check, Mail, AlertTriangle, MessageSquare, ShieldOff } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import AppShell from "@/components/app/AppShell";
 import CopyRow from "@/components/app/CopyRow";
@@ -14,6 +14,7 @@ import { getMyProfile } from "@/lib/profile";
 import { useAuth } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { TRADING_ENABLED } from "@/lib/config";
 
 type Unit = "USDT" | "CAD";
 type Step = "amount" | "reception" | "network" | "deposit" | "done";
@@ -55,6 +56,35 @@ const AppVendre = () => {
   const rate = useUsdtRate();
   const { user } = useAuth();
   const t = useT();
+
+  if (!TRADING_ENABLED) {
+    return (
+      <AppShell center>
+        <div className="flex flex-col items-center py-16 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+            <ShieldOff className="h-7 w-7" strokeWidth={1.5} />
+          </span>
+          <h1 className="mt-5 font-display text-[20px] font-semibold tracking-tight">
+            {t("sell.title")}
+          </h1>
+          <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
+            Les transactions sont temporairement suspendues. La création de compte et la vérification KYC restent disponibles.
+          </p>
+          <p className="mt-1 text-[12px] text-muted-foreground/60">
+            Trading is temporarily suspended. Account creation and KYC verification remain available.
+          </p>
+          <Link
+            to="/app"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-secondary px-5 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-secondary/70"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour au tableau de bord
+          </Link>
+        </div>
+      </AppShell>
+    );
+  }
+
   const [step, setStep] = useState<Step>("amount");
   const [unit, setUnit] = useState<Unit>("USDT");
   const [amount, setAmount] = useState("");
