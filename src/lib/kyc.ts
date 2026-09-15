@@ -1,9 +1,5 @@
 /**
  * KYC côté client — lecture de l'état de vérification.
- *
- * La vérification elle-même passe par Sumsub (voir `lib/sumsub.ts` et le WebSDK
- * dans la page Vérification). Le statut est écrit par le webhook Sumsub
- * (fonction edge), jamais par le client. Ici on ne fait que le lire.
  */
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
