@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  TrendingUp, TrendingDown, ArrowRight, ArrowDownToLine, Send,
+  TrendingUp, TrendingDown, Send,
   Users2, ShieldCheck, ClipboardList,
 } from "lucide-react";
 import { T } from "@/lib/i18n";
@@ -19,16 +19,14 @@ import { nfCad, nfUsdt, type AdminOrder } from "@/lib/adminOrders";
 import {
   getVolumeMetrics, getMarginMetrics, getOrderStatusCounts,
   getCustomerFunnel, getComplianceAlertsCount, getPendingActionsCount,
-  getDailyVolume,
   type VolumeMetrics, type MarginMetrics, type OrderStatusCounts,
-  type CustomerFunnel, type DailyVolumePoint, type ComplianceAlertsCount,
+  type CustomerFunnel, type ComplianceAlertsCount,
 } from "@/lib/kpi";
 import {
   C, FONT, card, sH, cardHeader, numeric, heroNumber, heroUnit,
   listRowStyle, listRowHoverIn, listRowHoverOut, pillSmall,
 } from "./adminTheme";
 import AdminHero from "./AdminHero";
-import Sparkline from "./Sparkline";
 
 interface KpiDashboardProps {
   orders: AdminOrder[];
@@ -167,7 +165,6 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
   const [statuses, setStatuses] = useState<OrderStatusCounts | null>(null);
   const [pending, setPending] = useState(0);
   const [funnel, setFunnel] = useState<CustomerFunnel | null>(null);
-  const [daily, setDaily] = useState<DailyVolumePoint[]>([]);
 
   const complianceCount: ComplianceAlertsCount = useMemo(
     () => getComplianceAlertsCount(orders),
@@ -176,20 +173,18 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [v, m, s, p, f, d] = await Promise.all([
+    const [v, m, s, p, f] = await Promise.all([
       getVolumeMetrics({ periodDays: period }),
       getMarginMetrics({ periodDays: period }),
       getOrderStatusCounts(),
       getPendingActionsCount(),
       getCustomerFunnel(),
-      getDailyVolume({ days: 30 }),
     ]);
     setVolume(v);
     setMargin(m);
     setStatuses(s);
     setPending(p);
     setFunnel(f);
-    setDaily(d);
     setLoading(false);
   }, [period]);
 
@@ -204,16 +199,6 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [load]);
-
-  const sparks = useMemo(() => {
-    const slice = daily.slice(-period);
-    return {
-      total:  slice.map((d) => d.totalCad),
-      buy:    slice.map((d) => d.buyCad),
-      sell:   slice.map((d) => d.sellCad),
-      margin: slice.map((d) => d.totalCad * 0.02),
-    };
-  }, [daily, period]);
 
   const periodLabel = PERIOD_LABELS[period].fr;
   const today = new Date().toLocaleDateString("fr-CA", { weekday: "long", day: "numeric", month: "long" });
@@ -302,75 +287,34 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
             )}
           </div>
 
-          {/* Graphique volume quotidien */}
-          <div style={card}>
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "16px 20px", borderBottom: `1px solid ${C.bds}`,
-            }}>
-              <div>
-                <p style={{ fontSize: 13, fontWeight: 400, color: C.t1, margin: 0 }}>
-                  <T en="Daily volume">Volume quotidien</T>
-                </p>
-                <p style={{ fontSize: 11, color: C.t3, margin: "3px 0 0" }}>
-                  <T en={`${period} last days · CAD`}>{`${period} derniers jours · CAD`}</T>
-                </p>
-              </div>
-            </div>
-            <div style={{ padding: "0 12px 16px" }}>
-              {/* On ne trace que s'il y a au moins un jour avec du volume ;
-                  sinon le tracé se résume à une ligne plate en bas qui ne
-                  veut rien dire — préférer un vrai état vide. */}
-              {sparks.total.length >= 2 && sparks.total.some((v) => v > 0) ? (
-                <div style={{ color: C.accent }}>
-                  <Sparkline data={sparks.total} height={140} fill endDot />
-                </div>
-              ) : (
-                <div style={{
-                  height: 140, display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center", gap: 8,
-                }}>
-                  <span style={{
-                    fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase",
-                    color: C.t3,
-                  }}>
-                    <T en="No activity yet">Pas encore d'activité</T>
-                  </span>
-                  <p style={{
-                    fontSize: 12, color: C.t3, margin: 0, maxWidth: 280, textAlign: "center", lineHeight: 1.5,
-                  }}>
-                    <T en={`The chart will populate as soon as an order lands within the last ${period} days.`}>
-                      {`Le graphique se remplira dès qu'une commande sera enregistrée dans les ${period} derniers jours.`}
-                    </T>
-                  </p>
-                </div>
-              )}
-            </div>
+          {/* Marge + Taux en deux tuiles côte à côte */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {loading || !margin ? (
+              <>
+                <SkeletonTile />
+                <SkeletonTile />
+              </>
+            ) : (
+              <>
+                <StatTile
+                  label={<T en="Gross margin">Marge brute</T>}
+                  value={<>{compact(margin.marginCad)} <span style={{ color: C.t3, fontSize: 14, fontWeight: 400 }}>CAD</span></>}
+                  sub={<T en={`${margin.completedCount} completed · 2% markup`}>{`${margin.completedCount} terminée${margin.completedCount > 1 ? "s" : ""} · marge 2 %`}</T>}
+                  trend={margin.changePct}
+                />
+                <StatTile
+                  label={<T en="Pending actions">À traiter</T>}
+                  value={pending}
+                  sub={<T en="orders needing action">commandes en attente</T>}
+                  onClick={() => onNavigate?.("queue")}
+                />
+              </>
+            )}
           </div>
         </div>
 
         {/* ─── Colonne droite : marge + statuts + funnel + conformité ─── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-          {/* Marge dégagée — mise en avant */}
-          <div style={{ ...card, padding: "20px 22px" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <p style={sH}><T en="Gross margin">Marge brute</T></p>
-              {margin && <Trend value={margin.changePct} />}
-            </div>
-            <p style={{
-              ...numeric, fontSize: 32, fontWeight: 300, color: C.t1, margin: 0,
-              letterSpacing: "-0.03em", lineHeight: 1,
-            }}>
-              {loading || !margin ? "—" : compact(margin.marginCad)}
-              <span style={{ color: C.t3, fontSize: 14, fontWeight: 400, marginLeft: 8 }}>CAD</span>
-            </p>
-            <p style={{ fontSize: 11, color: C.t3, margin: "8px 0 0" }}>
-              {margin
-                ? <T en={`${margin.completedCount} completed · 2% markup`}>{`${margin.completedCount} terminée${margin.completedCount > 1 ? "s" : ""} · marge 2 %`}</T>
-                : "—"}
-            </p>
-          </div>
 
           {/* Statuts */}
           <div style={card}>
@@ -405,59 +349,13 @@ const KpiDashboard = ({ orders, onNavigate }: KpiDashboardProps) => {
             })()}
           </div>
 
-          {/* Actions en attente + Conformité */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <button
-              onClick={() => onNavigate?.("queue")}
-              style={{
-                ...card, padding: "16px 18px", textAlign: "left", cursor: "pointer", fontFamily: FONT,
-                transition: "border-color 0.15s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.bdh; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.bds; }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <div style={{
-                  width: 26, height: 26, borderRadius: 7, background: C.l3, border: `1px solid ${C.bd}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <ClipboardList style={{ width: 13, height: 13, color: C.t1 }} />
-                </div>
-                <p style={sH}><T en="Pending">À traiter</T></p>
-              </div>
-              <p style={{ ...numeric, fontSize: 24, fontWeight: 300, color: C.t1, margin: 0 }}>
-                {pending}
-              </p>
-              <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
-                <T en="orders needing action">commandes à traiter</T>
-              </p>
-            </button>
-            <button
-              onClick={() => onNavigate?.("compliance")}
-              style={{
-                ...card, padding: "16px 18px", textAlign: "left", cursor: "pointer", fontFamily: FONT,
-                transition: "border-color 0.15s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.bdh; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.bds; }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <div style={{
-                  width: 26, height: 26, borderRadius: 7, background: C.l3, border: `1px solid ${C.bd}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <ShieldCheck style={{ width: 13, height: 13, color: C.t1 }} />
-                </div>
-                <p style={sH}><T en="Compliance">Conformité</T></p>
-              </div>
-              <p style={{ ...numeric, fontSize: 24, fontWeight: 300, color: C.t1, margin: 0 }}>
-                {complianceCount.open}
-              </p>
-              <p style={{ fontSize: 11, color: C.t3, margin: "4px 0 0" }}>
-                <T en="alerts open">alertes ouvertes</T>
-              </p>
-            </button>
-          </div>
+          {/* Conformité */}
+          <StatTile
+            label={<><ShieldCheck style={{ width: 11, height: 11, display: "inline", verticalAlign: "-1px", marginRight: 6 }} /><T en="Compliance">Conformité</T></>}
+            value={complianceCount.open}
+            sub={<T en="unresolved alerts">alertes non résolues</T>}
+            onClick={() => onNavigate?.("compliance")}
+          />
 
           {/* Funnel clients */}
           <div style={card}>
