@@ -3,12 +3,12 @@
 // Une seule fonction héberge tous les agents pour simplifier le déploiement.
 // Chaque agent = un handler avec un « system prompt » et une transformation
 // entrée→sortie spécifique. Chaque appel est journalisé dans `ai_calls`
-// (audit + coût). Auth : le staff appelle en tant qu'utilisateur connecté
-// (JWT du browser), l'edge function vérifie is_staff() via un lookup sur
+// (audit + coût). Auth : le staff appelle en tant qu’utilisateur connecté
+// (JWT du browser), l’edge function vérifie is_staff() via un lookup sur
 // la table user_roles.
 //
 // Agents implémentés (dans ce commit) :
-//   - draft-mail        : rédige un mail à partir d'une intention staff
+//   - draft-mail        : rédige un mail à partir d’une intention staff
 //   - summarize-client  : résume un dossier client 360° en 3-5 puces
 //
 // Agents à venir dans les prochains commits :
@@ -96,6 +96,72 @@ async function callClaudeMultiTurn(
     .trim();
   return {
     text,
+    inputTokens: data.usage?.input_tokens ?? 0,
+    outputTokens: data.usage?.output_tokens ?? 0,
+  };
+}
+
+// ────────────────────────────────────────────────────────────
+// Appel Claude avec tools (function calling)
+// ────────────────────────────────────────────────────────────
+
+interface ClaudeContentBlock {
+  type: string;
+  text?: string;
+  id?: string;
+  name?: string;
+  input?: Record<string, unknown>;
+  // tool_result fields
+  tool_use_id?: string;
+  content?: string;
+  is_error?: boolean;
+}
+
+interface ClaudeWithToolsResult {
+  content: ClaudeContentBlock[];
+  stopReason: string;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+async function callClaudeWithTools(
+  apiKey: string,
+  system: string,
+  messages: Array<{ role: string; content: string | ClaudeContentBlock[] }>,
+  tools: unknown[],
+  maxTokens = 2048,
+  toolChoice?: { type: "auto" | "any" } | { type: "tool"; name: string },
+): Promise<ClaudeWithToolsResult> {
+  const body: Record<string, unknown> = {
+    model: ANTHROPIC_MODEL,
+    max_tokens: maxTokens,
+    system,
+    messages,
+  };
+  if (tools.length > 0) {
+    body.tools = tools;
+    if (toolChoice) body.tool_choice = toolChoice;
+  }
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Claude API ${res.status}: ${err.slice(0, 500)}`);
+  }
+
+  const data = await res.json();
+  return {
+    content: data.content ?? [],
+    stopReason: data.stop_reason ?? "end_turn",
     inputTokens: data.usage?.input_tokens ?? 0,
     outputTokens: data.usage?.output_tokens ?? 0,
   };
@@ -391,6 +457,225 @@ async function draftCampaign(
 }
 
 // ────────────────────────────────────────────────────────────
+// Outils IA (function calling) — actions concrètes
+// ────────────────────────────────────────────────────────────
+
+const AI_TOOLS = [
+  {
+    name: "send_email",
+    description: "Envoie un email à un client Ooble. Utilise cet outil quand le staff demande d'envoyer un message, une relance ou une confirmation à un client. L'email sera présenté pour confirmation avant l'envoi effectif. Le corps doit être en français québécois professionnel, commencer par 'Bonjour [prénom],' et ne pas contenir de signature (elle est ajoutée automatiquement).",
+    input_schema: {
+      type: "object",
+      properties: {
+        to: { type: "string", description: "Adresse e-mail du destinataire (cherche dans les données de la plateforme)" },
+        subject: { type: "string", description: "Sujet de l'email, 40-70 caractères" },
+        body: { type: "string", description: "Corps de l'email en markdown simple. Utilise **gras** pour les montants/références. Commence par 'Bonjour [prénom],'. Pas de signature." },
+      },
+      required: ["to", "subject", "body"],
+    },
+  },
+  {
+    name: "update_order_status",
+    description: "Change le statut d'une commande Ooble. Utilise cet outil quand le staff demande de marquer un paiement reçu, compléter, annuler, rembourser ou rouvrir une commande. L'action sera présentée pour confirmation.",
+    input_schema: {
+      type: "object",
+      properties: {
+        orderRef: { type: "string", description: "Référence de la commande (ex: OOB-A1B2C3D4), visible dans les données de la plateforme" },
+        action: {
+          type: "string",
+          enum: ["recu", "termine", "annule", "rembourse", "rouvert"],
+          description: "recu=paiement reçu, termine=complétée, annule=annulée, rembourse=remboursée, rouvert=rouvrir",
+        },
+        note: { type: "string", description: "Note optionnelle pour l'historique" },
+      },
+      required: ["orderRef", "action"],
+    },
+  },
+  {
+    name: "assign_order",
+    description: "Prendre une commande en charge (l'assigner à l'opérateur courant, statut → En cours). Utilise quand le staff dit 'prends cette commande', 'je m'en occupe', 'assigne-moi'.",
+    input_schema: {
+      type: "object",
+      properties: {
+        orderRef: { type: "string", description: "Référence de la commande (ex: OOB-A1B2C3D4)" },
+      },
+      required: ["orderRef"],
+    },
+  },
+  {
+    name: "release_order",
+    description: "Libérer une commande assignée et la remettre en file d'attente. Utilise quand le staff dit 'libère', 'remets en attente', 'je ne m'en occupe plus'.",
+    input_schema: {
+      type: "object",
+      properties: {
+        orderRef: { type: "string", description: "Référence de la commande (ex: OOB-A1B2C3D4)" },
+      },
+      required: ["orderRef"],
+    },
+  },
+];
+
+interface PendingAction {
+  toolUseId: string;
+  tool: string;
+  input: Record<string, unknown>;
+  assistantContent: ClaudeContentBlock[];
+}
+
+interface ActionResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+// ────────────────────────────────────────────────────────────
+// Helpers ordres — résolution par ref + transitions
+// ────────────────────────────────────────────────────────────
+
+async function resolveOrderByRef(
+  admin: SupabaseClient,
+  ref: string,
+): Promise<{ id: string; status: string; side: string; assigned_to: string | null; cad_amount: number; usdt_amount: number; user_id: string } | null> {
+  const prefix = ref.replace(/^OOB-/i, "").toLowerCase();
+  if (prefix.length < 4) return null;
+  const { data } = await admin
+    .from("orders")
+    .select("id, status, side, assigned_to, cad_amount, usdt_amount, user_id")
+    .ilike("id", `${prefix}%`)
+    .limit(1)
+    .maybeSingle();
+  return data as { id: string; status: string; side: string; assigned_to: string | null; cad_amount: number; usdt_amount: number; user_id: string } | null;
+}
+
+const ACTION_TO_DB_STATUS: Record<string, string> = {
+  recu: "payment_received",
+  termine: "completed",
+  annule: "cancelled",
+  rembourse: "refunded",
+  rouvert: "awaiting_payment",
+};
+
+const VALID_FROM: Record<string, string[]> = {
+  recu: ["created", "awaiting_payment", "settling"],
+  termine: ["payment_received", "settling"],
+  annule: ["created", "awaiting_payment", "payment_received", "settling"],
+  rembourse: ["payment_received", "settling", "completed"],
+  rouvert: ["completed", "cancelled", "expired", "refunded"],
+};
+
+const ORDER_ACTION_LABELS: Record<string, string> = {
+  recu: "Paiement reçu",
+  termine: "Terminée",
+  annule: "Annulée",
+  rembourse: "Remboursée",
+  rouvert: "Rouverte",
+};
+
+function orderRefDisplay(id: string): string {
+  return `OOB-${id.slice(0, 8).toUpperCase()}`;
+}
+
+async function executeOrderStatusChange(
+  admin: SupabaseClient,
+  staffId: string,
+  orderRef: string,
+  action: string,
+  note?: string,
+): Promise<ActionResult> {
+  const order = await resolveOrderByRef(admin, orderRef);
+  if (!order) return { success: false, error: `Commande ${orderRef} introuvable.` };
+
+  const validFrom = VALID_FROM[action];
+  if (!validFrom || !validFrom.includes(order.status)) {
+    return { success: false, error: `Impossible : statut actuel « ${order.status} » ne permet pas l'action « ${ORDER_ACTION_LABELS[action] ?? action} ».` };
+  }
+
+  const newStatus = ACTION_TO_DB_STATUS[action];
+  const update: Record<string, unknown> = { status: newStatus };
+  if (action === "rouvert") {
+    update.assigned_to = null;
+    update.assigned_at = null;
+  }
+
+  const { error } = await admin.from("orders").update(update).eq("id", order.id);
+  if (error) return { success: false, error: `Erreur DB : ${error.message}` };
+
+  await admin.from("order_events").insert({
+    order_id: order.id,
+    previous_status: order.status,
+    new_status: newStatus,
+    actor: staffId,
+    note: note ?? `Via assistant IA — ${ORDER_ACTION_LABELS[action]}`,
+  });
+
+  const ref = orderRefDisplay(order.id);
+  return { success: true, message: `Commande ${ref} → ${ORDER_ACTION_LABELS[action]}` };
+}
+
+async function executeAssignOrder(
+  admin: SupabaseClient,
+  staffId: string,
+  orderRef: string,
+): Promise<ActionResult> {
+  const order = await resolveOrderByRef(admin, orderRef);
+  if (!order) return { success: false, error: `Commande ${orderRef} introuvable.` };
+
+  const assignable = ["created", "awaiting_payment", "payment_received"];
+  if (!assignable.includes(order.status)) {
+    return { success: false, error: `Impossible de prendre en charge : statut actuel « ${order.status} ».` };
+  }
+
+  const { error } = await admin.from("orders").update({
+    status: "settling",
+    assigned_to: staffId,
+    assigned_at: new Date().toISOString(),
+  }).eq("id", order.id);
+  if (error) return { success: false, error: `Erreur DB : ${error.message}` };
+
+  await admin.from("order_events").insert({
+    order_id: order.id,
+    previous_status: order.status,
+    new_status: "settling",
+    actor: staffId,
+    note: "Prise en charge via assistant IA",
+  });
+
+  const ref = orderRefDisplay(order.id);
+  return { success: true, message: `Commande ${ref} prise en charge` };
+}
+
+async function executeReleaseOrder(
+  admin: SupabaseClient,
+  staffId: string,
+  orderRef: string,
+): Promise<ActionResult> {
+  const order = await resolveOrderByRef(admin, orderRef);
+  if (!order) return { success: false, error: `Commande ${orderRef} introuvable.` };
+
+  if (order.status !== "settling") {
+    return { success: false, error: `La commande n'est pas en cours de traitement (statut : « ${order.status} »).` };
+  }
+
+  const { error } = await admin.from("orders").update({
+    status: "awaiting_payment",
+    assigned_to: null,
+    assigned_at: null,
+  }).eq("id", order.id);
+  if (error) return { success: false, error: `Erreur DB : ${error.message}` };
+
+  await admin.from("order_events").insert({
+    order_id: order.id,
+    previous_status: order.status,
+    new_status: "awaiting_payment",
+    actor: staffId,
+    note: "Libérée via assistant IA",
+  });
+
+  const ref = orderRefDisplay(order.id);
+  return { success: true, message: `Commande ${ref} libérée` };
+}
+
+// ────────────────────────────────────────────────────────────
 // Agent 4 — Assistant contextuel temps réel (chat)
 // ────────────────────────────────────────────────────────────
 
@@ -398,14 +683,29 @@ const SYSTEM_CONTEXT_CHAT = `Tu es l'assistant IA du back-office Ooble — une p
 
 Tu assistes le staff en temps réel avec l'état actuel de la plateforme (commandes, KYC, messagerie, trésorerie, taux).
 
-Style de réponse — TRÈS IMPORTANT :
-- Écris comme un collègue compétent qui répond naturellement. Pas comme un rapport.
-- Phrases courtes et directes. Pas de listes à puces systématiques.
-- Utilise le gras **uniquement** pour les chiffres clés (montants, nombres). Jamais pour les mots ordinaires.
-- N'utilise PAS de titres (pas de # ou ##).
-- N'utilise PAS de tirets (-) sauf si tu listes réellement plusieurs éléments distincts, et limite à 3-5 puces maximum.
-- Pas de « Voici », « En résumé », « N'hésitez pas ». Va droit au fait.
-- Une question simple = 2-3 phrases. Une analyse = 2-3 courts paragraphes, pas plus.
+RÈGLE ABSOLUE — OUTILS :
+Quand le staff te demande d'effectuer une action (envoyer un email, modifier une commande, prendre en charge un ordre, etc.), tu DOIS appeler l'outil correspondant dans ta réponse. Ne te contente JAMAIS de décrire l'action verbalement sans appeler l'outil — le texte seul ne déclenche rien. L'action sera présentée au staff pour confirmation avant exécution — tu n'as pas besoin de demander confirmation toi-même, appelle directement l'outil.
+
+Quand tu appelles un outil :
+- Écris 1 phrase courte expliquant ce que tu fais, puis appelle l'outil dans la même réponse.
+- Utilise les données du contexte (email du client, montants, références, taux) — ne demande pas au staff ce que tu peux trouver toi-même.
+- Pour les emails : ton Ooble (professionnel, chaleureux mais pas corporate), vocabulaire Ooble. Commence par « Bonjour [prénom], ». Pas de signature.
+- Pour les commandes : utilise la référence OOB-XXXXXXXX visible dans les commandes récentes. Ne demande pas la référence si tu la vois dans le contexte.
+
+Style de réponse — RÈGLES STRICTES :
+Tu parles comme un collègue compétent, en phrases naturelles et fluides. JAMAIS en listes.
+
+INTERDIT absolument :
+- Les tirets (-) ou puces (•, *, >) pour structurer tes réponses. Écris des phrases et des paragraphes.
+- Les titres (pas de #, ##, ###).
+- Le gras sur des mots ordinaires. Réserve **gras** uniquement aux chiffres clés (montants, nombres).
+- Les formules creuses : « Voici », « En résumé », « N'hésitez pas », « Bien sûr ! ».
+- Les énumérations numérotées (1. 2. 3.).
+
+OBLIGATOIRE :
+- Écris en paragraphes courts de 2-3 phrases. Sépare tes idées par des sauts de ligne, pas par des tirets.
+- Une question simple = 2-3 phrases. Une analyse = 2-3 paragraphes courts.
+- Va droit au fait dès la première phrase. Pas d'introduction.
 - Vocabulaire Ooble : « ordre » (pas « transaction »), « réseau » (pas « blockchain »), « USDT », « Interac e-Transfer ».
 - Ne fabrique jamais de chiffres. Si une info manque, dis-le.
 
@@ -467,6 +767,71 @@ interface PlatformContext {
     totalUsdt: number;
     addressCount: number;
   }>;
+  recentProfiles?: Array<{
+    fullName: string;
+    email: string;
+    accountType: string;
+    kycStatus: string;
+    phone: string;
+    businessName: string;
+    dailyLimitCad: number;
+    createdAt: string;
+  }>;
+  recentBlockchainTx?: Array<{
+    orderRef: string;
+    network: string;
+    txHash: string;
+    direction: string;
+    usdtAmount: number;
+    confirmations: number;
+    confirmed: boolean;
+    createdAt: string;
+  }>;
+  recentPaymentConfirmations?: Array<{
+    orderRef: string;
+    amountCad: number;
+    method: string;
+    reference: string;
+    direction: string;
+    confirmedAt: string;
+  }>;
+  recentOrderEvents?: Array<{
+    orderRef: string;
+    previousStatus: string;
+    newStatus: string;
+    actor: string;
+    note: string;
+    createdAt: string;
+  }>;
+  activeAnnouncements?: Array<{
+    kind: string;
+    titleFr: string;
+    bodyFr: string;
+    createdAt: string;
+  }>;
+  maintenanceWindows?: Array<{
+    titleFr: string;
+    bodyFr: string;
+    startsAt: string;
+    endsAt: string;
+    active: boolean;
+  }>;
+  recentTreasuryMovements?: Array<{
+    fromLabel: string;
+    toLabel: string;
+    amountUsdt: number;
+    txHash: string;
+    reason: string;
+    notes: string;
+    createdAt: string;
+  }>;
+  recentAuditLog?: Array<{
+    actorEmail: string;
+    action: string;
+    entityKind: string;
+    entityId: string;
+    createdAt: string;
+  }>;
 }
 
 function platformContextToText(ctx: PlatformContext): string {
@@ -494,9 +859,9 @@ function platformContextToText(ctx: PlatformContext): string {
   }
 
   if (ctx.pendingKycDetails && ctx.pendingKycDetails.length > 0) {
-    lines.push(`\nKYC EN ATTENTE / REFUSÉS (${ctx.pendingKycDetails.length}) :`);
+    lines.push(`\nSOUMISSIONS KYC RÉCENTES (${ctx.pendingKycDetails.length}) :`);
     for (const k of ctx.pendingKycDetails) {
-      lines.push(`- ${k.clientName} (${k.email}) · ${k.docType} · ${k.status} · soumis le ${k.submittedAt}`);
+      lines.push(`- ${k.clientName} (${k.email}) · ${k.docType} · Statut : ${k.status} · soumis le ${k.submittedAt}`);
     }
   }
 
@@ -556,7 +921,94 @@ function platformContextToText(ctx: PlatformContext): string {
     for (const a of ctx.alerts) lines.push(`⚠ ${a}`);
   }
 
+  if (ctx.recentProfiles && ctx.recentProfiles.length > 0) {
+    lines.push(`\nCLIENTS INSCRITS (${ctx.recentProfiles.length} derniers) :`);
+    for (const p of ctx.recentProfiles) {
+      const biz = p.businessName ? ` · ${p.businessName}` : "";
+      const phone = p.phone ? ` · ${p.phone}` : "";
+      const limit = p.dailyLimitCad > 0 ? ` · limite ${nf.format(p.dailyLimitCad)} $/jour` : "";
+      lines.push(`- ${p.fullName} (${p.email}) · ${p.accountType} · KYC: ${p.kycStatus}${biz}${phone}${limit} · inscrit le ${p.createdAt}`);
+    }
+  }
+
+  if (ctx.recentBlockchainTx && ctx.recentBlockchainTx.length > 0) {
+    lines.push(`\nTRANSACTIONS BLOCKCHAIN RÉCENTES (${ctx.recentBlockchainTx.length}) :`);
+    for (const tx of ctx.recentBlockchainTx) {
+      const status = tx.confirmed ? `✓ confirmée (${tx.confirmations})` : `en attente (${tx.confirmations} conf.)`;
+      lines.push(`- ${tx.orderRef} · ${tx.direction} · ${nf.format(tx.usdtAmount)} USDT · ${tx.network} · ${status} · TX: ${tx.txHash.slice(0, 16)}… · ${tx.createdAt}`);
+    }
+  }
+
+  if (ctx.recentPaymentConfirmations && ctx.recentPaymentConfirmations.length > 0) {
+    lines.push(`\nCONFIRMATIONS DE PAIEMENT RÉCENTES (${ctx.recentPaymentConfirmations.length}) :`);
+    for (const pc of ctx.recentPaymentConfirmations) {
+      lines.push(`- ${pc.orderRef} · ${nf.format(pc.amountCad)} CAD · ${pc.method} · réf: ${pc.reference} · ${pc.direction} · ${pc.confirmedAt}`);
+    }
+  }
+
+  if (ctx.recentOrderEvents && ctx.recentOrderEvents.length > 0) {
+    lines.push(`\nHISTORIQUE D'ÉVÉNEMENTS COMMANDES (${ctx.recentOrderEvents.length} derniers) :`);
+    for (const ev of ctx.recentOrderEvents) {
+      const note = ev.note ? ` — "${ev.note}"` : "";
+      lines.push(`- ${ev.orderRef} · ${ev.previousStatus || "—"} → ${ev.newStatus} · par ${ev.actor}${note} · ${ev.createdAt}`);
+    }
+  }
+
+  if (ctx.activeAnnouncements && ctx.activeAnnouncements.length > 0) {
+    lines.push(`\nANNONCES ACTIVES (${ctx.activeAnnouncements.length}) :`);
+    for (const a of ctx.activeAnnouncements) {
+      lines.push(`- [${a.kind.toUpperCase()}] ${a.titleFr} — ${a.bodyFr} · ${a.createdAt}`);
+    }
+  }
+
+  if (ctx.maintenanceWindows && ctx.maintenanceWindows.length > 0) {
+    lines.push(`\nFENÊTRES DE MAINTENANCE :`);
+    for (const mw of ctx.maintenanceWindows) {
+      const status = mw.active ? "ACTIVE" : "planifiée";
+      lines.push(`- ${mw.titleFr} · ${status} · du ${mw.startsAt} au ${mw.endsAt} — ${mw.bodyFr}`);
+    }
+  }
+
+  if (ctx.recentTreasuryMovements && ctx.recentTreasuryMovements.length > 0) {
+    lines.push(`\nMOUVEMENTS TRÉSORERIE RÉCENTS (${ctx.recentTreasuryMovements.length}) :`);
+    for (const tm of ctx.recentTreasuryMovements) {
+      const txInfo = tm.txHash ? ` · TX: ${tm.txHash.slice(0, 16)}…` : "";
+      const notes = tm.notes ? ` — ${tm.notes}` : "";
+      lines.push(`- ${tm.fromLabel} → ${tm.toLabel} · ${nf.format(tm.amountUsdt)} USDT · ${tm.reason}${txInfo}${notes} · ${tm.createdAt}`);
+    }
+  }
+
+  if (ctx.recentAuditLog && ctx.recentAuditLog.length > 0) {
+    lines.push(`\nJOURNAL D'AUDIT ADMIN (${ctx.recentAuditLog.length} dernières actions) :`);
+    for (const al of ctx.recentAuditLog) {
+      const entity = al.entityKind ? ` · ${al.entityKind} ${al.entityId.slice(0, 8)}` : "";
+      lines.push(`- ${al.actorEmail} · ${al.action}${entity} · ${al.createdAt}`);
+    }
+  }
+
   return lines.join("\n");
+}
+
+function detectActionIntent(messages: Array<{ role: string; content: string }>): boolean {
+  const lastUserMsg = messages.filter((m) => m.role === "user").pop()?.content ?? "";
+  const lm = lastUserMsg.toLowerCase();
+
+  const wantsEmail =
+    (/\benvoi[ers]?\b/.test(lm) && /\b(mail|email|courriel|message)\b/.test(lm)) ||
+    (/\benvoi[ers]?\b/.test(lm) && /@/.test(lm)) ||
+    (/\b(écri[st]|rédige)\w*\b/.test(lm) && /\b(mail|email|courriel)\b/.test(lm)) ||
+    /\bdis[\s-]?(lui|leur|à)\b/.test(lm) ||
+    (/\bmail\b/.test(lm) && /\b(pour|avec|dire|informer|prévenir|relancer|confirmer)\b/.test(lm));
+
+  const wantsOrderAction =
+    (/\b(annule|complète|termine|rembourse|rouvr)\w*\b/.test(lm) &&
+      /\b(commande|ordre|OOB-)/i.test(lastUserMsg)) ||
+    /\bprends?\s+(en\s+)?charge\b/.test(lm) ||
+    /\bassign/i.test(lm) ||
+    /\blibère\b/.test(lm) ||
+    (/\bmarqu\w*\b/.test(lm) && /\b(reçu|payé|terminé|complété)\b/.test(lm));
+
+  return wantsEmail || wantsOrderAction;
 }
 
 async function contextChat(
@@ -565,15 +1017,179 @@ async function contextChat(
     messages: Array<{ role: "user" | "assistant"; content: string }>;
     context: PlatformContext;
   },
-): Promise<{ reply: string; call: ClaudeCallResult }> {
+): Promise<{ reply: string; call: ClaudeCallResult; pendingAction?: PendingAction }> {
   const contextBlock = platformContextToText(input.context);
   const systemWithContext = `${SYSTEM_CONTEXT_CHAT}\n\n${contextBlock}`;
-  const call = await callClaudeMultiTurn(apiKey, systemWithContext, input.messages, 2048);
-  return { reply: call.text, call };
+
+  const forceTools = detectActionIntent(input.messages);
+  const result = await callClaudeWithTools(
+    apiKey, systemWithContext, input.messages, AI_TOOLS, 2048,
+    forceTools ? { type: "any" } : undefined,
+  );
+
+  const textParts = result.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text ?? "")
+    .join("\n")
+    .trim();
+
+  const toolUse = result.content.find((b) => b.type === "tool_use");
+
+  const call: ClaudeCallResult = {
+    text: textParts,
+    inputTokens: result.inputTokens,
+    outputTokens: result.outputTokens,
+  };
+
+  if (toolUse && toolUse.name && toolUse.id) {
+    const TOOL_REPLY_FALLBACK: Record<string, string> = {
+      send_email: "Je prépare l'email.",
+      update_order_status: "Je modifie le statut de la commande.",
+      assign_order: "Je prends la commande en charge.",
+      release_order: "Je libère la commande.",
+    };
+    const reply = textParts || TOOL_REPLY_FALLBACK[toolUse.name] || "Action en cours.";
+    return {
+      reply,
+      call,
+      pendingAction: {
+        toolUseId: toolUse.id,
+        tool: toolUse.name,
+        input: toolUse.input ?? {},
+        assistantContent: result.content,
+      },
+    };
+  }
+
+  return { reply: textParts, call };
+}
+
+// ────────────────────────────────────────────────────────────
+// Exécution d'actions confirmées + helpers email
+// ────────────────────────────────────────────────────────────
+
+function markdownToSimpleHtml(md: string): string {
+  let html = md
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#000;text-decoration:underline;">$1</a>');
+
+  return html
+    .split("\n\n")
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      const lines = trimmed.split("\n");
+      const isList = lines.every((l) => /^\s*[-*]\s/.test(l) || l.trim() === "");
+      if (isList) {
+        const items = lines
+          .filter((l) => l.trim())
+          .map((l) => `<li style="margin:4px 0;font-size:15px;line-height:1.6;">${l.replace(/^\s*[-*]\s+/, "")}</li>`)
+          .join("");
+        return `<ul style="margin:8px 0;padding-left:20px;">${items}</ul>`;
+      }
+      return `<p style="margin:0 0 12px;font-size:15px;line-height:1.6;">${trimmed.replace(/\n/g, "<br/>")}</p>`;
+    })
+    .filter(Boolean)
+    .join("");
+}
+
+async function sendEmailViaEdge(
+  supabaseUrl: string,
+  serviceKey: string,
+  to: string,
+  subject: string,
+  bodyMd: string,
+): Promise<{ id?: string; error?: string }> {
+  const html = markdownToSimpleHtml(bodyMd);
+  const res = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${serviceKey}`,
+    },
+    body: JSON.stringify({ to, subject, html }),
+  });
+  const data = await res.json().catch(() => ({} as Record<string, unknown>));
+  if (!res.ok || (data as { error?: string }).error) {
+    return { error: (data as { error?: string }).error ?? `HTTP ${res.status}` };
+  }
+  return { id: (data as { id?: string }).id };
+}
+
+async function executeAction(
+  apiKey: string,
+  supabaseUrl: string,
+  serviceKey: string,
+  admin: SupabaseClient,
+  staffId: string,
+  input: {
+    action: PendingAction;
+    messages: Array<{ role: "user" | "assistant"; content: string }>;
+    context: PlatformContext;
+  },
+): Promise<{ reply: string; call: ClaudeCallResult; actionResult: ActionResult }> {
+  let actionResult: ActionResult;
+
+  if (input.action.tool === "send_email") {
+    const params = input.action.input as { to: string; subject: string; body: string };
+    const emailRes = await sendEmailViaEdge(supabaseUrl, serviceKey, params.to, params.subject, params.body);
+    actionResult = emailRes.error
+      ? { success: false, error: emailRes.error }
+      : { success: true, message: `Email envoyé à ${params.to}` };
+  } else if (input.action.tool === "update_order_status") {
+    const params = input.action.input as { orderRef: string; action: string; note?: string };
+    actionResult = await executeOrderStatusChange(admin, staffId, params.orderRef, params.action, params.note);
+  } else if (input.action.tool === "assign_order") {
+    const params = input.action.input as { orderRef: string };
+    actionResult = await executeAssignOrder(admin, staffId, params.orderRef);
+  } else if (input.action.tool === "release_order") {
+    const params = input.action.input as { orderRef: string };
+    actionResult = await executeReleaseOrder(admin, staffId, params.orderRef);
+  } else {
+    actionResult = { success: false, error: `Outil inconnu : ${input.action.tool}` };
+  }
+
+  const contextBlock = platformContextToText(input.context);
+  const systemWithContext = `${SYSTEM_CONTEXT_CHAT}\n\n${contextBlock}`;
+
+  const resumeMessages: Array<{ role: string; content: string | ClaudeContentBlock[] }> = [
+    ...input.messages,
+    { role: "assistant", content: input.action.assistantContent },
+    {
+      role: "user",
+      content: [{
+        type: "tool_result",
+        tool_use_id: input.action.toolUseId,
+        content: actionResult.success
+          ? (actionResult.message ?? "Action effectuée.")
+          : `Erreur : ${actionResult.error}`,
+      }] as unknown as ClaudeContentBlock[],
+    },
+  ];
+
+  const result = await callClaudeWithTools(apiKey, systemWithContext, resumeMessages, AI_TOOLS, 1024);
+
+  const reply = result.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text ?? "")
+    .join("\n")
+    .trim();
+
+  return {
+    reply: reply || (actionResult.success ? "Action effectuée." : "L'action a échoué."),
+    call: {
+      text: reply,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+    },
+    actionResult,
+  };
 }
 
 interface Payload {
-  agent: "draft-mail" | "summarize-client" | "draft-campaign" | "context-chat";
+  agent: "draft-mail" | "summarize-client" | "draft-campaign" | "context-chat" | "execute-action" | "reject-action";
   // draft-mail / draft-campaign
   intention?: string;
   client?: ClientContext | null;
@@ -587,6 +1203,8 @@ interface Payload {
   // context-chat + draft-mail (platform awareness)
   messages?: Array<{ role: "user" | "assistant"; content: string }>;
   context?: PlatformContext;
+  // execute-action / reject-action
+  action?: PendingAction;
 }
 
 Deno.serve(async (req) => {
@@ -675,12 +1293,41 @@ Deno.serve(async (req) => {
       if (!payload.context) return json({ error: "Champ 'context' requis." }, 400);
       const lastMsg = payload.messages[payload.messages.length - 1];
       const inputPreview = preview(lastMsg?.content ?? "");
-      const { reply, call } = await contextChat(anthropicKey, {
+      const { reply, call, pendingAction } = await contextChat(anthropicKey, {
         messages: payload.messages,
         context: payload.context,
       });
       await logCall(admin, { agent: "context-chat", staffId: userId, inputPreview, call, startedAt });
-      return json({ ok: true, reply, tokens: { in: call.inputTokens, out: call.outputTokens } });
+      const response: Record<string, unknown> = {
+        ok: true,
+        reply,
+        tokens: { in: call.inputTokens, out: call.outputTokens },
+      };
+      if (pendingAction) response.pendingAction = pendingAction;
+      return json(response);
+    }
+
+    if (payload.agent === "execute-action") {
+      if (!payload.action) return json({ error: "Champ 'action' requis." }, 400);
+      if (!payload.messages || payload.messages.length === 0) return json({ error: "Champ 'messages' requis." }, 400);
+      if (!payload.context) return json({ error: "Champ 'context' requis." }, 400);
+      const inputPreview = preview(`Exécution : ${payload.action.tool} → ${JSON.stringify(payload.action.input).slice(0, 150)}`);
+      const result = await executeAction(anthropicKey, supabaseUrl, serviceKey, admin, userId, {
+        action: payload.action,
+        messages: payload.messages,
+        context: payload.context,
+      });
+      await logCall(admin, { agent: "execute-action", staffId: userId, inputPreview, call: result.call, startedAt });
+      return json({
+        ok: true,
+        reply: result.reply,
+        actionResult: result.actionResult,
+        tokens: { in: result.call.inputTokens, out: result.call.outputTokens },
+      });
+    }
+
+    if (payload.agent === "reject-action") {
+      return json({ ok: true, reply: "D'accord, l'action a été annulée." });
     }
 
     return json({ error: `Agent inconnu : ${payload.agent}` }, 400);
