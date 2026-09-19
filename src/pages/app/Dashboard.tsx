@@ -156,7 +156,7 @@ const Dashboard = () => {
           </div>
           {!TRADING_ENABLED && !isStaff && (
             <p className="text-center text-[12px] text-muted-foreground/70">
-              Les transactions sont temporairement suspendues.
+             La plateforme sera bientôt opérationnelle.
             </p>
           )}
 
