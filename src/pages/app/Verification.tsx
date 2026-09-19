@@ -368,7 +368,7 @@ const Verification = () => {
 
             {/* CTA */}
             <div className="mt-6 flex justify-end">
-              <Button variant="appSolid" shape="rounded" className="gap-2 px-5 text-[13px]" onClick={() => setStep("doc_type")}>
+              <Button variant="appSolid" shape="rounded" className="gap-2 px-5 text-[13px]" disabled>
                 {inReview ? t("kyc.resume") : t("kyc.start")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
