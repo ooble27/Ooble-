@@ -203,6 +203,7 @@ const dict = {
   "dash.rate": { fr: "Taux USDT / CAD", en: "USDT / CAD Rate" },
   "dash.buy": { fr: "Acheter", en: "Buy" },
   "dash.sell": { fr: "Vendre", en: "Sell" },
+  "dash.tradingSuspended": { fr: "La plateforme sera bientôt opérationnelle.", en: "The platform will be available soon." },
   "dash.networks": { fr: "Recevez sur 6 réseaux", en: "Receive on 6 networks" },
   "dash.recent": { fr: "Activité récente", en: "Recent activity" },
   "dash.viewAll": { fr: "Voir tout", en: "View all" },
