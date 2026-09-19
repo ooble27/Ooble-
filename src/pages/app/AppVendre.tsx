@@ -68,10 +68,10 @@ const AppVendre = () => {
             {t("sell.title")}
           </h1>
           <p className="mt-2 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
-            Les transactions sont temporairement suspendues. La création de compte et la vérification KYC restent disponibles.
+            La plateforme sera bientôt pleinement opérationnelle. Vous pouvez déjà créer votre compte.
           </p>
           <p className="mt-1 text-[12px] text-muted-foreground/60">
-            Trading is temporarily suspended. Account creation and KYC verification remain available.
+            The platform will be fully operational soon. You can already create your account.
           </p>
           <Link
             to="/app"
