@@ -160,24 +160,34 @@
   }
 
   /*
-   * Surface de l'app connectée — fond blanc pur, cartes gris visible (#f2f2f2),
-   * encre noire profonde (#0a0a0a), bordures nettes. Inspiré MoneyGram.
-   * L'accent de marque (teal `--primary`, `--deep`) est conservé tel quel.
+   * Surface de l'app connectée (tableau de bord & back-office).
+   *
+   * Problème corrigé : en clair, `--card` valait blanc pur, posé sur un
+   * `--background` blanc pur — aucune élévation, les cartes ne tenaient que sur
+   * un filet à peine visible, teinté teal. Résultat plat, « les couleurs et les
+   * bordures ne sortent pas ».
+   *
+   * Correctif façon dashboard soigné (surfaces empilées, gris neutres) :
+   * — la PAGE passe en gris très clair (#fafafa), les CARTES restent blanches :
+   *   elles ressortent enfin ;
+   * — bordures et surfaces secondaires deviennent des gris strictement neutres
+   *   (plus de teinte teal parasite), nets mais doux ;
+   * — l'accent de marque (teal `--primary`, `--deep`) est conservé tel quel.
    */
   .app-surface {
     --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --foreground: 0 0% 0%;
     --card: 0 0% 95%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 0 0% 0%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 0 0% 0%;
     --secondary: 0 0% 90%;
-    --secondary-foreground: 0 0% 4%;
+    --secondary-foreground: 0 0% 0%;
     --muted: 0 0% 91%;
-    --muted-foreground: 0 0% 34%;
+    --muted-foreground: 0 0% 28%;
     --border: 0 0% 88%;
     --input: 0 0% 84%;
-    --ring: 0 0% 4%;
+    --ring: 0 0% 0%;
   }
 
   /*
@@ -207,7 +217,8 @@
    * Quand l'app est montée (`app-scope` posé par AppShell sur <html>), la racine
    * et le <body> prennent la MÊME teinte que la page de l'app. Sans ça, le body
    * garde le `--background` de :root (blanc pur / 10 %), plus clair que la page
-   * de l'app : une couture de couleur apparaissait tout en haut.
+   * de l'app (98 % / 9 %) : une couture de couleur apparaissait tout en haut,
+   * dans la zone de la barre d'état et au rebond de défilement.
    */
   html.app-scope,
   html.app-scope body {
