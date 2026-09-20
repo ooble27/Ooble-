@@ -162,32 +162,24 @@
   /*
    * Surface de l'app connectée (tableau de bord & back-office).
    *
-   * Problème corrigé : en clair, `--card` valait blanc pur, posé sur un
-   * `--background` blanc pur — aucune élévation, les cartes ne tenaient que sur
-   * un filet à peine visible, teinté teal. Résultat plat, « les couleurs et les
-   * bordures ne sortent pas ».
-   *
-   * Correctif façon dashboard soigné (surfaces empilées, gris neutres) :
-   * — la PAGE passe en gris très clair (#fafafa), les CARTES restent blanches :
-   *   elles ressortent enfin ;
-   * — bordures et surfaces secondaires deviennent des gris strictement neutres
-   *   (plus de teinte teal parasite), nets mais doux ;
-   * — l'accent de marque (teal `--primary`, `--deep`) est conservé tel quel.
+   * Fond blanc pur, cartes gris doux (#f7f7f7), encre noire profonde (#0a0a0a),
+   * bordures discrètes — inspiré MoneyGram pour un rendu net et moderne.
+   * L'accent de marque (teal `--primary`, `--deep`) est conservé tel quel.
    */
   .app-surface {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 97%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 43%;
-    --border: 0 0% 90%;
-    --input: 0 0% 85%;
-    --ring: 0 0% 9%;
+    --popover-foreground: 0 0% 4%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 36%;
+    --border: 0 0% 92%;
+    --input: 0 0% 87%;
+    --ring: 0 0% 4%;
   }
 
   /*
@@ -222,7 +214,7 @@
    */
   html.app-scope,
   html.app-scope body {
-    background-color: hsl(0 0% 98%);
+    background-color: hsl(0 0% 100%);
   }
   html.dark.app-scope,
   html.dark.app-scope body {
@@ -249,277 +241,33 @@
   }
 
   body {
-    @apply bg-background font-body text-foreground antialiased;
-    font-weight: 400; /* poids uniforme, net (comme les pastilles), partout */
-    letter-spacing: -0.01em;
-  }
-
-  /* Feedback tactile propre (façon application native). */
-  button,
-  a,
-  [role="button"] {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-
-  .font-display {
-    letter-spacing: -0.02em;
-  }
-
-  /* App connectée : poids typographique uniforme (celui des pastilles). */
-  .app-type
-    :is(.font-thin, .font-extralight, .font-light, .font-normal, .font-medium, .font-semibold, .font-bold, .font-extrabold, .font-black) {
-    font-weight: 400 !important;
-  }
-
-  ::selection {
-    background: hsl(var(--primary) / 0.2);
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   /*
-   * Empêche le zoom automatique iOS Safari au focus d'un champ. Safari
-   * zoome dès qu'un input a un font-size < 16px. On applique le seuil
-   * UNIQUEMENT aux inputs qui optent explicitement (classe .no-zoom) ou
-   * qui n'ont ni classe Tailwind text-* ni style inline explicite. Sans
-   * `!important` : les tailles définies par l'app (Terex 34px sur
-   * l'accueil Acheter/Vendre, etc.) restent intactes.
+   * Discipline typographique de l'app connectée.
+   * Tous les poids Tailwind sont ramenés à 400 (regular) : on réserve le
+   * gras aux éléments qui le déclarent explicitement via `style={{ fontWeight }}`.
    */
-  @media (max-width: 767px) {
-    input.no-zoom,
-    textarea.no-zoom,
-    select.no-zoom {
-      font-size: 16px !important;
-    }
+  .app-type
+    :is(.font-thin, .font-extralight, .font-light, .font-normal, .font-medium,
+        .font-semibold, .font-bold, .font-extrabold, .font-black) {
+    font-weight: 400 !important;
   }
 }
 
 @layer utilities {
-  .text-accent-ink {
-    color: hsl(var(--accent-ink));
-  }
-  .bg-accent-tint {
-    background: hsl(var(--accent-tint));
+  .font-display {
+    font-family: var(--font-display, ui-sans-serif, system-ui, sans-serif);
   }
 
-  .shadow-soft {
-    box-shadow:
-      0 1px 2px rgb(15 58 67 / 0.05),
-      0 12px 28px -12px rgb(15 58 67 / 0.14);
-  }
-  .shadow-lift {
-    box-shadow:
-      0 2px 4px rgb(15 58 67 / 0.05),
-      0 34px 60px -22px rgb(15 58 67 / 0.28);
-  }
-  .shadow-teal {
-    box-shadow: 0 14px 30px -10px hsl(174 58% 38% / 0.4);
+  .animate-page {
+    animation: pageIn 0.28s ease-out both;
   }
 
-  .bg-wash {
-    background:
-      radial-gradient(48% 42% at 88% 4%, hsl(174 58% 45% / 0.13), transparent 70%),
-      radial-gradient(42% 40% at 4% 16%, hsl(186 45% 55% / 0.1), transparent 70%);
-  }
-
-  .pt-safe {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .deco-dots {
-    background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
-  /* Points sur panneau inversé (bg-foreground). */
-  .deco-dots-inv {
-    background-image: radial-gradient(hsl(var(--background) / 0.08) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-
-  /* Quadrillage fin, façon plan technique. */
-  .deco-grid {
-    background-image:
-      linear-gradient(hsl(var(--foreground) / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
-    background-size: 56px 56px;
-  }
-
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .bg-diagonal {
-    background-image: repeating-linear-gradient(
-      -45deg,
-      rgba(255, 255, 255, 0.06) 0,
-      rgba(255, 255, 255, 0.06) 1px,
-      transparent 1px,
-      transparent 12px
-    );
-  }
-
-  .bg-diagonal-dark {
-    background-image: repeating-linear-gradient(
-      -45deg,
-      rgba(255, 255, 255, 0.03) 0,
-      rgba(255, 255, 255, 0.03) 1px,
-      transparent 1px,
-      transparent 12px
-    );
-  }
-
-  @keyframes ooble-up {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-up { animation: ooble-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-  @keyframes ooble-marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  .animate-marquee { animation: ooble-marquee 30s linear infinite; }
-
-  /* Ouverture dynamique d'une page de l'app (façon Terex) */
-  @keyframes ooble-page-in {
-    from { opacity: 0; transform: translateY(10px) scale(0.99); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .animate-page { animation: ooble-page-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-  .mask-fade-x {
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  }
-
-  /*
-   * Bouton avec un léger effet de profondeur (façon bouton « premium » :
-   * surbrillance en haut, ombre interne en bas, ombre portée douce). La
-   * surbrillance est composée en `overlay` : sur un fond sombre elle éclaircit
-   * (relief classique), sur un fond clair elle reste discrète — donc la même
-   * classe fonctionne pour un bouton sombre comme pour un bouton clair, sans
-   * variante `dark:` à gérer.
-   */
-  .btn-depth {
-    position: relative;
-    isolation: isolate;
-    box-shadow:
-      inset 0 1px 0 hsl(0 0% 100% / 0.09),
-      0 1px 2px hsl(0 0% 0% / 0.12),
-      0 8px 20px -8px hsl(0 0% 0% / 0.35);
-  }
-  .btn-depth::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(
-      to bottom,
-      hsl(0 0% 100% / 0.62),
-      hsl(0 0% 100% / 0) 42%,
-      hsl(0 0% 0% / 0.3) 100%
-    );
-    mix-blend-mode: overlay;
-    pointer-events: none;
-  }
-
-  /*
-   * Illustration du héros — le curseur va DROIT au bouton « Valider » de la carte
-   * Acheter, l'enfonce, puis se retire (même schéma que l'Interac sur « Déposer »).
-   * Il réutilise ooble-dep-press / ooble-dep-btn / ooble-dep-lift ; seul son trajet
-   * lui est propre, calé sur la position du bouton dans cette illustration.
-   */
-  @keyframes ooble-buy-cursor {
-    0% {
-      transform: translate(852px, 456px);
-      opacity: 0;
-      animation-timing-function: cubic-bezier(0.22, 0.7, 0.24, 1);
-    }
-    14% { opacity: 1; }
-    30%, 60% {
-      transform: translate(766px, 404px);
-      opacity: 1;
-      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
-    }
-    84%, 100% {
-      transform: translate(852px, 456px);
-      opacity: 0;
-    }
-  }
-  .ooble-buy-cursor {
-    transform: translate(766px, 404px);
-    animation: ooble-buy-cursor 2.8s linear infinite;
-  }
-
-  /*
-   * Illustration Interac : le curseur glisse vers « Déposer », l'enfonce, le
-   * bouton s'enfonce et la carte Interac se soulève, puis le curseur se retire.
-   * Un seul cycle (2,8 s), les gestes de clic calés pendant le palier où la main
-   * est posée (~30–60 %).
-   */
-  @keyframes ooble-dep-cursor {
-    0% {
-      transform: translate(540px, 470px);
-      opacity: 0;
-      animation-timing-function: cubic-bezier(0.22, 0.7, 0.24, 1); /* décélère en arrivant */
-    }
-    14% { opacity: 1; }
-    30%, 60% {
-      transform: translate(478px, 414px);
-      opacity: 1;
-      animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1); /* repart en douceur */
-    }
-    84%, 100% {
-      transform: translate(540px, 470px);
-      opacity: 0;
-    }
-  }
-  .ooble-dep-cursor {
-    /* Position de repos (mouvement coupé) : posé sur le bouton. */
-    transform: translate(478px, 414px);
-    animation: ooble-dep-cursor 2.8s linear infinite;
-  }
-
-  @keyframes ooble-dep-press {
-    0%, 30% { transform: scale(1); }
-    38% { transform: scale(0.82); }
-    52%, 100% { transform: scale(1); }
-  }
-  .ooble-dep-press {
-    transform-box: fill-box;
-    transform-origin: 20% 10%; /* près du bout de l'index */
-    animation: ooble-dep-press 2.8s cubic-bezier(0.34, 1.2, 0.5, 1) infinite;
-  }
-
-  @keyframes ooble-dep-btn {
-    0%, 32% { transform: translateY(0); }
-    40% { transform: translateY(3px); }
-    54%, 100% { transform: translateY(0); }
-  }
-  .ooble-dep-btn {
-    animation: ooble-dep-btn 2.8s cubic-bezier(0.34, 1.2, 0.5, 1) infinite;
-  }
-
-  @keyframes ooble-dep-lift {
-    0%, 34% {
-      transform: translateY(0);
-      animation-timing-function: cubic-bezier(0.34, 1.4, 0.5, 1);
-    }
-    46%, 66% {
-      transform: translateY(-18px);
-      animation-timing-function: cubic-bezier(0.4, 0, 0.28, 1);
-    }
-    80%, 100% { transform: translateY(0); }
-  }
-  .ooble-dep-lift {
-    animation: ooble-dep-lift 2.8s linear infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .animate-up, .animate-marquee, .animate-page { animation: none; }
-    .ooble-buy-cursor,
-    .ooble-dep-cursor, .ooble-dep-press, .ooble-dep-btn, .ooble-dep-lift {
-      animation: none;
-    }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }
