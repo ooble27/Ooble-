@@ -90,6 +90,26 @@ export async function setMemberRole(userId: string, role: TeamRole): Promise<{ e
   return {};
 }
 
+export async function removeMember(userId: string): Promise<{ error?: string }> {
+  const { data: before } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const previousRoles = (before ?? []).map((r) => r.role);
+
+  const { error } = await supabase.from("user_roles").delete().eq("user_id", userId);
+  if (error) return { error: error.message };
+
+  void logAdminAction({
+    action: "team.remove",
+    entityKind: "team_member",
+    entityId: userId,
+    before: { roles: previousRoles },
+    after: null,
+  });
+  return {};
+}
+
 /**
  * Ajoute un membre à l'équipe par e-mail : attribue un rôle à un compte
  * existant. La personne doit d'abord avoir créé son compte Ooble.
